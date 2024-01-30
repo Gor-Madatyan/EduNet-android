@@ -32,11 +32,6 @@
     the label in the top bar will be replace with search
     field for searching in all communities and available groups
     </string>
-
-    <string name="profile_page_placeholder">
-    there will be the users photo and other related information, such as
-     the communities admin by that user and the groups admin by that user
-    </string>
-
+    <string name="sign_out">sign out</string>
 
 </resources>

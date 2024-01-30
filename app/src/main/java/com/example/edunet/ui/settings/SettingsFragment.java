@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.edunet.databinding.FragmentSearchBinding;
 import com.example.edunet.databinding.FragmentSettingsBinding;
 
 public class SettingsFragment extends Fragment {
