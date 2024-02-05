@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.example.edunet.databinding.FragmentSearchBinding;
 
 public class SearchFragment extends Fragment {
-    FragmentSearchBinding binding;
+    private FragmentSearchBinding binding;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,

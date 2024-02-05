@@ -11,12 +11,12 @@ import androidx.fragment.app.Fragment;
 import com.example.edunet.databinding.FragmentChatsBinding;
 
 public class ChatsFragment extends Fragment {
-    FragmentChatsBinding binding;
+    private FragmentChatsBinding binding;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentChatsBinding.inflate(inflater,container,false);
+        binding = FragmentChatsBinding.inflate(inflater, container, false);
 
         return binding.getRoot();
     }

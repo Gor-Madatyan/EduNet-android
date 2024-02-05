@@ -12,7 +12,7 @@ import com.example.edunet.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment {
 
-     FragmentHomeBinding binding;
+    private FragmentHomeBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

@@ -13,12 +13,12 @@ import com.example.edunet.databinding.FragmentSettingsBinding;
 
 public class SettingsFragment extends Fragment {
 
-    FragmentSettingsBinding binding;
+    private FragmentSettingsBinding binding;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentSettingsBinding.inflate(inflater,container,false);
+        binding = FragmentSettingsBinding.inflate(inflater, container, false);
 
         return binding.getRoot();
     }

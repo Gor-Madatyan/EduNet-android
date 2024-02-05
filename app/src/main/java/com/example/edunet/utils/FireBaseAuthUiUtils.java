@@ -7,8 +7,8 @@ import com.firebase.ui.auth.AuthUI;
 import java.util.Arrays;
 import java.util.List;
 
-public final class AuthUtils {
-    private AuthUtils(){}
+public final class FireBaseAuthUiUtils {
+    private FireBaseAuthUiUtils(){}
 
     public static Intent getIntent(){
 
@@ -21,6 +21,7 @@ public final class AuthUtils {
         return AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
+                .setIsSmartLockEnabled(false)
                 .build();
     }
 }

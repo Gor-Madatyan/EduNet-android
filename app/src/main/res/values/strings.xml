@@ -32,6 +32,8 @@
     the label in the top bar will be replace with search
     field for searching in all communities and available groups
     </string>
-    <string name="sign_out">sign out</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="user_avatar">user avatar</string>
 
 </resources>
