@@ -1,4 +1,4 @@
-package com.example.edunet.utils;
+package com.example.edunet.ui.util;
 
 import android.content.Intent;
 

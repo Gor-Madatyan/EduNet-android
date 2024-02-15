@@ -10,29 +10,39 @@
         app:destination="@id/navigation_settings"
         />
 
+    <action
+        android:id="@+id/action_go_to_profile_update"
+        app:destination="@id/navigation_update_profile"
+        />
+
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.edunet.ui.home.HomeFragment"
+        android:name="com.example.edunet.ui.screen.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/navigation_chats"
-        android:name="com.example.edunet.ui.chats.ChatsFragment"
+        android:name="com.example.edunet.ui.screen.chats.ChatsFragment"
         tools:layout="@layout/fragment_chats"
         android:label="@string/title_chats" />
     <fragment
         android:id="@+id/navigation_search"
-        android:name="com.example.edunet.ui.search.SearchFragment"
+        android:name="com.example.edunet.ui.screen.search.SearchFragment"
         tools:layout="@layout/fragment_search"
         android:label="@string/title_search" />
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.example.edunet.ui.profile.ProfileFragment"
+        android:name="com.example.edunet.ui.screen.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
     <fragment
+        android:id="@+id/navigation_update_profile"
+        android:name="com.example.edunet.ui.screen.profile.update.ProfileUpdateFragment"
+        android:label="@string/title_update_profile"
+        tools:layout="@layout/fragment_profile_update" />
+    <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.example.edunet.ui.settings.SettingsFragment"
+        android:name="com.example.edunet.ui.screen.settings.SettingsFragment"
         tools:layout="@layout/fragment_settings"
         android:label="SettingsFragment" />
 </navigation>

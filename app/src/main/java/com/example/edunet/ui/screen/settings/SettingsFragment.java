@@ -1,4 +1,4 @@
-package com.example.edunet.ui.settings;
+package com.example.edunet.ui.screen.settings;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

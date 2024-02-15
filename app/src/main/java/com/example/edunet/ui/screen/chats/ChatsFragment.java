@@ -1,4 +1,4 @@
-package com.example.edunet.ui.search;
+package com.example.edunet.ui.screen.chats;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,15 +8,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.edunet.databinding.FragmentSearchBinding;
+import com.example.edunet.databinding.FragmentChatsBinding;
 
-public class SearchFragment extends Fragment {
-    private FragmentSearchBinding binding;
+public class ChatsFragment extends Fragment {
+    private FragmentChatsBinding binding;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentSearchBinding.inflate(inflater,container,false);
+        binding = FragmentChatsBinding.inflate(inflater, container, false);
 
         return binding.getRoot();
     }

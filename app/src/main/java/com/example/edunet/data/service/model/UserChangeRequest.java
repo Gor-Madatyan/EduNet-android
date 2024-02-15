@@ -1,37 +1,39 @@
 package com.example.edunet.data.service.model;
 
+import android.net.Uri;
+
 public class UserChangeRequest {
-    private String newName;
-    private String newPhotoUri;
+    private String name;
+    private Uri photo;
 
-    private boolean isNewNameSet = false;
-    private boolean isNewPhotoUriSet = false;
+    private boolean isNameSet = false;
+    private boolean isPhotoSet = false;
 
-    public boolean isNewNameSet() {
-        return isNewNameSet;
+    public boolean isNameSet() {
+        return isNameSet;
     }
 
-    public boolean isNewPhotoUriSet() {
-        return isNewPhotoUriSet;
+    public boolean isPhotoSet() {
+        return isPhotoSet;
     }
 
-    public String getNewName() {
-        return newName;
+    public String getName() {
+        return name;
     }
 
-    public String getNewPhotoUri() {
-        return newPhotoUri;
+    public Uri getPhoto() {
+        return photo;
     }
 
-    public UserChangeRequest setNewName(String name) {
-        newName = name;
-        isNewNameSet = true;
+    public UserChangeRequest setName(String name) {
+        this.name = name;
+        isNameSet = true;
         return this;
     }
 
-    public UserChangeRequest setNewPhotoUri(String photoUri) {
-        newPhotoUri = photoUri;
-        isNewPhotoUriSet = true;
+    public UserChangeRequest setPhoto(Uri photoUri) {
+        photo = photoUri;
+        isPhotoSet = true;
         return this;
     }
 }

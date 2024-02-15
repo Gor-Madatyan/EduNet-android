@@ -8,19 +8,17 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edunet.data.service.AccountService;
+import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserChangeRequest;
-import com.example.edunet.utils.FireBaseAuthUiUtils;
+import com.example.edunet.ui.util.FireBaseAuthUiUtils;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
+import com.firebase.ui.auth.FirebaseUiException;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.Objects;
-
 public class StartUpActivity extends AppCompatActivity {
 
     private final static String TAG = StartUpActivity.class.getSimpleName();
-    private final FirebaseAuth auth = FirebaseAuth.getInstance();
+    private final static AccountService accountService = AccountService.IMPL;
 
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
@@ -29,16 +27,14 @@ public class StartUpActivity extends AppCompatActivity {
 
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
         if (result.getResultCode() == RESULT_OK) {
-            var user = auth.getCurrentUser();
-            assert user != null : "sign in succeeded, the current user must be non-null";
+            User user = accountService.getCurrentUser();
+            assert user != null : AccountService.ErrorMessages.CURRENT_USER_IS_NULL;
 
             if (user.isAnonymous()) {
-                AccountService.IMPL.updateCurrentUser(new UserChangeRequest().setNewName("Anonymous"), e -> {
-                            Log.e(TAG, "User name update failed");
-                            String message = e.getMessage();
-
-                            if (message != null)
-                                Log.e(TAG,message);
+                accountService.updateCurrentUser(new UserChangeRequest().setName("Anonymous"), e -> {
+                            if (e != null) {
+                                Log.e(TAG, "User name update failed", e);
+                            }
                         }
                 );
             }
@@ -46,9 +42,8 @@ public class StartUpActivity extends AppCompatActivity {
         } else {
             IdpResponse response = result.getIdpResponse();
             if (response != null) {
-                var error = response.getError();
-                assert error != null : "error cant be null because sign in failed";
-                Log.e(TAG,Objects.requireNonNullElse(error.getMessage(), "Program Error occurred"));
+                FirebaseUiException error = response.getError();
+                Log.e(TAG, "Sign in/up Error occurred", error);
             }
         }
         finish();
@@ -58,7 +53,7 @@ public class StartUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+        if (accountService.getCurrentUser() == null) {
             signInLauncher.launch(FireBaseAuthUiUtils.getIntent());
             return;
         }
