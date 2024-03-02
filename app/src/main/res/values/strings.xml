@@ -1,6 +1,7 @@
 <resources>
 
     <string name="app_name">EduNet</string>
+
     <string name="title_home">Home</string>
     <string name="title_search">Search</string>
     <string name="title_chats">Chats</string>
@@ -8,31 +9,11 @@
     <string name="title_update_profile">Update Profile</string>
     <string name="title_settings">Settings</string>
 
-    <string name="settings_page_placeholder">
-        there will be all app related settings
-    </string>
+    <string name="settings_page_placeholder">Settings Page</string>
+    <string name="home_page_placeholder">Home Page</string>
+    <string name="chats_page_placeholder">Chats</string>
+    <string name="search_page_placeholder">Search</string>
 
-    <string name="home_page_placeholder">
-    here will be a few shortcuts for user selected communities and groups,
-    all the joined communities and
-    all the joined groups
-    </string>
-
-    <string name="chats_page_placeholder">
-    in this page will be listed the currently active users,
-    currently active groups,
-    recent chats in/with groups/users.
-
-    the label in the top bar will be replace
-    with search field for searching in chats.
-    </string>
-
-    <string name="search_page_placeholder">
-    there will be the recent searched users,
-    recent searched groups and
-    the label in the top bar will be replace with search
-    field for searching in all communities and available groups
-    </string>
     <string name="sign_out">Sign Out</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="user_avatar">User avatar</string>

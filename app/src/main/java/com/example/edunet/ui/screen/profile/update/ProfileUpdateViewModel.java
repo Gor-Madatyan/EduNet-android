@@ -1,70 +1,109 @@
 package com.example.edunet.ui.screen.profile.update;
 
-import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
-import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
+import androidx.work.WorkInfo;
 
-import com.example.edunet.data.service.AccountService;
-import com.example.edunet.data.service.AvatarService;
+import com.example.edunet.R;
+import com.example.edunet.data.service.api.AccountService;
+import com.example.edunet.data.service.impl.account.ProfileManager;
+import com.example.edunet.data.service.impl.account.ProfileTaskManager;
 import com.example.edunet.data.service.model.User;
-import com.example.edunet.data.service.model.UserChangeRequest;
 
+import java.util.Objects;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+
+@HiltViewModel
 public class ProfileUpdateViewModel extends ViewModel {
-
-    private final static AccountService accountService = AccountService.IMPL;
-    private final static MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+    private final AccountService accountService;
+    private final ProfileManager profileManager;
+    private final ProfileTaskManager profileTaskManager;
     private final MutableLiveData<Uri> _userPhoto = new MutableLiveData<>();
     final LiveData<Uri> userPhoto = _userPhoto;
-    private final MutableLiveData<Message> _result = new MutableLiveData<>();
-    final LiveData<Message> result = _result;
-    private final static AvatarService avatarService = AvatarService.IMPL;
+    private final MutableLiveData<Error> _error = new MutableLiveData<>();
+    final LiveData<Error> error = _error;
 
+    @Inject
+    ProfileUpdateViewModel(AccountService accountService,
+                           ProfileTaskManager profileTaskManager,
+                           ProfileManager profileManager) {
+        this.accountService = accountService;
+        this.profileTaskManager = profileTaskManager;
+        this.profileManager = profileManager;
 
-    {
-        _userPhoto.setValue(accountService.getCurrentUser().photo());
+        User user = accountService.getCurrentUser();
+        assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+
+        _userPhoto.setValue(user.photo());
     }
 
     String getInitialName() {
         User user = accountService.getCurrentUser();
-        assert user != null : AccountService.ErrorMessages.CURRENT_USER_IS_NULL;
+        assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
         return user.name();
     }
 
-    void updateProfile(String name, ContentResolver contentResolver) {
-        Uri photo = userPhoto.getValue();
-
-        UserChangeRequest request = new UserChangeRequest();
-        request.setName(name);
-
-        avatarService.saveAvatarOfCurrentUser(
-                photo,
-                photo == null ? null : '.' + mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(photo)),
-                uri -> _updateProfile(request.setPhoto(uri)),
-                v -> _updateProfile(request),
-                e -> _result.setValue(new Message(true, e.getMessage()))
-        );
-
+    Uri getInitialAvatar() {
+        User user = accountService.getCurrentUser();
+        assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+        return user.photo();
     }
 
-    private void _updateProfile(UserChangeRequest request) {
-        accountService.updateCurrentUser(request,
-                e -> {
-                    boolean haveException = e != null;
-                    _result.setValue(new Message(haveException, !haveException ? null : e.getMessage()));
+    void updateProfile(@NonNull String name, @NonNull Context context) {
+
+        Uri avatar = userPhoto.getValue();
+        Uri currentAvatar = getInitialAvatar();
+
+        ProfileManager.UserUpdateRequest request = new ProfileManager.UserUpdateRequest()
+                .setName(name);
+
+        if (!Objects.equals(avatar, currentAvatar))
+            request.setAvatar(avatar);
+
+       if (!profileManager.validateUserUpdate(request)) {
+            _error.setValue(new Error(R.string.error_invalid_profile_update_request));
+            return;
+        }
+
+        LiveData<WorkInfo> workInfoLiveData = profileTaskManager.startProfileUpdateTask(request);
+
+        _error.setValue(null);
+
+        Observer<WorkInfo> observer = new Observer<>() {
+            @Override
+            public void onChanged(WorkInfo workInfo) {
+                WorkInfo.State state = workInfo.getState();
+
+                if(state.isFinished()) {
+                    workInfoLiveData.removeObserver(this);
+                    if (state == WorkInfo.State.FAILED)
+                        Toast.makeText(context, R.string.error_profile_update, Toast.LENGTH_SHORT).show();
                 }
-        );
+            }
+        };
+
+        workInfoLiveData.observeForever(observer);
     }
 
-    void setTemporaryImage(Uri uri) {
+
+    void setTemporaryImage(@Nullable Uri uri) {
         _userPhoto.setValue(uri);
     }
 
 }
 
-record Message(boolean haveError, @Nullable String message) {
+record Error(@StringRes int messageId) {
 }

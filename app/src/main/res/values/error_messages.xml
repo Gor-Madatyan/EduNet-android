@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_sign_in">Sign in error occurred</string>
+    <string name="error_invalid_profile_update_request">Invalid profile update request</string>
+    <string name="error_invalid_photo">Provided invalid photo</string>
+    <string name="error_cant_upload_photo">Can\'t upload photo</string>
+    <string name="error_cant_access_photo">Can\'t access photo</string>
+    <string name="error_profile_update">Failed to update profile</string>
+</resources>

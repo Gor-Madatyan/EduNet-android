@@ -11,17 +11,22 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
 import com.example.edunet.R;
 import com.example.edunet.StartUpActivity;
 import com.example.edunet.databinding.FragmentProfileBinding;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
-    private NavController navController;
+    @Inject
+    NavController navController;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,10 +46,9 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        navController=Navigation.findNavController(view);
 
         binding.toolbar.setOnMenuItemClickListener(item -> {
-            int id=item.getItemId();
+            int id = item.getItemId();
 
             if (id == R.id.action_sign_out) {
                 viewModel.signOut();
