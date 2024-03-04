@@ -53,9 +53,11 @@ public class ProfileUpdateFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         binding.editName.setText(viewModel.getInitialName());
+        binding.editBio.setText(viewModel.getInitialBio());
 
         binding.submit.setOnClickListener(v -> {
             String newName = binding.editName.getText().toString();
+            String newBio = binding.editBio.getText().toString();
             Uri photo = viewModel.userPhoto.getValue();
 
             if (photo != null && !photo.equals(viewModel.getInitialAvatar()))
@@ -64,7 +66,7 @@ public class ProfileUpdateFragment extends Fragment {
                 );
 
 
-            viewModel.updateProfile(newName, requireContext().getApplicationContext());
+            viewModel.updateProfile(newName, newBio, requireContext().getApplicationContext());
         });
 
         binding.avatar.setOnClickListener(v ->

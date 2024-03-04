@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edunet.data.service.api.AccountService;
@@ -32,10 +33,13 @@ public class StartUpActivity extends AppCompatActivity {
             this::onSignInResult
     );
 
-    private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
+    private void onSignInResult(@NonNull FirebaseAuthUIAuthenticationResult result) {
+        IdpResponse response = result.getIdpResponse();
+
         if (result.getResultCode() == RESULT_OK) {
             User user = accountService.getCurrentUser();
             assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+            assert response != null;
 
             if (user.isAnonymous()) {
                 accountService.updateCurrentUser(new UserUpdateRequest().setName("Anonymous"), e -> {
@@ -45,9 +49,9 @@ public class StartUpActivity extends AppCompatActivity {
                         }
                 );
             }
+
             startActivity(new Intent(this, MainActivity.class));
         } else {
-            IdpResponse response = result.getIdpResponse();
             if (response != null) {
                 FirebaseUiException error = response.getError();
                 assert error != null;

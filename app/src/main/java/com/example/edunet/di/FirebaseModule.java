@@ -1,6 +1,7 @@
 package com.example.edunet.di;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
 import dagger.Module;
@@ -12,12 +13,17 @@ import dagger.hilt.components.SingletonComponent;
 @Module
 public class FirebaseModule {
     @Provides
-    FirebaseAuth provideAuth(){
+    FirebaseAuth provideAuth() {
         return FirebaseAuth.getInstance();
     }
 
     @Provides
-    FirebaseStorage provideStorage(){
+    FirebaseStorage provideStorage() {
         return FirebaseStorage.getInstance();
+    }
+
+    @Provides
+    FirebaseFirestore provideFireStore() {
+        return FirebaseFirestore.getInstance();
     }
 }

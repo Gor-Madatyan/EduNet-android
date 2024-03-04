@@ -56,19 +56,27 @@ public class ProfileUpdateViewModel extends ViewModel {
         return user.name();
     }
 
+    String getInitialBio() {
+        User user = accountService.getCurrentUser();
+        assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+        return user.bio();
+    }
+
+
     Uri getInitialAvatar() {
         User user = accountService.getCurrentUser();
         assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
         return user.photo();
     }
 
-    void updateProfile(@NonNull String name, @NonNull Context context) {
+    void updateProfile(@NonNull String name, @NonNull String bio, @NonNull Context context) {
 
         Uri avatar = userPhoto.getValue();
         Uri currentAvatar = getInitialAvatar();
 
         ProfileManager.UserUpdateRequest request = new ProfileManager.UserUpdateRequest()
-                .setName(name);
+                .setName(name)
+                .setBio(bio);
 
         if (!Objects.equals(avatar, currentAvatar))
             request.setAvatar(avatar);

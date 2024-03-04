@@ -2,6 +2,8 @@ package com.example.edunet.ui.screen.profile;
 
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
@@ -25,7 +27,7 @@ public class ProfileViewModel extends ViewModel {
         _uiState.addSource(accountService.observeCurrentUser(),
                 user -> {
                     if (user != null)
-                        _uiState.setValue(new ProfileUiState(user.name(), user.photo()));
+                        _uiState.setValue(new ProfileUiState(user.name(), user.bio(), user.photo()));
                 });
     }
 
@@ -35,5 +37,5 @@ public class ProfileViewModel extends ViewModel {
 
 }
 
-record ProfileUiState(String userName, Uri userPhoto) {
+record ProfileUiState(@NonNull String userName, @Nullable String bio ,@Nullable Uri userPhoto) {
 }

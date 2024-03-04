@@ -8,6 +8,8 @@
     <string name="title_profile">Profile</string>
     <string name="title_update_profile">Update Profile</string>
     <string name="title_settings">Settings</string>
+    <string name="action_settings">Settings</string>
+
 
     <string name="settings_page_placeholder">Settings Page</string>
     <string name="home_page_placeholder">Home Page</string>
@@ -18,5 +20,7 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="user_avatar">User avatar</string>
     <string name="name">Name</string>
+    <string name="bio">Bio</string>
+    <string name="default_bio">Nothing to say about me</string>
 
 </resources>

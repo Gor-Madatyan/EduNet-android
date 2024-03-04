@@ -5,6 +5,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.edunet.data.service.impl.AccountServiceImpl;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,8 +33,10 @@ public final class FirebaseTypesConversionsUtils {
     }
 
     @Nullable
-    public static User userFromFireBaseUser(FirebaseUser user) {
+    public static User userFromFireBaseUser(@Nullable FirebaseUser user, @Nullable AccountServiceImpl.UserMetadata metadata) {
         if (user == null) return null;
-        return new User(user.getUid(), user.getDisplayName(), user.getPhotoUrl(), user.isAnonymous());
+
+        if(metadata == null) metadata = new AccountServiceImpl.UserMetadata();
+        return new User(user.getUid(), user.getDisplayName(), user.getPhotoUrl(), user.isAnonymous(), metadata.getBio());
     }
 }

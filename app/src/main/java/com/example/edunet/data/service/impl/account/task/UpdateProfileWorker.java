@@ -22,8 +22,10 @@ import dagger.assisted.AssistedInject;
 public class UpdateProfileWorker extends ListenableWorker {
 
     public final static String NAME_KEY = "NAME";
+    public final static String BIO_KEY = "BIO";
     public final static String AVATAR_KEY = "AVATAR";
     public final static String IS_NAME_SET_KEY = "IS_NAME_SET";
+    public final static String IS_BIO_SET_KEY = "IS_BIO_SET";
     public final static String IS_AVATAR_SET_KEY = "IS_AVATAR_SET";
 
     private final ProfileManager profileManager;
@@ -57,6 +59,7 @@ public class UpdateProfileWorker extends ListenableWorker {
         Data data = getInputData();
         ProfileManager.UserUpdateRequest request = new ProfileManager.UserUpdateRequest();
         String name = data.getString(NAME_KEY);
+        String bio = data.getString(BIO_KEY);
         String avatar = data.getString(AVATAR_KEY);
 
         if (data.getBoolean(IS_NAME_SET_KEY, false))
@@ -65,18 +68,24 @@ public class UpdateProfileWorker extends ListenableWorker {
         if (data.getBoolean(IS_AVATAR_SET_KEY, false))
             request.setAvatar(avatar == null ? null : Uri.parse(avatar));
 
+        if (data.getBoolean(IS_BIO_SET_KEY, false))
+            request.setBio(bio);
+
         return request;
     }
 
     public static Data getDataFromUserUpdateRequest(ProfileManager.UserUpdateRequest request) {
         Uri avatar = request.getAvatar();
         String name = request.getName();
+        String bio = request.getBio();
 
         return new Data.Builder()
                 .putBoolean(IS_NAME_SET_KEY, request.isNameSet())
                 .putBoolean(IS_AVATAR_SET_KEY, request.isAvatarSet())
+                .putBoolean(IS_BIO_SET_KEY, request.isBioSet())
 
                 .putString(NAME_KEY, name)
+                .putString(BIO_KEY, bio)
                 .putString(AVATAR_KEY, avatar == null ? null : avatar.toString()).build();
     }
 

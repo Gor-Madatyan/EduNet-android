@@ -41,6 +41,19 @@ public final class ProfileManager {
             return baseRequest.isNameSet();
         }
 
+        public boolean isBioSet() {
+            return baseRequest.isBioSet();
+        }
+
+        public UserUpdateRequest setBio(String bio) {
+            baseRequest.setBio(bio);
+            return this;
+        }
+
+        public String getBio() {
+            return baseRequest.getBio();
+        }
+
         public UserUpdateRequest setAvatar(Uri avatar) {
             baseRequest.setAvatar(avatar);
             return this;
@@ -72,6 +85,7 @@ public final class ProfileManager {
         com.example.edunet.data.service.model.UserUpdateRequest endRequest = new com.example.edunet.data.service.model.UserUpdateRequest();
 
         if (request.isNameSet()) endRequest.setName(request.getName());
+        if (request.isBioSet()) endRequest.setBio(request.getBio());
         if (request.isAvatarSet() && request.getAvatar() == null) endRequest.setAvatar(null);
 
         if (!request.isAvatarSet() || request.getAvatar() == null) {
@@ -89,6 +103,7 @@ public final class ProfileManager {
     public boolean validateUserUpdate(@NonNull UserUpdateRequest request) {
         com.example.edunet.data.service.model.UserUpdateRequest baseRequest = new com.example.edunet.data.service.model.UserUpdateRequest();
         if (request.isNameSet()) baseRequest.setName(request.getName());
+        if (request.isBioSet()) baseRequest.setBio(request.getBio());
 
         return (accountService.validateUserUpdate(baseRequest) &&
                 (request.getAvatar() == null || avatarService.validateAvatar(request.getAvatar())));

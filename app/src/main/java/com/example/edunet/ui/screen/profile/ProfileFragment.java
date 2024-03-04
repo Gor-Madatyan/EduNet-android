@@ -17,6 +17,8 @@ import com.example.edunet.R;
 import com.example.edunet.StartUpActivity;
 import com.example.edunet.databinding.FragmentProfileBinding;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -65,6 +67,7 @@ public class ProfileFragment extends Fragment {
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
             binding.toolbarLayout.setTitle(state.userName());
+            binding.bio.setText(Objects.requireNonNullElse(state.bio(),getString(R.string.default_bio)));
             Glide.with(this)
                     .load(state.userPhoto())
                     .placeholder(R.drawable.ic_default_user)

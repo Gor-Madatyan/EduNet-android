@@ -27,5 +27,4 @@ public interface AccountService {
     boolean validateUserUpdate(@NonNull UserUpdateRequest request);
 
     void signOut();
-
 }
