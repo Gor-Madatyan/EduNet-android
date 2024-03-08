@@ -1,4 +1,4 @@
-package com.example.edunet.data.service.api;
+package com.example.edunet.data.service;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

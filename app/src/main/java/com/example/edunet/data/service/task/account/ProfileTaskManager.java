@@ -1,4 +1,4 @@
-package com.example.edunet.data.service.impl.account;
+package com.example.edunet.data.service.task.account;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -7,7 +7,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import com.example.edunet.data.service.impl.account.task.UpdateProfileWorker;
+import com.example.edunet.data.service.model.UserUpdateRequest;
+import com.example.edunet.data.service.task.account.worker.UpdateProfileWorker;
 
 import javax.inject.Inject;
 
@@ -21,7 +22,7 @@ public final class ProfileTaskManager {
         this.workManager = workManager;
     }
 
-    public LiveData<WorkInfo> startProfileUpdateTask(@NonNull ProfileManager.UserUpdateRequest request) {
+    public LiveData<WorkInfo> startProfileUpdateTask(@NonNull UserUpdateRequest request) {
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(UpdateProfileWorker.class)
                 .setInputData(UpdateProfileWorker.getDataFromUserUpdateRequest(request))
                 .build();

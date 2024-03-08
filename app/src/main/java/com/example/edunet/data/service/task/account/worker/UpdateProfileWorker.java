@@ -1,4 +1,4 @@
-package com.example.edunet.data.service.impl.account.task;
+package com.example.edunet.data.service.task.account.worker;
 
 import android.content.Context;
 import android.net.Uri;
@@ -11,8 +11,9 @@ import androidx.work.Data;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
+import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.exception.ServiceException;
-import com.example.edunet.data.service.impl.account.ProfileManager;
+import com.example.edunet.data.service.model.UserUpdateRequest;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import dagger.assisted.Assisted;
@@ -28,21 +29,21 @@ public class UpdateProfileWorker extends ListenableWorker {
     public final static String IS_BIO_SET_KEY = "IS_BIO_SET";
     public final static String IS_AVATAR_SET_KEY = "IS_AVATAR_SET";
 
-    private final ProfileManager profileManager;
+    private final AccountService accountService;
 
     @AssistedInject
     UpdateProfileWorker(
             @Assisted @NonNull Context context,
             @Assisted @NonNull WorkerParameters workerParams,
-            ProfileManager profileManager) {
+            AccountService accountService) {
         super(context, workerParams);
-        this.profileManager = profileManager;
+        this.accountService = accountService;
     }
 
     @NonNull
     @Override
     public ListenableFuture<Result> startWork() {
-        ProfileManager.UserUpdateRequest request = getUserUpdateRequest();
+        UserUpdateRequest request = getUserUpdateRequest();
 
         return CallbackToFutureAdapter.getFuture(completer -> {
             Consumer<ServiceException> callback = e -> {
@@ -50,14 +51,14 @@ public class UpdateProfileWorker extends ListenableWorker {
                 else completer.set(Result.success());
             };
 
-            profileManager.updateProfile(request, callback);
+            accountService.updateCurrentUser(request, callback);
             return callback;
         });
     }
 
-    private ProfileManager.UserUpdateRequest getUserUpdateRequest() {
+    private UserUpdateRequest getUserUpdateRequest() {
         Data data = getInputData();
-        ProfileManager.UserUpdateRequest request = new ProfileManager.UserUpdateRequest();
+        UserUpdateRequest request = new UserUpdateRequest();
         String name = data.getString(NAME_KEY);
         String bio = data.getString(BIO_KEY);
         String avatar = data.getString(AVATAR_KEY);
@@ -74,7 +75,7 @@ public class UpdateProfileWorker extends ListenableWorker {
         return request;
     }
 
-    public static Data getDataFromUserUpdateRequest(ProfileManager.UserUpdateRequest request) {
+    public static Data getDataFromUserUpdateRequest(UserUpdateRequest request) {
         Uri avatar = request.getAvatar();
         String name = request.getName();
         String bio = request.getBio();

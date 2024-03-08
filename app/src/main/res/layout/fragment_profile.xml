@@ -65,8 +65,43 @@
                 android:maxWidth="300dp"
                 android:textColor="@color/text"
                 android:textSize="20sp" />
+
+            <LinearLayout
+                android:id="@+id/owned_communities_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="14dp"
+                    android:fontFamily="serif"
+                    android:text="@string/owner"
+                    android:textColor="@color/text"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/owned_communities"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:layout_marginStart="20dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            </LinearLayout>
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addCommunity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="25dp"
+        android:contentDescription="@string/add_community"
+        android:src="@drawable/ic_group_add_24dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

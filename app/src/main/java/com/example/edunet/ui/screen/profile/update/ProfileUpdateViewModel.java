@@ -14,10 +14,10 @@ import androidx.lifecycle.ViewModel;
 import androidx.work.WorkInfo;
 
 import com.example.edunet.R;
-import com.example.edunet.data.service.api.AccountService;
-import com.example.edunet.data.service.impl.account.ProfileManager;
-import com.example.edunet.data.service.impl.account.ProfileTaskManager;
+import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.model.User;
+import com.example.edunet.data.service.model.UserUpdateRequest;
+import com.example.edunet.data.service.task.account.ProfileTaskManager;
 
 import java.util.Objects;
 
@@ -29,25 +29,22 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class ProfileUpdateViewModel extends ViewModel {
     private final AccountService accountService;
-    private final ProfileManager profileManager;
     private final ProfileTaskManager profileTaskManager;
-    private final MutableLiveData<Uri> _userPhoto = new MutableLiveData<>();
-    final LiveData<Uri> userPhoto = _userPhoto;
+    private final MutableLiveData<Uri> _avatar = new MutableLiveData<>();
+    final LiveData<Uri> avatar = _avatar;
     private final MutableLiveData<Error> _error = new MutableLiveData<>();
     final LiveData<Error> error = _error;
 
     @Inject
     ProfileUpdateViewModel(AccountService accountService,
-                           ProfileTaskManager profileTaskManager,
-                           ProfileManager profileManager) {
-        this.accountService = accountService;
+                           ProfileTaskManager profileTaskManager) {
         this.profileTaskManager = profileTaskManager;
-        this.profileManager = profileManager;
+        this.accountService = accountService;
 
         User user = accountService.getCurrentUser();
         assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
 
-        _userPhoto.setValue(user.photo());
+        _avatar.setValue(user.photo());
     }
 
     String getInitialName() {
@@ -71,17 +68,17 @@ public class ProfileUpdateViewModel extends ViewModel {
 
     void updateProfile(@NonNull String name, @NonNull String bio, @NonNull Context context) {
 
-        Uri avatar = userPhoto.getValue();
+        Uri avatar = this.avatar.getValue();
         Uri currentAvatar = getInitialAvatar();
 
-        ProfileManager.UserUpdateRequest request = new ProfileManager.UserUpdateRequest()
+        UserUpdateRequest request = new UserUpdateRequest()
                 .setName(name)
                 .setBio(bio);
 
         if (!Objects.equals(avatar, currentAvatar))
             request.setAvatar(avatar);
 
-       if (!profileManager.validateUserUpdate(request)) {
+       if (!accountService.validateUserUpdate(request)) {
             _error.setValue(new Error(R.string.error_invalid_profile_update_request));
             return;
         }
@@ -107,8 +104,8 @@ public class ProfileUpdateViewModel extends ViewModel {
     }
 
 
-    void setTemporaryImage(@Nullable Uri uri) {
-        _userPhoto.setValue(uri);
+    void setAvatar(@Nullable Uri uri) {
+        _avatar.setValue(uri);
     }
 
 }

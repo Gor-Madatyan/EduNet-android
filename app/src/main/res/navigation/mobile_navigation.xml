@@ -34,7 +34,11 @@
         android:id="@+id/navigation_profile"
         android:name="com.example.edunet.ui.screen.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_navigation_profile_to_addCommunityFragment"
+            app:destination="@id/addCommunityFragment" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_update_profile"
         android:name="com.example.edunet.ui.screen.profile.update.ProfileUpdateFragment"
@@ -45,4 +49,9 @@
         android:name="com.example.edunet.ui.screen.settings.SettingsFragment"
         tools:layout="@layout/fragment_settings"
         android:label="SettingsFragment" />
+    <fragment
+        android:id="@+id/addCommunityFragment"
+        android:name="com.example.edunet.ui.screen.addcommunity.AddCommunityFragment"
+        tools:layout="@layout/fragment_add_community"
+        android:label="@string/add_community" />
 </navigation>

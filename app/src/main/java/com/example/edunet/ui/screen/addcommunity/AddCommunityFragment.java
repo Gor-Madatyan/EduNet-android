@@ -1,4 +1,4 @@
-package com.example.edunet.ui.screen.profile.update;
+package com.example.edunet.ui.screen.addcommunity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -18,31 +18,31 @@ import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
 import com.example.edunet.R;
-import com.example.edunet.databinding.FragmentProfileUpdateBinding;
+import com.example.edunet.databinding.FragmentAddCommunityBinding;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class ProfileUpdateFragment extends Fragment {
+public class AddCommunityFragment extends Fragment {
+
+    private AddCommunityViewModel viewModel;
+    private FragmentAddCommunityBinding binding;
     private NavController navController;
-    private ProfileUpdateViewModel viewModel;
-    private FragmentProfileUpdateBinding binding;
 
     private final ActivityResultLauncher<String[]> mediaPickerLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(),
             uri -> viewModel.setAvatar(uri)
     );
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(ProfileUpdateViewModel.class);
+        viewModel = new ViewModelProvider(this).get(AddCommunityViewModel.class);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentProfileUpdateBinding.inflate(inflater, container, false);
+        binding = FragmentAddCommunityBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -51,39 +51,36 @@ public class ProfileUpdateFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
 
-        binding.editName.setText(viewModel.getInitialName());
-        binding.editBio.setText(viewModel.getInitialBio());
+        binding.avatar.setOnClickListener(v -> mediaPickerLauncher.launch(new String[]{"image/*"}));
 
-        binding.submit.setOnClickListener(v -> {
-            String newName = binding.editName.getText().toString();
-            String newBio = binding.editBio.getText().toString();
-            Uri photo = viewModel.avatar.getValue();
-
-            if (photo != null && !photo.equals(viewModel.getInitialAvatar()))
-                requireActivity().getContentResolver().takePersistableUriPermission(photo,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                );
-
-
-            viewModel.updateProfile(newName, newBio, requireContext().getApplicationContext());
-        });
-
-        binding.avatar.setOnClickListener(v ->
-                mediaPickerLauncher.launch(new String[]{"image/*"})
+        viewModel.avatar.observe(getViewLifecycleOwner(), uri ->
+                Glide.with(this)
+                        .load(uri)
+                        .placeholder(R.drawable.ic_default_group)
+                        .circleCrop()
+                        .into(binding.avatar)
         );
 
-        viewModel.avatar.observe(getViewLifecycleOwner(),
-                photo -> Glide.with(this)
-                        .load(photo)
-                        .placeholder(R.drawable.ic_default_user)
-                        .circleCrop()
-                        .into(binding.avatar));
+        viewModel.error.observe(getViewLifecycleOwner(), e -> {
+            if (e == null) {
+                navController.navigateUp();
+                return;
+            }
 
-        viewModel.error.observe(getViewLifecycleOwner(), error -> {
-            if (error != null)
-                binding.error.setText(getString(error.messageId()));
-            else navController.navigateUp();
+            binding.error.setText(e.messageId());
         });
-    }
 
+        binding.submit.setOnClickListener(v -> {
+            String name = binding.editName.getText().toString();
+            String description = binding.editDescription.getText().toString();
+            Uri photo = viewModel.avatar.getValue();
+
+           if (photo != null)
+                requireActivity().getContentResolver().takePersistableUriPermission(photo,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            viewModel.createCommunity(name, description, requireContext().getApplicationContext());
+        });
+
+    }
 }

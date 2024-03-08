@@ -13,10 +13,8 @@ public final class FireBaseAuthUiUtils {
     public static Intent getIntent(){
 
         List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
                 new AuthUI.IdpConfig.GoogleBuilder().build(),
-                new AuthUI.IdpConfig.AnonymousBuilder().build()
-                );
+                new AuthUI.IdpConfig.EmailBuilder().build());
 
         return AuthUI.getInstance()
                 .createSignInIntentBuilder()

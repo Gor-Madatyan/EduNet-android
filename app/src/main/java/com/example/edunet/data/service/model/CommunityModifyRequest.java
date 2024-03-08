@@ -2,24 +2,20 @@ package com.example.edunet.data.service.model;
 
 import android.net.Uri;
 
-
-/**
- * User update request that receives optional name and local avatar uri to update user profile
- */
-public class UserUpdateRequest {
+public class CommunityModifyRequest {
     private String name;
-    private String bio;
+    private String description;
     private Uri avatar;
 
     private boolean isNameSet = false;
-    private boolean isBioSet = false;
+    private boolean isDescriptionSet = false;
     private boolean isAvatarSet = false;
 
     public boolean isNameSet() {
         return isNameSet;
     }
 
-    public UserUpdateRequest setName(String name) {
+    public CommunityModifyRequest setName(String name) {
         this.name = name;
         isNameSet = true;
         return this;
@@ -29,25 +25,25 @@ public class UserUpdateRequest {
         return name;
     }
 
-    public boolean isBioSet() {
-        return isBioSet;
+    public boolean isDescriptionSet() {
+        return isDescriptionSet;
     }
 
-    public UserUpdateRequest setBio(String bio) {
-        this.bio = bio;
-        isBioSet = true;
+    public CommunityModifyRequest setDescription(String description) {
+        this.description = description;
+        isDescriptionSet = true;
         return this;
     }
 
-    public String getBio() {
-        return bio;
+    public String getDescription() {
+        return description;
     }
 
     public boolean isAvatarSet() {
         return isAvatarSet;
     }
 
-    public UserUpdateRequest setAvatar(Uri avatar) {
+    public CommunityModifyRequest setAvatar(Uri avatar) {
         this.avatar = avatar;
         isAvatarSet = true;
         return this;

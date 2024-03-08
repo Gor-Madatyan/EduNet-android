@@ -8,9 +8,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.edunet.data.service.api.AccountService;
+import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.model.User;
-import com.example.edunet.data.service.model.UserUpdateRequest;
 import com.example.edunet.ui.util.FireBaseAuthUiUtils;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.FirebaseUiException;
@@ -40,15 +39,6 @@ public class StartUpActivity extends AppCompatActivity {
             User user = accountService.getCurrentUser();
             assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
             assert response != null;
-
-            if (user.isAnonymous()) {
-                accountService.updateCurrentUser(new UserUpdateRequest().setName("Anonymous"), e -> {
-                            if (e != null) {
-                                Log.e(TAG, e.toString());
-                            }
-                        }
-                );
-            }
 
             startActivity(new Intent(this, MainActivity.class));
         } else {

@@ -19,8 +19,13 @@
     <string name="sign_out">Sign Out</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="user_avatar">User avatar</string>
+    <string name="add_community">Add community</string>
     <string name="name">Name</string>
     <string name="bio">Bio</string>
     <string name="default_bio">Nothing to say about me</string>
+    <string name="community_name">Name</string>
+    <string name="community_description">Description</string>
+    <string name="owner">Owner</string>
+    <string name="community_avatar">Community avatar</string>
 
 </resources>

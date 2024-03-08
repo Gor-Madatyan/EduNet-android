@@ -1,4 +1,4 @@
-package com.example.edunet.data.service.util.firebase;
+package com.example.edunet.data.service.util.firebase.typeconversion;
 
 import android.net.Uri;
 
@@ -6,14 +6,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.edunet.data.service.impl.AccountServiceImpl;
+import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-public final class FirebaseTypesConversionsUtils {
+public final class FirebaseTypeConversionUtils {
 
-    private FirebaseTypesConversionsUtils(){}
+    private FirebaseTypeConversionUtils(){}
 
     @NonNull
     public static UserProfileChangeRequest FireBaseUserProfileChangeRequestFromAbstractUserUpdateRequest(@NonNull UserUpdateRequest abstractRequest) {
@@ -33,10 +34,14 @@ public final class FirebaseTypesConversionsUtils {
     }
 
     @Nullable
-    public static User userFromFireBaseUser(@Nullable FirebaseUser user, @Nullable AccountServiceImpl.UserMetadata metadata) {
+    public static User userFromFireBaseUser(@Nullable FirebaseUser user, @Nullable AccountServiceImpl.ProcessedUserMetadata metadata) {
         if (user == null) return null;
+        if(metadata == null) metadata = AccountServiceImpl.ProcessedUserMetadata.getPlaceholder();
 
-        if(metadata == null) metadata = new AccountServiceImpl.UserMetadata();
-        return new User(user.getUid(), user.getDisplayName(), user.getPhotoUrl(), user.isAnonymous(), metadata.getBio());
+        return new User(user.getUid(),
+                user.getDisplayName(),
+                user.getPhotoUrl(),
+                metadata.getBio(),
+                metadata.getOwnedCommunities().toArray(new Community[0]));
     }
 }
