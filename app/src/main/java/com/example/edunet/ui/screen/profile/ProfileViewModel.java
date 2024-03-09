@@ -14,8 +14,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class ProfileViewModel extends ViewModel {
     private final AccountService accountService;
-    private final MediatorLiveData<ProfileUiState> _uiState = new MediatorLiveData<>();
-    final LiveData<ProfileUiState> uiState = _uiState;
+    private final MediatorLiveData<UiState> _uiState = new MediatorLiveData<>();
+    final LiveData<UiState> uiState = _uiState;
 
     @Inject
     ProfileViewModel(AccountService accountService) {
@@ -24,7 +24,7 @@ public class ProfileViewModel extends ViewModel {
         _uiState.addSource(accountService.observeCurrentUser(),
                 user -> {
                     if (user != null)
-                        _uiState.setValue(new ProfileUiState(user));
+                        _uiState.setValue(new UiState(user));
                 });
     }
 
@@ -34,5 +34,5 @@ public class ProfileViewModel extends ViewModel {
 
 }
 
-record ProfileUiState(User user) {
+record UiState(User user) {
 }

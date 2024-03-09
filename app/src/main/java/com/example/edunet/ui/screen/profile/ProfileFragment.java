@@ -48,7 +48,6 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
-
         binding.toolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
 
@@ -58,7 +57,7 @@ public class ProfileFragment extends Fragment {
                 requireActivity().finish();
                 return true;
             } else if (id == R.id.action_edit_profile) {
-                navController.navigate(R.id.action_go_to_profile_update);
+                navController.navigate(R.id.action_navigation_profile_to_profileUpdateFragment);
                 return true;
             }
 

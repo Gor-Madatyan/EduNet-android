@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
+import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -112,12 +113,12 @@ public final class AccountServiceImpl implements AccountService {
     public static class ProcessedUserMetadata {
         private String bio;
 
-        private List<Community> ownedCommunities;
+        private List<Pair<String, Community>> ownedCommunities;
 
         public ProcessedUserMetadata() {
         }
 
-        public ProcessedUserMetadata(String bio, List<Community> ownedCommunities) {
+        public ProcessedUserMetadata(String bio, List<Pair<String, Community>> ownedCommunities) {
             this.bio = bio;
             this.ownedCommunities = ownedCommunities;
         }
@@ -126,7 +127,7 @@ public final class AccountServiceImpl implements AccountService {
             return new ProcessedUserMetadata(null, new ArrayList<>());
         }
 
-        public List<Community> getOwnedCommunities() {
+        public List<Pair<String, Community>> getOwnedCommunities() {
             return ownedCommunities;
         }
 
@@ -289,8 +290,9 @@ public final class AccountServiceImpl implements AccountService {
         List<String> rawOwnedCommunities = rawMetadata.ownedCommunities;
 
         communityUtils.loadCommunities(rawOwnedCommunities,
-                parsedCommunities -> onSuccess.accept(new ProcessedUserMetadata(bio, parsedCommunities))
-                , onFailure);
+                parsedCommunities ->
+                        onSuccess.accept(new ProcessedUserMetadata(bio, parsedCommunities)),
+                onFailure);
 
     }
 

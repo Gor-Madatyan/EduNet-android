@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
-            navController.navigate(R.id.action_go_to_settings);
+            navController.navigate(R.id.action_global_settingsFragment);
             return true;
         }
 

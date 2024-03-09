@@ -4,9 +4,9 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import com.example.edunet.data.service.impl.AccountServiceImpl;
-import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,6 +33,7 @@ public final class FirebaseTypeConversionUtils {
         return request.build();
     }
 
+    @SuppressWarnings("unchecked")
     @Nullable
     public static User userFromFireBaseUser(@Nullable FirebaseUser user, @Nullable AccountServiceImpl.ProcessedUserMetadata metadata) {
         if (user == null) return null;
@@ -42,6 +43,6 @@ public final class FirebaseTypeConversionUtils {
                 user.getDisplayName(),
                 user.getPhotoUrl(),
                 metadata.getBio(),
-                metadata.getOwnedCommunities().toArray(new Community[0]));
+                metadata.getOwnedCommunities().toArray(new Pair[0]));
     }
 }

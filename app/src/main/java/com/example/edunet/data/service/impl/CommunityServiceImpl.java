@@ -4,6 +4,8 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
+import androidx.core.util.Pair;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.example.edunet.R;
 import com.example.edunet.data.service.AccountService;
@@ -17,10 +19,12 @@ import com.example.edunet.data.service.util.firebase.StorageUtils;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -41,11 +45,15 @@ public class CommunityServiceImpl implements CommunityService {
         }
 
         public void loadCommunities(@NonNull List<String> communityIds,
-                                    @NonNull Consumer<List<Community>> onSuccess,
+                                    @NonNull Consumer<List<Pair<String, Community>>> onSuccess,
                                     @NonNull Consumer<ServiceException> onFailure) {
             List<DocumentReference> documents = communityIds.stream().map(communityCollection::document).collect(Collectors.toList());
 
-            FirestoreUtils.loadData(Community.class, documents, onSuccess,
+            FirestoreUtils.loadData(Community.class, documents,
+                    map -> onSuccess.accept(map.stream()
+                            .map(community -> new Pair<>(community.first.getId(), community.second))
+                            .collect(Collectors.toList())),
+
                     e -> onFailure.accept(new ServiceException(R.string.error_cant_load_community, e)));
         }
     }
@@ -118,6 +126,23 @@ public class CommunityServiceImpl implements CommunityService {
         request.setDescription(description = request.getDescription().trim());
 
         return !name.isEmpty() && !description.isEmpty();
+    }
+
+    @Override
+    public void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id, @NonNull BiConsumer<Community, ServiceException> listener) {
+        ListenerRegistration listenerRegistration = communityCollection.document(id).addSnapshotListener(
+                (snapshot, e) -> {
+                    if (e != null) {
+                        listener.accept(null, new ServiceException(R.string.error_cant_load_community, e));
+                        return;
+                    }
+
+                    assert snapshot != null;
+                    listener.accept(snapshot.toObject(Community.class), null);
+                }
+        );
+
+        FirestoreUtils.attachObserver(listenerRegistration, lifecycleOwner);
     }
 
     private void _createCommunity(@NonNull DocumentReference community,

@@ -1,8 +1,11 @@
 package com.example.edunet.data.service.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 
-public class Community {
+public class Community implements Parcelable {
     private String name;
     private String avatar;
     private String description;
@@ -21,6 +24,38 @@ public class Community {
         this.description = description;
         this.ownerId = ownerId;
     }
+
+    protected Community(Parcel in) {
+        name = in.readString();
+        avatar = in.readString();
+        description = in.readString();
+        ownerId = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(avatar);
+        dest.writeString(description);
+        dest.writeString(ownerId);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Community> CREATOR = new Creator<>() {
+        @Override
+        public Community createFromParcel(Parcel in) {
+            return new Community(in);
+        }
+
+        @Override
+        public Community[] newArray(int size) {
+            return new Community[size];
+        }
+    };
 
     @NonNull
     @Override

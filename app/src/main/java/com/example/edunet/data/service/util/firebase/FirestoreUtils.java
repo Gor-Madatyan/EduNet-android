@@ -1,13 +1,19 @@
 package com.example.edunet.data.service.util.firebase;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
+import androidx.core.util.Pair;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,10 +50,10 @@ public final class FirestoreUtils {
     public static <T> void loadData(
             @NonNull Class<T> clazz,
             @NonNull Collection<DocumentReference> documents,
-            @NonNull Consumer<List<T>> onSuccess,
+            @NonNull Consumer<List<Pair<DocumentReference, T>>> onSuccess,
             @NonNull Consumer<Exception> onFailure) {
 
-        List<T> data = new ArrayList<>();
+        List<Pair<DocumentReference, T>> data = new ArrayList<>();
         if (documents.isEmpty()) {
             onSuccess.accept(data);
             return;
@@ -57,7 +63,7 @@ public final class FirestoreUtils {
                     .get()
                     .addOnSuccessListener(r -> {
                         T object = Objects.requireNonNull(r.toObject(clazz));
-                        data.add(object);
+                        data.add(new Pair<>(document, object));
 
                         if (data.size() == documents.size())
                             onSuccess.accept(data);
@@ -65,4 +71,16 @@ public final class FirestoreUtils {
                     .addOnFailureListener(onFailure::accept);
         }
     }
+
+    public static void attachObserver(ListenerRegistration listener, LifecycleOwner lifecycleOwner) {
+        lifecycleOwner.getLifecycle().addObserver(new DefaultLifecycleObserver() {
+            @Override
+            public void onDestroy(@NonNull LifecycleOwner owner) {
+                DefaultLifecycleObserver.super.onDestroy(owner);
+                Log.i("TAG","firebase listener removed");
+                listener.remove();
+            }
+        });
+    }
+
 }
