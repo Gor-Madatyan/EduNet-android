@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 
 public final class FirestoreUtils {
+    private static final String TAG = FirestoreUtils.class.getSimpleName();
+
     private FirestoreUtils() {
     }
 
@@ -77,7 +79,7 @@ public final class FirestoreUtils {
             @Override
             public void onDestroy(@NonNull LifecycleOwner owner) {
                 DefaultLifecycleObserver.super.onDestroy(owner);
-                Log.i("TAG","firebase listener removed");
+                Log.i(TAG,"firebase snapshot listener removed");
                 listener.remove();
             }
         });

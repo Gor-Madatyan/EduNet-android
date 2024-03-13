@@ -2,7 +2,10 @@ package com.example.edunet.data.service.model;
 
 import android.net.Uri;
 
-public class CommunityModifyRequest {
+import androidx.annotation.NonNull;
+
+public class CommunityUpdateRequest {
+    private final String id;
     private String name;
     private String description;
     private Uri avatar;
@@ -11,11 +14,19 @@ public class CommunityModifyRequest {
     private boolean isDescriptionSet = false;
     private boolean isAvatarSet = false;
 
+    public CommunityUpdateRequest(@NonNull String id){
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
     public boolean isNameSet() {
         return isNameSet;
     }
 
-    public CommunityModifyRequest setName(String name) {
+    public CommunityUpdateRequest setName(String name) {
         this.name = name;
         isNameSet = true;
         return this;
@@ -29,7 +40,7 @@ public class CommunityModifyRequest {
         return isDescriptionSet;
     }
 
-    public CommunityModifyRequest setDescription(String description) {
+    public CommunityUpdateRequest setDescription(String description) {
         this.description = description;
         isDescriptionSet = true;
         return this;
@@ -43,7 +54,7 @@ public class CommunityModifyRequest {
         return isAvatarSet;
     }
 
-    public CommunityModifyRequest setAvatar(Uri avatar) {
+    public CommunityUpdateRequest setAvatar(Uri avatar) {
         this.avatar = avatar;
         isAvatarSet = true;
         return this;

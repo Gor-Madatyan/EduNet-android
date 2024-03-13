@@ -10,7 +10,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -43,10 +42,9 @@ public final class AccountServiceImpl implements AccountService {
     private static final String TAG = AccountServiceImpl.class.getSimpleName();
     private final FirebaseAuth auth;
     private final FirebaseStorage storage;
-    private final CommunityServiceImpl.CommunityUtils communityUtils;
     private final AvatarManager avatarManager;
     private DocumentReference userMetadataReference;
-    private final MutableLiveData<ProcessedUserMetadata> userMetadata = new MutableLiveData<>();
+    private final MutableLiveData<UserMetadata> userMetadata = new MutableLiveData<>();
     private final MutableLiveData<FirebaseUser> firebaseUser = new MutableLiveData<>();
     private final MediatorLiveData<User> currentUser = new MediatorLiveData<>();
     private ListenableFuture<Void> userMetadataInitialization;
@@ -83,22 +81,22 @@ public final class AccountServiceImpl implements AccountService {
         }
     }
 
-    private static class RawUserMetadata {
+    public static class UserMetadata {
         private String bio;
 
         private List<String> ownedCommunities;
 
-        public RawUserMetadata() {
+        public UserMetadata() {
         }
 
-        public RawUserMetadata(String bio, List<String> ownedCommunities) {
+        public UserMetadata(String bio, List<String> ownedCommunities) {
             this.bio = bio;
             this.ownedCommunities = ownedCommunities;
         }
 
 
-        public static RawUserMetadata getDefault() {
-            return new RawUserMetadata(null, new ArrayList<>());
+        public static UserMetadata getDefault() {
+            return new UserMetadata(null, new ArrayList<>());
         }
 
         public List<String> getOwnedCommunities() {
@@ -110,36 +108,10 @@ public final class AccountServiceImpl implements AccountService {
         }
     }
 
-    public static class ProcessedUserMetadata {
-        private String bio;
-
-        private List<Pair<String, Community>> ownedCommunities;
-
-        public ProcessedUserMetadata() {
-        }
-
-        public ProcessedUserMetadata(String bio, List<Pair<String, Community>> ownedCommunities) {
-            this.bio = bio;
-            this.ownedCommunities = ownedCommunities;
-        }
-
-        public static ProcessedUserMetadata getPlaceholder() {
-            return new ProcessedUserMetadata(null, new ArrayList<>());
-        }
-
-        public List<Pair<String, Community>> getOwnedCommunities() {
-            return ownedCommunities;
-        }
-
-        public String getBio() {
-            return bio;
-        }
-    }
 
     @Inject
-    AccountServiceImpl(FirebaseAuth auth, CommunityServiceImpl.CommunityUtils communityUtils, FirebaseStorage storage, FirebaseFirestore firestore) {
+    AccountServiceImpl(FirebaseAuth auth, FirebaseStorage storage, FirebaseFirestore firestore) {
         this.auth = auth;
-        this.communityUtils = communityUtils;
         this.storage = storage;
         this.avatarManager = new AvatarManager();
 
@@ -263,7 +235,7 @@ public final class AccountServiceImpl implements AccountService {
     }
 
     private ListenableFuture<Void> initializeUserMetadata() {
-        return initializeDocument(userMetadataReference, RawUserMetadata.getDefault());
+        return initializeDocument(userMetadataReference, UserMetadata.getDefault());
     }
 
     private void setUserMetadataListener() {
@@ -273,27 +245,9 @@ public final class AccountServiceImpl implements AccountService {
                 return;
             }
             assert snapshot != null;
-            RawUserMetadata metadata = Objects.requireNonNull(snapshot.toObject(RawUserMetadata.class));
-
-            parseMetadata(metadata,
-                    userMetadata::setValue,
-                    e1 -> Log.e(TAG, "can't parse metadata")
-            );
+            UserMetadata metadata = Objects.requireNonNull(snapshot.toObject(UserMetadata.class));
+            userMetadata.setValue(metadata);
         });
-    }
-
-    private void parseMetadata(@NonNull RawUserMetadata rawMetadata,
-                               @NonNull Consumer<ProcessedUserMetadata> onSuccess,
-                               @NonNull Consumer<ServiceException> onFailure) {
-
-        String bio = rawMetadata.bio;
-        List<String> rawOwnedCommunities = rawMetadata.ownedCommunities;
-
-        communityUtils.loadCommunities(rawOwnedCommunities,
-                parsedCommunities ->
-                        onSuccess.accept(new ProcessedUserMetadata(bio, parsedCommunities)),
-                onFailure);
-
     }
 
     private void saveBio(String bio, Consumer<ServiceException> onResult) {

@@ -38,6 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
+                app:menu="@menu/community_toolbar_menu"
                 app:popupTheme="@style/Theme.EduNet.PopupOverlay" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>

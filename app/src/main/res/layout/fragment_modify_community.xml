@@ -2,10 +2,8 @@
 
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.screen.profile.update.ProfileUpdateFragment">
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
@@ -19,7 +17,7 @@
             android:id="@+id/avatar"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:contentDescription="@string/user_avatar"
+            android:contentDescription="@string/community_avatar"
             android:src="@drawable/ic_default_group"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -32,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_marginTop="10dp"
-            android:importantForAutofill="no"
+            android:autofillHints="name"
             android:ems="10"
             android:hint="@string/community_name"
             android:inputType="text"

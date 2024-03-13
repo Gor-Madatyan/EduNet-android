@@ -14,7 +14,7 @@ import androidx.work.WorkInfo;
 
 import com.example.edunet.R;
 import com.example.edunet.data.service.CommunityService;
-import com.example.edunet.data.service.model.CommunityModifyRequest;
+import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.task.community.CommunityTaskManager;
 
 import javax.inject.Inject;
@@ -42,7 +42,7 @@ public class AddCommunityViewModel extends ViewModel {
     void createCommunity(@NonNull String name, @NonNull String description, @NonNull Context context) {
         Uri avatar = this.avatar.getValue();
 
-        CommunityModifyRequest request = new CommunityModifyRequest()
+        CommunityCreateRequest request = new CommunityCreateRequest()
                 .setAvatar(avatar)
                 .setName(name)
                 .setDescription(description);

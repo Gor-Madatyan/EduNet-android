@@ -4,6 +4,7 @@
     <string name="error_invalid_profile_update_request">Invalid request</string>
     <string name="error_invalid_photo">Provided invalid photo</string>
     <string name="error_invalid_community_create_request">Invalid request</string>
+    <string name="error_invalid_community_update_request">Invalid request</string>
     <string name="error_cant_upload_photo">Can\'t upload photo</string>
     <string name="error_cant_access_photo">Can\'t access photo</string>
     <string name="error_profile_update">Failed to update profile</string>
@@ -11,4 +12,5 @@
     <string name="error_cant_create_community">Failed to create community</string>
     <string name="error_cant_attach_community">Failed to attach community to user</string>
     <string name="error_cant_load_community">Failed to load community</string>
+    <string name="error_cant_update_community">Failed to update community</string>
 </resources>

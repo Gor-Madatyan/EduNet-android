@@ -4,7 +4,6 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
 
 import com.example.edunet.data.service.impl.AccountServiceImpl;
 import com.example.edunet.data.service.model.User;
@@ -33,16 +32,15 @@ public final class FirebaseTypeConversionUtils {
         return request.build();
     }
 
-    @SuppressWarnings("unchecked")
     @Nullable
-    public static User userFromFireBaseUser(@Nullable FirebaseUser user, @Nullable AccountServiceImpl.ProcessedUserMetadata metadata) {
+    public static User userFromFireBaseUser(@Nullable FirebaseUser user, @Nullable AccountServiceImpl.UserMetadata metadata) {
         if (user == null) return null;
-        if(metadata == null) metadata = AccountServiceImpl.ProcessedUserMetadata.getPlaceholder();
+        if(metadata == null) metadata = AccountServiceImpl.UserMetadata.getDefault();
 
         return new User(user.getUid(),
                 user.getDisplayName(),
                 user.getPhotoUrl(),
                 metadata.getBio(),
-                metadata.getOwnedCommunities().toArray(new Pair[0]));
+                metadata.getOwnedCommunities().toArray(new String[0]));
     }
 }

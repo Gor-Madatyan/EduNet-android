@@ -18,7 +18,7 @@ import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
 import com.example.edunet.R;
-import com.example.edunet.databinding.FragmentAddCommunityBinding;
+import com.example.edunet.databinding.FragmentModifyCommunityBinding;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -26,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class AddCommunityFragment extends Fragment {
 
     private AddCommunityViewModel viewModel;
-    private FragmentAddCommunityBinding binding;
+    private FragmentModifyCommunityBinding binding;
     private NavController navController;
 
     private final ActivityResultLauncher<String[]> mediaPickerLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(),
@@ -42,7 +42,7 @@ public class AddCommunityFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentAddCommunityBinding.inflate(inflater, container, false);
+        binding = FragmentModifyCommunityBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 

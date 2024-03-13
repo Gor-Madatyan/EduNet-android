@@ -46,7 +46,7 @@
     <fragment
         android:id="@+id/addCommunityFragment"
         android:name="com.example.edunet.ui.screen.addcommunity.AddCommunityFragment"
-        tools:layout="@layout/fragment_add_community"
+        tools:layout="@layout/fragment_modify_community"
         android:label="@string/title_add_community" />
     <fragment
         android:id="@+id/communityFragment"
@@ -56,9 +56,20 @@
         <argument
             android:name="communityId"
             app:argType="string" />
-    </fragment><action android:id="@+id/action_global_communityFragment" app:destination="@id/communityFragment">
-    <argument
-        android:name="communityId"
-        app:argType="string" />
-</action>
+        <action
+            android:id="@+id/action_communityFragment_to_communityUpdateFragment"
+            app:destination="@id/communityUpdateFragment" />
+    </fragment><action android:id="@+id/action_global_communityFragment" app:destination="@id/communityFragment"/>
+    <fragment
+        android:id="@+id/communityUpdateFragment"
+        tools:layout="@layout/fragment_modify_community"
+        android:name="com.example.edunet.ui.screen.community.update.CommunityUpdateFragment"
+        android:label="@string/title_edit_community" >
+        <argument
+            android:name="community"
+            app:argType="com.example.edunet.data.service.model.Community" />
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+    </fragment>
 </navigation>

@@ -13,11 +13,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.bumptech.glide.Glide;
 import com.example.edunet.R;
 import com.example.edunet.StartUpActivity;
 import com.example.edunet.databinding.FragmentProfileBinding;
 import com.example.edunet.ui.adapter.CommunityAdapter;
+import com.example.edunet.ui.util.GlideUtils;
 
 import java.util.Objects;
 
@@ -47,6 +47,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        viewModel.observeCommunities(getViewLifecycleOwner());
         navController = Navigation.findNavController(view);
         binding.toolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
@@ -67,16 +68,15 @@ public class ProfileFragment extends Fragment {
         binding.addCommunity.setOnClickListener(v -> navController.navigate(R.id.action_navigation_profile_to_addCommunityFragment));
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
-            binding.toolbarLayout.setTitle(state.user().name());
-            binding.bio.setText(Objects.requireNonNullElse(state.user().bio(), getString(R.string.default_bio)));
-            Glide.with(this)
-                    .load(state.user().photo())
-                    .placeholder(R.drawable.ic_default_user)
-                    .circleCrop()
-                    .into(binding.avatar);
-            if(state.user().ownedCommunities().length > 0) {
+            binding.toolbarLayout.setTitle(state.name());
+            binding.bio.setText(Objects.requireNonNullElse(state.bio(), getString(R.string.default_bio)));
+            GlideUtils.loadUserAvatar(
+                    this,
+                    state.avatar(),
+                    binding.avatar);
+            if (state.ownedCommunities().length > 0) {
                 binding.ownedCommunitiesContainer.setVisibility(View.VISIBLE);
-                binding.ownedCommunities.setAdapter(new CommunityAdapter(state.user().ownedCommunities()));
+                binding.ownedCommunities.setAdapter(new CommunityAdapter(state.ownedCommunities()));
             }
         });
     }
