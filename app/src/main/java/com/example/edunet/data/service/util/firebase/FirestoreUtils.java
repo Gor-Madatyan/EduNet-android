@@ -14,11 +14,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 public final class FirestoreUtils {
     private static final String TAG = FirestoreUtils.class.getSimpleName();
@@ -49,40 +51,34 @@ public final class FirestoreUtils {
         );
     }
 
-    public static <T> void loadData(
-            @NonNull Class<T> clazz,
-            @NonNull Collection<DocumentReference> documents,
-            @NonNull Consumer<List<Pair<DocumentReference, T>>> onSuccess,
-            @NonNull Consumer<Exception> onFailure) {
-
-        List<Pair<DocumentReference, T>> data = new ArrayList<>();
-        if (documents.isEmpty()) {
-            onSuccess.accept(data);
-            return;
-        }
-        for (DocumentReference document : documents) {
-            document
-                    .get()
-                    .addOnSuccessListener(r -> {
-                        T object = Objects.requireNonNull(r.toObject(clazz));
-                        data.add(new Pair<>(document, object));
-
-                        if (data.size() == documents.size())
-                            onSuccess.accept(data);
-                    })
-                    .addOnFailureListener(onFailure::accept);
-        }
-    }
-
     public static void attachObserver(ListenerRegistration listener, LifecycleOwner lifecycleOwner) {
         lifecycleOwner.getLifecycle().addObserver(new DefaultLifecycleObserver() {
             @Override
             public void onDestroy(@NonNull LifecycleOwner owner) {
                 DefaultLifecycleObserver.super.onDestroy(owner);
-                Log.i(TAG,"firebase snapshot listener removed");
+                Log.i(TAG, "firebase snapshot listener removed");
                 listener.remove();
             }
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> ListenerRegistration observeData(@NonNull Query query, @NonNull Class<T> clazz, @NonNull BiConsumer<Exception, Pair<String, T>[]> biConsumer) {
+        return query.addSnapshotListener(
+                (documents, e) -> {
+                    if (e != null) {
+                        biConsumer.accept(e, null);
+                        return;
+                    }
+                    //because of the contract of OnEventListener
+                    assert documents != null;
+
+                    List<Pair<String, T>> objects = new ArrayList<>();
+                    for (QueryDocumentSnapshot snapshot : documents)
+                        objects.add(new Pair<>(snapshot.getId(), snapshot.toObject(clazz)));
+
+                    biConsumer.accept(null, objects.toArray(new Pair[0]));
+                });
     }
 
 }

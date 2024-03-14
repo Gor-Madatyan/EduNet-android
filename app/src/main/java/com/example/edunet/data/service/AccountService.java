@@ -16,6 +16,9 @@ public interface AccountService {
         }
     }
 
+    @Nullable
+    String getUid();
+
     @NonNull
     LiveData<User> observeCurrentUser();
 
@@ -25,8 +28,6 @@ public interface AccountService {
     void updateCurrentUser(@NonNull UserUpdateRequest request, @NonNull Consumer<ServiceException> onResult);
 
     boolean validateUserUpdate(@NonNull UserUpdateRequest request);
-
-    void detachOwnedCommunity(@NonNull String communityId, @NonNull Consumer<ServiceException> onResult);
 
     void signOut();
 }

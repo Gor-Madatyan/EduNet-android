@@ -26,11 +26,9 @@ import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -91,6 +89,21 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public void observeOwnedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer) {
+        FirestoreUtils.attachObserver(
+                FirestoreUtils.observeData(
+                        communityCollection.whereEqualTo("ownerId", uid),
+                        Community.class,
+                        (e, data) -> {
+                            if (e != null)
+                                biConsumer.accept(new ServiceException(R.string.error_cant_load_community, e), null);
+                            else biConsumer.accept(null, data);
+                        }),
+                lifecycleOwner
+        );
+    }
+
+    @Override
     public void createCommunity(@NonNull CommunityCreateRequest request, @NonNull Consumer<ServiceException> onResult) {
 
         if (!validateCommunityCreateRequest(request)) {
@@ -120,20 +133,12 @@ public class CommunityServiceImpl implements CommunityService {
                         onResult.accept(e);
                         return;
                     }
-                    accountService.detachOwnedCommunity(id,
-                            e1 -> {
-                                if (e1 != null) {
-                                    onResult.accept(e1);
-                                    return;
-                                }
-                                community.delete()
-                                        .addOnSuccessListener(r -> onResult.accept(null))
-                                        .addOnFailureListener(
-                                                e2 ->
-                                                    onResult.accept(new ServiceException(R.string.error_cant_delete_community, e2))
-                                        );
-                            }
-                    );
+                    community.delete()
+                            .addOnSuccessListener(r -> onResult.accept(null))
+                            .addOnFailureListener(
+                                    e1 ->
+                                            onResult.accept(new ServiceException(R.string.error_cant_delete_community, e1))
+                            );
 
                 }
         );
@@ -166,7 +171,7 @@ public class CommunityServiceImpl implements CommunityService {
                         request.getDescription(),
                         request.getAvatar() == null ? null : request.getAvatar().toString(),
                         user.id()))
-                .addOnSuccessListener(r -> accountService.attachCommunity(community.getId(), Community.Role.OWNER, onResult))
+                .addOnSuccessListener(r -> onResult.accept(null))
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_create_community, e)));
     }
 
@@ -239,18 +244,6 @@ public class CommunityServiceImpl implements CommunityService {
         );
 
         FirestoreUtils.attachObserver(listenerRegistration, lifecycleOwner);
-    }
-
-    @Override
-    public void loadCommunities(@NonNull List<String> communityIds,
-                                @NonNull Consumer<List<Pair<String, Community>>> onSuccess,
-                                @NonNull Consumer<ServiceException> onFailure) {
-        List<DocumentReference> documents = communityIds.stream().map(communityCollection::document).collect(Collectors.toList());
-
-        FirestoreUtils.loadData(Community.class, documents,
-                entries ->
-                        onSuccess.accept(entries.stream().map(el -> new Pair<>(el.first.getId(), el.second)).collect(Collectors.toList())),
-                e -> onFailure.accept(new ServiceException(R.string.error_cant_load_community, e)));
     }
 
 }

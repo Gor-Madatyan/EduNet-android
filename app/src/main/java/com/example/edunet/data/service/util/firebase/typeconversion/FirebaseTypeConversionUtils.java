@@ -40,7 +40,6 @@ public final class FirebaseTypeConversionUtils {
         return new User(user.getUid(),
                 user.getDisplayName(),
                 user.getPhotoUrl(),
-                metadata.getBio(),
-                metadata.getOwnedCommunities().toArray(new String[0]));
+                metadata.getBio());
     }
 }

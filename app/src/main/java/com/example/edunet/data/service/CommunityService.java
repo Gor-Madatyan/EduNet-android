@@ -10,11 +10,9 @@ import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.model.CommunityUpdateRequest;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 
 public interface CommunityService {
-
     /**
      * please call this only in persistent operations
      *
@@ -33,5 +31,6 @@ public interface CommunityService {
 
     void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id, @NonNull BiConsumer<Community, ServiceException> listener);
 
-    void loadCommunities(@NonNull List<String> communityIds, @NonNull Consumer<List<Pair<String, Community>>> onSuccess, @NonNull Consumer<ServiceException> onFailure);
+    void observeOwnedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer);
+
 }

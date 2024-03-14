@@ -4,5 +4,5 @@ import android.net.Uri;
 
 
 
-public record User(String id, String name, Uri photo, String bio, String[] ownedCommunities) {
+public record User(String id, String name, Uri photo, String bio) {
 }

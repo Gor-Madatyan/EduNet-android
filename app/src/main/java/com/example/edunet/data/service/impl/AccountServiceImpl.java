@@ -17,7 +17,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.edunet.R;
 import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.exception.ServiceException;
-import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
@@ -26,13 +25,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -83,26 +79,21 @@ public final class AccountServiceImpl implements AccountService {
         }
     }
 
+
+
     public static class UserMetadata {
         private String bio;
-
-        private List<String> ownedCommunities;
 
         public UserMetadata() {
         }
 
-        public UserMetadata(String bio, List<String> ownedCommunities) {
+        public UserMetadata(String bio) {
             this.bio = bio;
-            this.ownedCommunities = ownedCommunities;
         }
 
 
         public static UserMetadata getDefault() {
-            return new UserMetadata(null, new ArrayList<>());
-        }
-
-        public List<String> getOwnedCommunities() {
-            return ownedCommunities;
+            return new UserMetadata(null);
         }
 
         public String getBio() {
@@ -138,6 +129,12 @@ public final class AccountServiceImpl implements AccountService {
 
                 }
         );
+    }
+
+    @Nullable
+    @Override
+    public String getUid() {
+        return auth.getUid();
     }
 
     @Override
@@ -209,36 +206,6 @@ public final class AccountServiceImpl implements AccountService {
             else request.setBio(bio);
         }
         return name == null || !name.isEmpty();
-    }
-
-
-    @Override
-    public void detachOwnedCommunity(@NonNull String communityId, @NonNull Consumer<ServiceException> onResult) {
-        String uid = auth.getUid();
-        assert uid != null;
-
-        DocumentReference user = firestoreUsers.document(uid);
-        user.update("ownedCommunities", FieldValue.arrayRemove(communityId))
-                .addOnSuccessListener(r -> onResult.accept(null))
-                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_detach_community, e)));
-    }
-
-    // FIXME: 3/5/2024 there may be case when metadata initialization can
-    //                fail, but user can create an group that is not attached to him
-
-    void attachCommunity(@NonNull String id, @NonNull Community.Role role, @NonNull Consumer<ServiceException> onResult) {
-        userMetadataInitialization.addListener(
-                () -> {
-                    try {
-                        userMetadataInitialization.get();
-                        userMetadataReference.update("ownedCommunities", FieldValue.arrayUnion(id))
-                                .addOnSuccessListener(r -> onResult.accept(null))
-                                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_attach_community, e)));
-                    } catch (Exception e) {
-                        onResult.accept(new ServiceException(R.string.error_cant_attach_community, e));
-                    }
-
-                }, Runnable::run);
     }
 
     @Override

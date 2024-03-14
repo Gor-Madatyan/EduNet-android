@@ -47,7 +47,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        viewModel.observeCommunities(getViewLifecycleOwner());
+        viewModel.observeOwnedCommunities(getViewLifecycleOwner(),requireContext().getApplicationContext());
+
         navController = Navigation.findNavController(view);
         binding.toolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
@@ -68,14 +69,16 @@ public class ProfileFragment extends Fragment {
         binding.addCommunity.setOnClickListener(v -> navController.navigate(R.id.action_navigation_profile_to_addCommunityFragment));
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
-            binding.toolbarLayout.setTitle(state.name());
-            binding.bio.setText(Objects.requireNonNullElse(state.bio(), getString(R.string.default_bio)));
-            ImageLoadingUtils.loadUserAvatar(this, state.avatar(), binding.avatar);
+            binding.toolbarLayout.setTitle(state.user().name());
+            binding.bio.setText(Objects.requireNonNullElse(state.user().bio(), getString(R.string.default_bio)));
+            ImageLoadingUtils.loadUserAvatar(this, state.user().photo(), binding.avatar);
 
             if (state.ownedCommunities().length > 0) {
                 binding.ownedCommunitiesContainer.setVisibility(View.VISIBLE);
                 binding.ownedCommunities.setAdapter(new CommunityAdapter(state.ownedCommunities()));
-            }
+            } else
+                binding.ownedCommunitiesContainer.setVisibility(View.INVISIBLE);
+
         });
     }
 

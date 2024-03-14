@@ -1,6 +1,7 @@
 package com.example.edunet.ui.screen.profile;
 
-import android.net.Uri;
+import android.content.Context;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -14,7 +15,7 @@ import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.User;
 
-import java.util.Arrays;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -35,24 +36,26 @@ public class ProfileViewModel extends ViewModel {
 
         _uiState.addSource(accountService.observeCurrentUser(),
                 user -> {
-                    if (user != null)
-                        _uiState.setValue(UiState.fromUser(user, new Pair[0]));
+                    if (user != null) {
+                        UiState currentUiState = _uiState.getValue();
+                        Pair<String, Community>[] ownedCommunities = currentUiState == null ? new Pair[0] : currentUiState.ownedCommunities();
+                        _uiState.setValue(new UiState(user, ownedCommunities));
+                    }
                 });
     }
 
-    @SuppressWarnings("unchecked")
-    void observeCommunities(@NonNull LifecycleOwner owner) {
-        accountService.observeCurrentUser().observe(owner,
-                user -> {
-                    if (user == null) return;
+    void observeOwnedCommunities(@NonNull LifecycleOwner owner, Context context) {
+        communityService.observeOwnedCommunities(owner,
+                Objects.requireNonNull(accountService.getUid()),
+                (e, communities) -> {
+                    if (e != null) {
+                        Toast.makeText(context, e.getId(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    User user = accountService.getCurrentUser();
+                    assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
 
-                    communityService.loadCommunities(
-                            Arrays.asList(user.ownedCommunities()),
-                            communities -> _uiState.setValue(UiState.fromUser(user, communities.toArray(new Pair[0]))),
-
-                            e -> _uiState.setValue(UiState.fromUser(user, new Pair[0]))
-                    );
-
+                    _uiState.setValue(new UiState(user, communities));
                 }
         );
     }
@@ -64,15 +67,6 @@ public class ProfileViewModel extends ViewModel {
 
 }
 
-record UiState(@NonNull Uri avatar,
-               @NonNull String name,
-               @NonNull String bio,
-               @NonNull Pair<String, Community>[] ownedCommunities) {
-    static UiState fromUser(@NonNull User user, @NonNull Pair<String, Community>[] ownedCommunities) {
-        return new UiState(
-                user.photo(),
-                user.name(),
-                user.bio(),
-                ownedCommunities);
-    }
+record UiState(@NonNull User user, @NonNull Pair<String, Community>[] ownedCommunities) {
+
 }
