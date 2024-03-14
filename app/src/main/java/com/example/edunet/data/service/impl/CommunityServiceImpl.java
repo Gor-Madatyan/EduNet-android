@@ -22,6 +22,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
@@ -59,6 +60,22 @@ public class CommunityServiceImpl implements CommunityService {
 
         }
 
+        public void cleanUp(@NonNull String id, @NonNull Consumer<ServiceException> onResult) {
+            StorageReference path = communities.child(id).child("avatar");
+
+            path.delete()
+                    .addOnSuccessListener(r -> onResult.accept(null))
+                    .addOnFailureListener(
+                            e -> {
+                                StorageException storageException = (StorageException) e;
+                                onResult.accept(
+                                        storageException.getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND ? null
+                                                : new ServiceException(R.string.error_cant_cleanup_community_photos, e)
+                                );
+                            }
+                    );
+        }
+
         public static boolean validateAvatar(@NonNull Uri avatar) {
             return StorageUtils.validatePhoto(avatar);
         }
@@ -90,6 +107,35 @@ public class CommunityServiceImpl implements CommunityService {
         avatarManager.saveAvatar(request.getAvatar(), community.getId(),
                 avatar -> _createCommunity(community, request.setAvatar(avatar), onResult),
                 onResult
+        );
+    }
+
+    @Override
+    public void deleteCommunity(@NonNull String id, Consumer<ServiceException> onResult) {
+        DocumentReference community = communityCollection.document(id);
+
+        avatarManager.cleanUp(id,
+                e -> {
+                    if (e != null) {
+                        onResult.accept(e);
+                        return;
+                    }
+                    accountService.detachOwnedCommunity(id,
+                            e1 -> {
+                                if (e1 != null) {
+                                    onResult.accept(e1);
+                                    return;
+                                }
+                                community.delete()
+                                        .addOnSuccessListener(r -> onResult.accept(null))
+                                        .addOnFailureListener(
+                                                e2 ->
+                                                    onResult.accept(new ServiceException(R.string.error_cant_delete_community, e2))
+                                        );
+                            }
+                    );
+
+                }
         );
     }
 
@@ -131,15 +177,15 @@ public class CommunityServiceImpl implements CommunityService {
             return;
         }
 
-        if(request.getAvatar() == null){
-            _updateCommunity(request,onResult);
+        if (request.getAvatar() == null) {
+            _updateCommunity(request, onResult);
             return;
         }
 
-        avatarManager.saveAvatar(request.getAvatar(),request.getId(),
-                photo -> _updateCommunity(request.setAvatar(photo),onResult),
+        avatarManager.saveAvatar(request.getAvatar(), request.getId(),
+                photo -> _updateCommunity(request.setAvatar(photo), onResult),
                 onResult
-                );
+        );
     }
 
     private void _updateCommunity(@NonNull CommunityUpdateRequest request, @NonNull Consumer<ServiceException> onResult) {
@@ -151,8 +197,8 @@ public class CommunityServiceImpl implements CommunityService {
         if (request.isDescriptionSet()) map.put("description", request.getDescription());
 
         document.update(map)
-                .addOnSuccessListener(r-> onResult.accept(null))
-                .addOnFailureListener(e-> onResult.accept(new ServiceException(R.string.error_cant_update_community,e)));
+                .addOnSuccessListener(r -> onResult.accept(null))
+                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_update_community, e)));
     }
 
     @Override
@@ -197,13 +243,13 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public void loadCommunities(@NonNull List<String> communityIds,
-                                @NonNull Consumer<List<Pair<String,Community>>> onSuccess,
+                                @NonNull Consumer<List<Pair<String, Community>>> onSuccess,
                                 @NonNull Consumer<ServiceException> onFailure) {
         List<DocumentReference> documents = communityIds.stream().map(communityCollection::document).collect(Collectors.toList());
 
         FirestoreUtils.loadData(Community.class, documents,
                 entries ->
-                    onSuccess.accept(entries.stream().map(el->new Pair<>(el.first.getId(),el.second)).collect(Collectors.toList())),
+                        onSuccess.accept(entries.stream().map(el -> new Pair<>(el.first.getId(), el.second)).collect(Collectors.toList())),
                 e -> onFailure.accept(new ServiceException(R.string.error_cant_load_community, e)));
     }
 

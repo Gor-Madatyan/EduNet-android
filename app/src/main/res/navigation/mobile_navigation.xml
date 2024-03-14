@@ -59,6 +59,9 @@
         <action
             android:id="@+id/action_communityFragment_to_communityUpdateFragment"
             app:destination="@id/communityUpdateFragment" />
+        <action
+            android:id="@+id/action_communityFragment_to_communityDeleteDialogFragment"
+            app:destination="@id/communityDeleteDialogFragment" />
     </fragment><action android:id="@+id/action_global_communityFragment" app:destination="@id/communityFragment"/>
     <fragment
         android:id="@+id/communityUpdateFragment"
@@ -72,4 +75,11 @@
             android:name="communityId"
             app:argType="string" />
     </fragment>
+    <dialog
+        android:id="@+id/communityDeleteDialogFragment"
+        android:name="com.example.edunet.ui.dialog.CommunityDeleteDialogFragment">
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+    </dialog>
 </navigation>

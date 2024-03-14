@@ -17,7 +17,7 @@ import com.example.edunet.R;
 import com.example.edunet.StartUpActivity;
 import com.example.edunet.databinding.FragmentProfileBinding;
 import com.example.edunet.ui.adapter.CommunityAdapter;
-import com.example.edunet.ui.util.GlideUtils;
+import com.example.edunet.ui.util.ImageLoadingUtils;
 
 import java.util.Objects;
 
@@ -70,10 +70,8 @@ public class ProfileFragment extends Fragment {
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
             binding.toolbarLayout.setTitle(state.name());
             binding.bio.setText(Objects.requireNonNullElse(state.bio(), getString(R.string.default_bio)));
-            GlideUtils.loadUserAvatar(
-                    this,
-                    state.avatar(),
-                    binding.avatar);
+            ImageLoadingUtils.loadUserAvatar(this, state.avatar(), binding.avatar);
+
             if (state.ownedCommunities().length > 0) {
                 binding.ownedCommunitiesContainer.setVisibility(View.VISIBLE);
                 binding.ownedCommunities.setAdapter(new CommunityAdapter(state.ownedCommunities()));

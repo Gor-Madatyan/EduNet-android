@@ -1,5 +1,6 @@
 package com.example.edunet.ui.screen.community;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -14,10 +15,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.bumptech.glide.Glide;
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.databinding.FragmentCommunityBinding;
+import com.example.edunet.ui.util.ImageLoadingUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -57,21 +58,24 @@ public class CommunityFragment extends Fragment {
 
             if (state.isCurrentUserOwner()) {
                 MenuItem edit = binding.toolbar.getMenu().getItem(0);
+                MenuItem delete = binding.toolbar.getMenu().getItem(1);
+                delete.setVisible(true);
                 edit.setVisible(true);
                 edit.setOnMenuItemClickListener(i -> {
                     navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToCommunityUpdateFragment(state.community(), communityId));
                     return true;
                 });
+                delete.setOnMenuItemClickListener(i -> {
+                    navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToCommunityDeleteDialogFragment(communityId));
+                    return true;
+                });
 
                 Community community = state.community();
+                String avatar = state.community().getAvatar();
 
                 binding.toolbarLayout.setTitle(community.getName());
                 binding.description.setText(community.getDescription());
-                Glide.with(this)
-                        .load(state.community().getAvatar())
-                        .circleCrop()
-                        .placeholder(R.drawable.ic_default_group)
-                        .into(binding.avatar);
+                ImageLoadingUtils.loadCommunityAvatar(this,avatar == null ? null : Uri.parse(avatar) , binding.avatar);
             }
         });
 

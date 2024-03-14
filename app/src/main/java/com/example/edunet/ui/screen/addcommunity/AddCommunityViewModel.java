@@ -2,20 +2,18 @@ package com.example.edunet.ui.screen.addcommunity;
 
 import android.content.Context;
 import android.net.Uri;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
-import androidx.work.WorkInfo;
 
 import com.example.edunet.R;
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.task.community.CommunityTaskManager;
+import com.example.edunet.data.service.util.work.WorkUtils;
 
 import javax.inject.Inject;
 
@@ -52,23 +50,8 @@ public class AddCommunityViewModel extends ViewModel {
             return;
         }
 
-        LiveData<WorkInfo> workInfoLiveData = communityTaskManager.startCommunityCreateTask(request);
+        WorkUtils.observe(context.getApplicationContext(),communityTaskManager.startCommunityCreateTask(request),R.string.error_cant_create_community);
         _error.setValue(null);
-
-        Observer<WorkInfo> observer = new Observer<>() {
-            @Override
-            public void onChanged(WorkInfo workInfo) {
-                WorkInfo.State state = workInfo.getState();
-
-                if (state.isFinished()) {
-                    workInfoLiveData.removeObserver(this);
-                    if (state == WorkInfo.State.FAILED)
-                        Toast.makeText(context, R.string.error_cant_create_community, Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
-
-        workInfoLiveData.observeForever(observer);
 
     }
 

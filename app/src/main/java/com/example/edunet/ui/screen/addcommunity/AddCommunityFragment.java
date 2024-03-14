@@ -16,9 +16,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.bumptech.glide.Glide;
-import com.example.edunet.R;
 import com.example.edunet.databinding.FragmentModifyCommunityBinding;
+import com.example.edunet.ui.util.ImageLoadingUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -54,11 +53,7 @@ public class AddCommunityFragment extends Fragment {
         binding.avatar.setOnClickListener(v -> mediaPickerLauncher.launch(new String[]{"image/*"}));
 
         viewModel.avatar.observe(getViewLifecycleOwner(), uri ->
-                Glide.with(this)
-                        .load(uri)
-                        .placeholder(R.drawable.ic_default_group)
-                        .circleCrop()
-                        .into(binding.avatar)
+                ImageLoadingUtils.loadCommunityAvatar(this, uri, binding.avatar)
         );
 
         viewModel.error.observe(getViewLifecycleOwner(), e -> {

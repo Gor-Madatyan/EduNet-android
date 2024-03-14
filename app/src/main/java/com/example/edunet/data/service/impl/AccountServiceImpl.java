@@ -24,6 +24,7 @@ import com.example.edunet.data.service.util.firebase.StorageUtils;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,6 +44,7 @@ public final class AccountServiceImpl implements AccountService {
     private final FirebaseAuth auth;
     private final FirebaseStorage storage;
     private final AvatarManager avatarManager;
+    private final CollectionReference firestoreUsers;
     private DocumentReference userMetadataReference;
     private final MutableLiveData<UserMetadata> userMetadata = new MutableLiveData<>();
     private final MutableLiveData<FirebaseUser> firebaseUser = new MutableLiveData<>();
@@ -113,6 +115,7 @@ public final class AccountServiceImpl implements AccountService {
     AccountServiceImpl(FirebaseAuth auth, FirebaseStorage storage, FirebaseFirestore firestore) {
         this.auth = auth;
         this.storage = storage;
+        this.firestoreUsers = firestore.collection("users");
         this.avatarManager = new AvatarManager();
 
         auth.addAuthStateListener(firebaseAuth -> {
@@ -120,7 +123,7 @@ public final class AccountServiceImpl implements AccountService {
                     firebaseUser.setValue(user);
 
                     if (user != null) {
-                        userMetadataReference = firestore.collection("users").document(user.getUid());
+                        userMetadataReference = firestoreUsers.document(user.getUid());
                         userMetadataInitialization = initializeUserMetadata();
 
                         userMetadataInitialization.addListener(() -> {
@@ -206,6 +209,18 @@ public final class AccountServiceImpl implements AccountService {
             else request.setBio(bio);
         }
         return name == null || !name.isEmpty();
+    }
+
+
+    @Override
+    public void detachOwnedCommunity(@NonNull String communityId, @NonNull Consumer<ServiceException> onResult) {
+        String uid = auth.getUid();
+        assert uid != null;
+
+        DocumentReference user = firestoreUsers.document(uid);
+        user.update("ownedCommunities", FieldValue.arrayRemove(communityId))
+                .addOnSuccessListener(r -> onResult.accept(null))
+                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_detach_community, e)));
     }
 
     // FIXME: 3/5/2024 there may be case when metadata initialization can

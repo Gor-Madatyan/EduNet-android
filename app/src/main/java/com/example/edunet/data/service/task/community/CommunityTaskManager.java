@@ -10,6 +10,7 @@ import androidx.work.WorkManager;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.model.CommunityUpdateRequest;
 import com.example.edunet.data.service.task.community.worker.CommunityCreateWorker;
+import com.example.edunet.data.service.task.community.worker.CommunityDeleteWorker;
 import com.example.edunet.data.service.task.community.worker.CommunityUpdateWorker;
 
 import javax.inject.Inject;
@@ -41,6 +42,19 @@ public class CommunityTaskManager {
         workManager.enqueueUniqueWork(
                 request.getId(),
                 ExistingWorkPolicy.APPEND_OR_REPLACE,
+                workRequest);
+
+        return workManager.getWorkInfoByIdLiveData(workRequest.getId());
+    }
+
+    public LiveData<WorkInfo> startCommunityDeleteTask(@NonNull String communityId){
+        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(CommunityDeleteWorker.class)
+                .setInputData(CommunityDeleteWorker.getDataFromId(communityId))
+                .build();
+
+        workManager.enqueueUniqueWork(
+                communityId,
+                ExistingWorkPolicy.KEEP,
                 workRequest);
 
         return workManager.getWorkInfoByIdLiveData(workRequest.getId());

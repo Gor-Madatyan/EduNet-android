@@ -13,4 +13,7 @@
     <string name="error_cant_attach_community">Failed to attach community to user</string>
     <string name="error_cant_load_community">Failed to load community</string>
     <string name="error_cant_update_community">Failed to update community</string>
+    <string name="error_cant_delete_community">Failed to delete community</string>
+    <string name="error_cant_detach_community">Failed to detach community from user</string>
+    <string name="error_cant_cleanup_community_photos">Failed to cleanup community photos</string>
 </resources>

@@ -23,6 +23,8 @@ public interface CommunityService {
      */
     void createCommunity(@NonNull CommunityCreateRequest request, @NonNull Consumer<ServiceException> onResult);
 
+    void deleteCommunity(@NonNull String id, Consumer<ServiceException> onResult);
+
     boolean validateCommunityCreateRequest(@NonNull CommunityCreateRequest request);
 
     void updateCommunity(@NonNull CommunityUpdateRequest request, @NonNull Consumer<ServiceException> onResult);
@@ -31,5 +33,5 @@ public interface CommunityService {
 
     void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id, @NonNull BiConsumer<Community, ServiceException> listener);
 
-    void loadCommunities(@NonNull List<String> communityIds, @NonNull Consumer<List<Pair<String,Community>>> onSuccess, @NonNull Consumer<ServiceException> onFailure);
+    void loadCommunities(@NonNull List<String> communityIds, @NonNull Consumer<List<Pair<String, Community>>> onSuccess, @NonNull Consumer<ServiceException> onFailure);
 }

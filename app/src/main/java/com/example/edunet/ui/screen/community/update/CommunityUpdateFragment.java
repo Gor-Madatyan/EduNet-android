@@ -18,7 +18,7 @@ import androidx.navigation.Navigation;
 
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.databinding.FragmentModifyCommunityBinding;
-import com.example.edunet.ui.util.GlideUtils;
+import com.example.edunet.ui.util.ImageLoadingUtils;
 
 import java.util.Objects;
 
@@ -56,7 +56,7 @@ public class CommunityUpdateFragment extends Fragment {
         viewModel.setCommunity(communityId, community);
 
         viewModel.avatar.observe(getViewLifecycleOwner(), uri ->
-                GlideUtils.loadCommunityAvatar(
+                ImageLoadingUtils.loadCommunityAvatar(
                         this,
                         uri,
                         binding.avatar));

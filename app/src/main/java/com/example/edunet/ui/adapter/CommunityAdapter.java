@@ -1,5 +1,6 @@
 package com.example.edunet.ui.adapter;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +12,10 @@ import androidx.core.util.Pair;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.edunet.MainNavDirections;
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Community;
+import com.example.edunet.ui.util.ImageLoadingUtils;
 
 public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.ViewHolder> {
     private final Pair<String, Community>[] dataSet;
@@ -42,11 +43,10 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.View
         public void setCommunity(@NonNull String communityId, @NonNull Community community) {
             this.communityId = communityId;
             name.setText(community.getName());
-            Glide.with(itemView)
-                    .load(community.getAvatar())
-                    .circleCrop()
-                    .placeholder(R.drawable.ic_default_group)
-                    .into(avatar);
+            ImageLoadingUtils.loadCommunityAvatar(
+                    itemView,
+                    community.getAvatar() == null ? null : Uri.parse(community.getAvatar()),
+                    avatar);
         }
     }
 

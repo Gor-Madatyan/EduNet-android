@@ -16,9 +16,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.bumptech.glide.Glide;
-import com.example.edunet.R;
 import com.example.edunet.databinding.FragmentProfileUpdateBinding;
+import com.example.edunet.ui.util.ImageLoadingUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -73,11 +72,7 @@ public class ProfileUpdateFragment extends Fragment {
         );
 
         viewModel.avatar.observe(getViewLifecycleOwner(),
-                photo -> Glide.with(this)
-                        .load(photo)
-                        .placeholder(R.drawable.ic_default_user)
-                        .circleCrop()
-                        .into(binding.avatar));
+                photo -> ImageLoadingUtils.loadUserAvatar(this, photo, binding.avatar));
 
         viewModel.error.observe(getViewLifecycleOwner(), error -> {
             if (error != null)

@@ -26,5 +26,7 @@ public interface AccountService {
 
     boolean validateUserUpdate(@NonNull UserUpdateRequest request);
 
+    void detachOwnedCommunity(@NonNull String communityId, @NonNull Consumer<ServiceException> onResult);
+
     void signOut();
 }
