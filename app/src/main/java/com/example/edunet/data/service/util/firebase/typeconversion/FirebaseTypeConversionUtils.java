@@ -2,44 +2,35 @@ package com.example.edunet.data.service.util.firebase.typeconversion;
 
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.edunet.data.service.impl.AccountServiceImpl;
 import com.example.edunet.data.service.model.User;
-import com.example.edunet.data.service.model.UserUpdateRequest;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 
 public final class FirebaseTypeConversionUtils {
 
-    private FirebaseTypeConversionUtils(){}
-
-    @NonNull
-    public static UserProfileChangeRequest FireBaseUserProfileChangeRequestFromAbstractUserUpdateRequest(@NonNull UserUpdateRequest abstractRequest) {
-        UserProfileChangeRequest.Builder request = new UserProfileChangeRequest.Builder();
-
-        String name = abstractRequest.getName();
-        Uri photoUri = abstractRequest.getAvatar();
-
-
-        if (abstractRequest.isNameSet())
-            request.setDisplayName(name);
-
-        if (abstractRequest.isAvatarSet())
-            request.setPhotoUri(photoUri);
-
-        return request.build();
+    private FirebaseTypeConversionUtils() {
     }
 
     @Nullable
-    public static User userFromFireBaseUser(@Nullable FirebaseUser user, @Nullable AccountServiceImpl.UserMetadata metadata) {
+    public static User userFromAuthUser(@Nullable FirebaseUser user) {
         if (user == null) return null;
-        if(metadata == null) metadata = AccountServiceImpl.UserMetadata.getDefault();
 
         return new User(user.getUid(),
                 user.getDisplayName(),
                 user.getPhotoUrl(),
-                metadata.getBio());
+                null);
+    }
+
+    public static User userFromFireStoreUser(@Nullable String uid, @Nullable AccountServiceImpl.FirestoreUser user) {
+        if (user == null) return null;
+        assert uid != null;
+
+        return new User(uid,
+                user.getName(),
+                user.getAvatar() == null ? null : Uri.parse(user.getAvatar()),
+                user.getBio()
+        );
     }
 }

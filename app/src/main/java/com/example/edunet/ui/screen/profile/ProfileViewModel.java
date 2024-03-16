@@ -1,7 +1,6 @@
 package com.example.edunet.ui.screen.profile;
 
-import android.content.Context;
-import android.widget.Toast;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -23,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
 public class ProfileViewModel extends ViewModel {
+    private static final String TAG = ProfileViewModel.class.getSimpleName();
     private final AccountService accountService;
     private final CommunityService communityService;
     private final MediatorLiveData<UiState> _uiState = new MediatorLiveData<>();
@@ -44,12 +44,12 @@ public class ProfileViewModel extends ViewModel {
                 });
     }
 
-    void observeOwnedCommunities(@NonNull LifecycleOwner owner, Context context) {
+    void observeOwnedCommunities(@NonNull LifecycleOwner owner) {
         communityService.observeOwnedCommunities(owner,
                 Objects.requireNonNull(accountService.getUid()),
                 (e, communities) -> {
                     if (e != null) {
-                        Toast.makeText(context, e.getId(), Toast.LENGTH_SHORT).show();
+                        Log.w(TAG,e.getMessage());
                         return;
                     }
                     User user = accountService.getCurrentUser();

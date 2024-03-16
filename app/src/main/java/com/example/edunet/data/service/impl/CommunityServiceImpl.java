@@ -1,6 +1,7 @@
 package com.example.edunet.data.service.impl;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
@@ -33,6 +34,7 @@ import java.util.function.BiConsumer;
 import javax.inject.Inject;
 
 public class CommunityServiceImpl implements CommunityService {
+    private static final String TAG = CommunityServiceImpl.class.getSimpleName();
     private final AvatarManager avatarManager;
     private final AccountServiceImpl accountService;
     private final CollectionReference communityCollection;
@@ -95,8 +97,10 @@ public class CommunityServiceImpl implements CommunityService {
                         communityCollection.whereEqualTo("ownerId", uid),
                         Community.class,
                         (e, data) -> {
-                            if (e != null)
+                            if (e != null) {
+                                Log.e(TAG,e.toString());
                                 biConsumer.accept(new ServiceException(R.string.error_cant_load_community, e), null);
+                            }
                             else biConsumer.accept(null, data);
                         }),
                 lifecycleOwner

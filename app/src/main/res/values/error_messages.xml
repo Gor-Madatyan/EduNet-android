@@ -16,4 +16,5 @@
     <string name="error_cant_delete_community">Failed to delete community</string>
     <string name="error_cant_detach_community">Failed to detach community from user</string>
     <string name="error_cant_cleanup_community_photos">Failed to cleanup community photos</string>
+    <string name="error_cant_initialize_user">Failed to initialize the user</string>
 </resources>

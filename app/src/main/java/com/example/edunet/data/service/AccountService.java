@@ -19,6 +19,8 @@ public interface AccountService {
     @Nullable
     String getUid();
 
+    boolean isUserAvailable();
+
     @NonNull
     LiveData<User> observeCurrentUser();
 

@@ -2,6 +2,9 @@ package com.example.edunet.data.service.model;
 
 import android.net.Uri;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * User update request that receives optional name and local avatar uri to update user profile
@@ -14,6 +17,16 @@ public class UserUpdateRequest {
     private boolean isNameSet = false;
     private boolean isBioSet = false;
     private boolean isAvatarSet = false;
+
+    public Map<String,Object> toMap(){
+        Map<String,Object> map = new HashMap<>();
+
+        if(isNameSet()) map.put("name", getName());
+        if(isAvatarSet()) map.put("avatar", getAvatar() == null ? null: getAvatar().toString());
+        if(isBioSet()) map.put("bio", getBio());
+
+        return map;
+    }
 
     public boolean isNameSet() {
         return isNameSet;

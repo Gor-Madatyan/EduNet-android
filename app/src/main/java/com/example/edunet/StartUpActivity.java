@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edunet.data.service.AccountService;
-import com.example.edunet.data.service.model.User;
+import com.example.edunet.data.service.task.account.ProfileTaskManager;
 import com.example.edunet.ui.util.FireBaseAuthUiUtils;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.FirebaseUiException;
@@ -22,11 +22,11 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class StartUpActivity extends AppCompatActivity {
-
     private final static String TAG = StartUpActivity.class.getSimpleName();
     @Inject
     AccountService accountService;
-
+    @Inject
+    ProfileTaskManager profileTaskManager;
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
             this::onSignInResult
@@ -35,19 +35,15 @@ public class StartUpActivity extends AppCompatActivity {
     private void onSignInResult(@NonNull FirebaseAuthUIAuthenticationResult result) {
         IdpResponse response = result.getIdpResponse();
 
-        if (result.getResultCode() == RESULT_OK) {
-            User user = accountService.getCurrentUser();
-            assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
-            assert response != null;
-
+        if (result.getResultCode() == RESULT_OK)
             startActivity(new Intent(this, MainActivity.class));
-        } else {
-            if (response != null) {
+
+        else if (response != null) {
                 FirebaseUiException error = response.getError();
                 assert error != null;
                 Log.e(TAG, error.toString());
             }
-        }
+
         finish();
     }
 
@@ -55,7 +51,7 @@ public class StartUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (accountService.getCurrentUser() == null) {
+        if (!accountService.isUserAvailable()) {
             signInLauncher.launch(FireBaseAuthUiUtils.getIntent());
             return;
         }

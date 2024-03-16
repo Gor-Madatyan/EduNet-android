@@ -1,8 +1,7 @@
 package com.example.edunet.data.service.impl;
 
-import static com.example.edunet.data.service.util.firebase.FirestoreUtils.initializeDocument;
-import static com.example.edunet.data.service.util.firebase.typeconversion.FirebaseTypeConversionUtils.FireBaseUserProfileChangeRequestFromAbstractUserUpdateRequest;
-import static com.example.edunet.data.service.util.firebase.typeconversion.FirebaseTypeConversionUtils.userFromFireBaseUser;
+import static com.example.edunet.data.service.util.firebase.typeconversion.FirebaseTypeConversionUtils.userFromAuthUser;
+import static com.example.edunet.data.service.util.firebase.typeconversion.FirebaseTypeConversionUtils.userFromFireStoreUser;
 
 import android.net.Uri;
 import android.util.Log;
@@ -20,12 +19,12 @@ import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -41,18 +40,18 @@ public final class AccountServiceImpl implements AccountService {
     private final FirebaseStorage storage;
     private final AvatarManager avatarManager;
     private final CollectionReference firestoreUsers;
-    private DocumentReference userMetadataReference;
-    private final MutableLiveData<UserMetadata> userMetadata = new MutableLiveData<>();
-    private final MutableLiveData<FirebaseUser> firebaseUser = new MutableLiveData<>();
-    private final MediatorLiveData<User> currentUser = new MediatorLiveData<>();
-    private ListenableFuture<Void> userMetadataInitialization;
+    private DocumentReference firestoreUserReference;
+    private final MutableLiveData<FirestoreUser> firestoreUserLiveData = new MutableLiveData<>();
+    private final MutableLiveData<FirebaseUser> firebaseUserLiveData = new MutableLiveData<>();
+    private ListenerRegistration firestoreUserListener;
+    private final MediatorLiveData<User> currentUserLiveData = new MediatorLiveData<>();
 
     {
-        currentUser.addSource(firebaseUser, user ->
-                currentUser.setValue(userFromFireBaseUser(user, userMetadata.getValue())));
+        currentUserLiveData.addSource(firebaseUserLiveData, user ->
+                currentUserLiveData.setValue(userFromAuthUser(user)));
 
-        currentUser.addSource(userMetadata, metadata ->
-                currentUser.setValue(userFromFireBaseUser(firebaseUser.getValue(), metadata)));
+        currentUserLiveData.addSource(firestoreUserLiveData, firestoreUser ->
+                currentUserLiveData.setValue(userFromFireStoreUser(getUid(), firestoreUser)));
     }
 
     private class AvatarManager {
@@ -79,28 +78,34 @@ public final class AccountServiceImpl implements AccountService {
         }
     }
 
-
-
-    public static class UserMetadata {
+    public static class FirestoreUser {
+        private String name;
+        private String avatar;
         private String bio;
 
-        public UserMetadata() {
-        }
-
-        public UserMetadata(String bio) {
+        public FirestoreUser(String name, String avatar, String bio) {
             this.bio = bio;
+            this.name = name;
+            this.avatar = avatar;
         }
 
+        @SuppressWarnings("unused")
+        public FirestoreUser() {
+        }
 
-        public static UserMetadata getDefault() {
-            return new UserMetadata(null);
+        public String getName() {
+            return name;
+        }
+
+        public String getAvatar() {
+            return avatar;
         }
 
         public String getBio() {
             return bio;
         }
-    }
 
+    }
 
     @Inject
     AccountServiceImpl(FirebaseAuth auth, FirebaseStorage storage, FirebaseFirestore firestore) {
@@ -111,24 +116,29 @@ public final class AccountServiceImpl implements AccountService {
 
         auth.addAuthStateListener(firebaseAuth -> {
                     FirebaseUser user = auth.getCurrentUser();
-                    firebaseUser.setValue(user);
+                    firebaseUserLiveData.setValue(user);
 
                     if (user != null) {
-                        userMetadataReference = firestoreUsers.document(user.getUid());
-                        userMetadataInitialization = initializeUserMetadata();
-
-                        userMetadataInitialization.addListener(() -> {
-                            try {
-                                userMetadataInitialization.get();
-                                setUserMetadataListener();
-                            } catch (Exception e) {
-                                Log.e(TAG, "can't set listener on user metadata");
-                            }
-                        }, Runnable::run);
+                        firestoreUserReference = firestoreUsers.document(user.getUid());
+                        if (firestoreUserListener != null) firestoreUserListener.remove();
+                        firestoreUserListener = setFirestoreUserListener();
                     }
 
                 }
         );
+    }
+
+    private void initialize(@NonNull Consumer<ServiceException> onResult) {
+        FirebaseUser user = auth.getCurrentUser();
+        assert user != null : InternalErrorMessages.CURRENT_USER_IS_NULL;
+        DocumentReference userPath = firestoreUsers.document(Objects.requireNonNull(getUid()));
+
+        userPath.set(new FirestoreUser(
+                        user.getDisplayName(),
+                        user.getPhotoUrl() == null ? null : user.getPhotoUrl().toString(),
+                        null))
+                .addOnSuccessListener(r -> onResult.accept(null))
+                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_initialize_user, e)));
     }
 
     @Nullable
@@ -138,15 +148,20 @@ public final class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public boolean isUserAvailable() {
+        return auth.getCurrentUser() != null;
+    }
+
+    @Override
     @NonNull
     public LiveData<User> observeCurrentUser() {
-        return currentUser;
+        return currentUserLiveData;
     }
 
     @Override
     @Nullable
     public User getCurrentUser() {
-        return userFromFireBaseUser(auth.getCurrentUser(), userMetadata.getValue());
+        return currentUserLiveData.getValue();
     }
 
     @Override
@@ -168,34 +183,26 @@ public final class AccountServiceImpl implements AccountService {
 
     }
 
-    private void _updateCurrentUser(@NonNull UserUpdateRequest abstractRequest,
+    private void _updateCurrentUser(@NonNull UserUpdateRequest request,
                                     @NonNull Consumer<ServiceException> onResult) {
-
-        FirebaseUser user = auth.getCurrentUser();
-        assert user != null : InternalErrorMessages.CURRENT_USER_IS_NULL;
-
-        user.updateProfile(FireBaseUserProfileChangeRequestFromAbstractUserUpdateRequest(abstractRequest))
-                .addOnSuccessListener(v -> {
-                    refreshCurrentUser();
-
-                    if (abstractRequest.isBioSet()) saveBio(abstractRequest.getBio(), onResult);
-                    else onResult.accept(null);
-                })
+        firestoreUserReference.update(request.toMap())
+                .addOnSuccessListener(r -> onResult.accept(null))
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_profile_update, e)));
     }
 
     @Override
     public boolean validateUserUpdate(@NonNull UserUpdateRequest request) {
+        if (!firestoreUserLiveData.isInitialized())
+            return false;
+
         String name = request.getName();
         String bio = request.getBio();
         Uri avatar = request.getAvatar();
-        FirebaseUser user = auth.getCurrentUser();
-        assert user != null : InternalErrorMessages.CURRENT_USER_IS_NULL;
 
         if (avatar != null && !AvatarManager.validateAvatar(avatar))
             return false;
 
-        if (((request.isNameSet() || user.getDisplayName() == null)) && name == null)
+        if (request.isNameSet() && name == null)
             return false;
 
         if (name != null) request.setName(name = name.trim());
@@ -210,51 +217,24 @@ public final class AccountServiceImpl implements AccountService {
 
     @Override
     public void signOut() {
-        FirebaseUser user = auth.getCurrentUser();
-        assert user != null : InternalErrorMessages.CURRENT_USER_IS_NULL;
-        if (user.isAnonymous()) user.delete();
         auth.signOut();
     }
 
-    private ListenableFuture<Void> initializeUserMetadata() {
-        return initializeDocument(userMetadataReference, UserMetadata.getDefault());
-    }
-
-    private void setUserMetadataListener() {
-        userMetadataReference.addSnapshotListener((snapshot, e) -> {
+    private ListenerRegistration setFirestoreUserListener() {
+        Log.i(TAG, "user listener was set");
+        return firestoreUserReference.addSnapshotListener((snapshot, e) -> {
             if (e != null) {
-                Log.e(TAG, "can't fetch metadata");
+                Log.e(TAG, e.toString());
                 return;
             }
             assert snapshot != null;
-            UserMetadata metadata = Objects.requireNonNull(snapshot.toObject(UserMetadata.class));
-            userMetadata.setValue(metadata);
-        });
-    }
-
-    private void saveBio(String bio, Consumer<ServiceException> onResult) {
-        FirebaseUser user = auth.getCurrentUser();
-        assert user != null : InternalErrorMessages.CURRENT_USER_IS_NULL;
-
-        userMetadataInitialization.addListener(() -> {
-            try {
-                userMetadataInitialization.get();
-            } catch (Exception e) {
-                onResult.accept(new ServiceException(R.string.error_bio_update, e));
+            if (!snapshot.exists()) {
+                initialize(e1 -> Log.w(TAG, e1));
                 return;
             }
-            userMetadataReference.update("bio", bio)
-                    .addOnCompleteListener(r -> {
-                        Exception e = r.getException();
-                        onResult.accept(e == null ? null : new ServiceException(R.string.error_bio_update, e));
-                    });
-        }, Runnable::run);
 
-
-    }
-
-    private void refreshCurrentUser() {
-        firebaseUser.setValue(auth.getCurrentUser());
+            firestoreUserLiveData.setValue(snapshot.toObject(FirestoreUser.class));
+        });
     }
 
 }
