@@ -47,7 +47,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        viewModel.observeOwnedCommunities(getViewLifecycleOwner(),requireContext().getApplicationContext());
+        viewModel.observeOwnedCommunities(getViewLifecycleOwner());
 
         navController = Navigation.findNavController(view);
         binding.toolbar.setOnMenuItemClickListener(item -> {
