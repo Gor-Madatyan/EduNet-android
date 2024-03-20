@@ -66,17 +66,18 @@ public class CommunityFragment extends Fragment {
                     return true;
                 });
                 delete.setOnMenuItemClickListener(i -> {
+
                     navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToCommunityDeleteDialogFragment(communityId));
                     return true;
                 });
-
-                Community community = state.community();
-                String avatar = state.community().getAvatar();
-
-                binding.toolbarLayout.setTitle(community.getName());
-                binding.description.setText(community.getDescription());
-                ImageLoadingUtils.loadCommunityAvatar(this,avatar == null ? null : Uri.parse(avatar) , binding.avatar);
             }
+            Community community = state.community();
+            String avatar = state.community().getAvatar();
+
+            binding.toolbarLayout.setTitle(community.getName());
+            binding.description.setText(community.getDescription());
+            ImageLoadingUtils.loadCommunityAvatar(this, avatar == null ? null : Uri.parse(avatar), binding.avatar);
+
         });
 
     }

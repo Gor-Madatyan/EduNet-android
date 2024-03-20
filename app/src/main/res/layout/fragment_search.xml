@@ -6,16 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".ui.screen.search.SearchFragment">
 
-    <TextView
-        android:id="@+id/search_page_placeholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:text="@string/search_page_placeholder"
-        app:layout_constraintVertical_bias="0.2"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/result"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        app:layout_constraintTop_toTopOf="parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

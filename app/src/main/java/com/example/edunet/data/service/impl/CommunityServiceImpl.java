@@ -16,6 +16,7 @@ import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.model.CommunityUpdateRequest;
 import com.example.edunet.data.service.model.User;
+import com.example.edunet.data.service.util.common.Paginator;
 import com.example.edunet.data.service.util.firebase.FirestoreUtils;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
 import com.google.firebase.firestore.CollectionReference;
@@ -27,6 +28,8 @@ import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -98,10 +101,9 @@ public class CommunityServiceImpl implements CommunityService {
                         Community.class,
                         (e, data) -> {
                             if (e != null) {
-                                Log.e(TAG,e.toString());
+                                Log.e(TAG, e.toString());
                                 biConsumer.accept(new ServiceException(R.string.error_cant_load_community, e), null);
-                            }
-                            else biConsumer.accept(null, data);
+                            } else biConsumer.accept(null, data);
                         }),
                 lifecycleOwner
         );
@@ -125,6 +127,23 @@ public class CommunityServiceImpl implements CommunityService {
                 avatar -> _createCommunity(community, request.setAvatar(avatar), onResult),
                 onResult
         );
+    }
+
+    @Override
+    public Paginator<Pair<String, Community>> getCommunityPaginator(String namePrefix, int limit) {
+        namePrefix = namePrefix.toLowerCase(Locale.ROOT);
+
+        return new FirestoreUtils.Paginator<>(
+                communityCollection.orderBy("searchName")
+                .startAt(namePrefix)
+                .endAt(namePrefix + '\uf8ff'), limit, Community.class) {
+            @Override
+            public void next(Consumer<List<Pair<String, Community>>> onSuccess, Consumer<Exception> onFailure) {
+                super.next(onSuccess,
+                        e -> onFailure.accept(new ServiceException(R.string.error_cant_load_community, e))
+                );
+            }
+        };
     }
 
     @Override

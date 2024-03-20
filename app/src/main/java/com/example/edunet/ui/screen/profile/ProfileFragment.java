@@ -13,12 +13,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.edunet.MainNavDirections;
 import com.example.edunet.R;
 import com.example.edunet.StartUpActivity;
 import com.example.edunet.databinding.FragmentProfileBinding;
 import com.example.edunet.ui.adapter.CommunityAdapter;
 import com.example.edunet.ui.util.ImageLoadingUtils;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -75,7 +77,10 @@ public class ProfileFragment extends Fragment {
 
             if (state.ownedCommunities().length > 0) {
                 binding.ownedCommunitiesContainer.setVisibility(View.VISIBLE);
-                binding.ownedCommunities.setAdapter(new CommunityAdapter(state.ownedCommunities()));
+                binding.ownedCommunities.setAdapter(new CommunityAdapter(Arrays.asList(state.ownedCommunities()), id -> {
+                    MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(id);
+                    navController.navigate(action);
+                }));
             } else
                 binding.ownedCommunitiesContainer.setVisibility(View.INVISIBLE);
 

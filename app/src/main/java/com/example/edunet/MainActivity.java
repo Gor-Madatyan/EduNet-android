@@ -1,8 +1,6 @@
 package com.example.edunet;
 
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -30,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
 
          appBarConfiguration =
                  new AppBarConfiguration.Builder(R.id.navigation_home,R.id.navigation_chats,R.id.navigation_search,R.id.navigation_profile)
-                         .setOpenableLayout(binding.drawerLayout)
                          .build();
 
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
@@ -45,21 +42,5 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        getMenuInflater().inflate(R.menu.top_bar_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
-            navController.navigate(R.id.action_global_settingsFragment);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
 }

@@ -34,11 +34,6 @@
             app:destination="@id/profileUpdateFragment" />
     </fragment>
     <fragment
-        android:id="@+id/settingsFragment"
-        android:name="com.example.edunet.ui.screen.settings.SettingsFragment"
-        tools:layout="@layout/fragment_settings"
-        android:label="@string/title_settings" /><action android:id="@+id/action_global_settingsFragment" app:destination="@id/settingsFragment" />
-    <fragment
         android:id="@+id/profileUpdateFragment"
         android:name="com.example.edunet.ui.screen.profile.update.ProfileUpdateFragment"
         android:label="@string/title_profile_update"

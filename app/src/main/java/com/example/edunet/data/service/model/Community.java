@@ -5,21 +5,21 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import java.util.Locale;
+
 public class Community implements Parcelable {
     private String name;
+    private String searchName;
     private String avatar;
     private String description;
     private String ownerId;
-
-    public enum Role{
-        OWNER
-    }
 
     public Community() {
     }
 
     public Community(String name, String description, String avatar, String ownerId) {
         this.name = name;
+        searchName = name.toLowerCase(Locale.ROOT);
         this.avatar = avatar;
         this.description = description;
         this.ownerId = ownerId;
@@ -74,6 +74,11 @@ public class Community implements Parcelable {
 
     public String getName() {
         return name;
+    }
+
+    @SuppressWarnings("unused")
+    public String getSearchName() {
+        return searchName;
     }
 
     public String getAvatar() {

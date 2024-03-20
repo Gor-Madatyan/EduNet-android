@@ -8,33 +8,36 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.edunet.MainNavDirections;
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.ui.util.ImageLoadingUtils;
 
-public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.ViewHolder> {
-    private final Pair<String, Community>[] dataSet;
+import java.util.List;
 
-    public CommunityAdapter(Pair<String, Community>[] dataSet) {
+public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.ViewHolder> {
+    protected final List<Pair<String, Community>> dataSet;
+    private final Consumer<String> callBack;
+
+    public CommunityAdapter(List<Pair<String, Community>> dataSet, Consumer<String> callBack) {
         this.dataSet = dataSet;
+        this.callBack = callBack;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         private final ImageView avatar;
         private final TextView name;
         private String communityId;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            itemView.setOnClickListener(v -> {
+            itemView.setOnClickListener(v -> callBack.accept(communityId)/*{
                         MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(communityId);
                         Navigation.findNavController(v).navigate(action);
-                    }
+                    }*/
             );
             avatar = itemView.findViewById(R.id.avatar);
             name = itemView.findViewById(R.id.name);
@@ -61,13 +64,13 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Pair<String,Community> community = dataSet[position];
-        holder.setCommunity(community.first,community.second);
+        Pair<String, Community> community = dataSet.get(position);
+        holder.setCommunity(community.first, community.second);
     }
 
     @Override
     public int getItemCount() {
-        return dataSet.length;
+        return dataSet.size();
     }
 
 }

@@ -3,52 +3,79 @@ package com.example.edunet.data.service.util.firebase;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.google.android.gms.tasks.Task;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public final class FirestoreUtils {
     private static final String TAG = FirestoreUtils.class.getSimpleName();
 
-    private FirestoreUtils() {
+    public static class Paginator<T> implements com.example.edunet.data.service.util.common.Paginator<Pair<String, T>> {
+        private final Class<T> clazz;
+        private Query query;
+        private boolean hasFailure = false;
+
+        private boolean eof = false;
+
+        public Paginator(@NonNull Query query, int limit, @NonNull Class<T> clazz) {
+            this.query = query.limit(limit);
+            this.clazz = clazz;
+        }
+
+        @Override
+        public void next(Consumer<List<Pair<String,T>>> onSuccess, Consumer<Exception> onFailure) {
+            if (eof) {
+                onFailure.accept(new EOFException());
+                return;
+            } else if (hasFailure) {
+                onFailure.accept(new IllegalStateException());
+                return;
+            }
+            query.get()
+                    .addOnSuccessListener(snapshots -> {
+                        if (snapshots.isEmpty()) {
+                            eof = true;
+                            onFailure.accept(new EOFException());
+                            return;
+                        }
+                        List<Pair<String,T>> objects = new ArrayList<>();
+
+                        for (QueryDocumentSnapshot snapshot : snapshots) {
+                            objects.add(new Pair<>(snapshot.getId(),snapshot.toObject(clazz)));
+                        }
+
+                        query = query.startAfter(snapshots.getDocuments().get(snapshots.size() - 1));
+                        onSuccess.accept(objects);
+                    })
+                    .addOnFailureListener(e -> {
+                        hasFailure = true;
+                        onFailure.accept(e);
+                    });
+        }
+
+        @Override
+        public boolean hasFailure() {
+            return hasFailure;
+        }
+
+
+        @Override
+        public boolean isEofReached() {
+            return eof;
+        }
     }
 
-    public static ListenableFuture<Void> initializeDocument(DocumentReference reference, Object value) {
-        return CallbackToFutureAdapter.getFuture(
-                completer -> {
-                    Consumer<Task<DocumentSnapshot>> callBack = task -> {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot snapshot = task.getResult();
-                            if (snapshot.exists()) completer.set(null);
-                            else reference.set(value)
-                                    .addOnSuccessListener(v -> completer.set(null))
-                                    .addOnFailureListener(completer::setException);
-
-                        } else completer.setException(Objects.requireNonNull(task.getException()));
-                    };
-
-                    reference.get().addOnCompleteListener(
-                            callBack::accept
-                    );
-
-                    return callBack;
-                }
-        );
+    private FirestoreUtils() {
     }
 
     public static void attachObserver(ListenerRegistration listener, LifecycleOwner lifecycleOwner) {

@@ -9,6 +9,7 @@ import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.model.CommunityUpdateRequest;
+import com.example.edunet.data.service.util.common.Paginator;
 
 import java.util.function.BiConsumer;
 
@@ -20,6 +21,8 @@ public interface CommunityService {
      * @param onResult callback that will be called on result
      */
     void createCommunity(@NonNull CommunityCreateRequest request, @NonNull Consumer<ServiceException> onResult);
+
+    Paginator<Pair<String,Community>> getCommunityPaginator(String namePrefix, int limit);
 
     void deleteCommunity(@NonNull String id, Consumer<ServiceException> onResult);
 

@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModel;
 import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.model.Community;
-import com.example.edunet.data.service.model.User;
 
 import javax.inject.Inject;
 
@@ -44,13 +43,13 @@ public class CommunityViewModel extends ViewModel {
                         Log.w(TAG, exception.toString());
                         return;
                     }
-                    User user = accountService.getCurrentUser();
-                    assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+                    String uid = accountService.getUid();
+                    assert uid != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
 
                     _uiState.setValue(new UiState(
                             null,
                             community,
-                            user.id().equals(community.getOwnerId())));
+                            uid.equals(community.getOwnerId())));
                 }
         );
     }
