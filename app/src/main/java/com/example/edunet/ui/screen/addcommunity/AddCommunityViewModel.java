@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -37,13 +38,14 @@ public class AddCommunityViewModel extends ViewModel {
     }
 
 
-    void createCommunity(@NonNull String name, @NonNull String description, @NonNull Context context) {
+    void createCommunity(@NonNull String name, @NonNull String description, @Nullable String ancestor, @NonNull Context context) {
         Uri avatar = this.avatar.getValue();
 
         CommunityCreateRequest request = new CommunityCreateRequest()
                 .setAvatar(avatar)
                 .setName(name)
-                .setDescription(description);
+                .setDescription(description)
+                .setAncestor(ancestor);
 
         if (!communityService.validateCommunityCreateRequest(request)) {
             _error.setValue(new Error(R.string.error_invalid_community_create_request));

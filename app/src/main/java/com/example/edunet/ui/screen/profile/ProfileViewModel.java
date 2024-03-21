@@ -49,7 +49,7 @@ public class ProfileViewModel extends ViewModel {
                 Objects.requireNonNull(accountService.getUid()),
                 (e, communities) -> {
                     if (e != null) {
-                        Log.w(TAG,e.getMessage());
+                        Log.w(TAG,e.toString());
                         return;
                     }
                     User user = accountService.getCurrentUser();

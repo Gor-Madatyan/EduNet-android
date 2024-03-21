@@ -4,6 +4,7 @@ import android.net.Uri;
 
 public class CommunityCreateRequest {
     private String name;
+    private String ancestor;
     private String description;
     private Uri avatar;
 
@@ -30,6 +31,15 @@ public class CommunityCreateRequest {
 
     public CommunityCreateRequest setAvatar(Uri avatar) {
         this.avatar = avatar;
+        return this;
+    }
+
+    public String getAncestor() {
+        return ancestor;
+    }
+
+    public CommunityCreateRequest setAncestor(String ancestor) {
+        this.ancestor = ancestor;
         return this;
     }
 }

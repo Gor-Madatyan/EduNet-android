@@ -24,6 +24,7 @@ public class CommunityCreateWorker extends ListenableWorker {
     private static final String AVATAR_KEY = "AVATAR";
     private static final String NAME_KEY = "NAME";
     private static final String DESCRIPTION_KEY = "DESCRIPTION";
+    private static final String ANCESTOR_KEY = "ANCESTOR";
 
     private final CommunityService communityService;
 
@@ -55,7 +56,8 @@ public class CommunityCreateWorker extends ListenableWorker {
         return new Data.Builder()
                 .putString(AVATAR_KEY, request.getAvatar() == null ? null : request.getAvatar().toString())
                 .putString(NAME_KEY, request.getName())
-                .putString(DESCRIPTION_KEY, request.getDescription()).build();
+                .putString(DESCRIPTION_KEY, request.getDescription())
+                .putString(ANCESTOR_KEY,request.getAncestor()).build();
     }
 
     private CommunityCreateRequest getCommunityCreateRequestFromData() {
@@ -63,12 +65,12 @@ public class CommunityCreateWorker extends ListenableWorker {
         String name = data.getString(NAME_KEY);
         String description = data.getString(DESCRIPTION_KEY);
         String avatar = data.getString(AVATAR_KEY);
+        String ancestor = data.getString(ANCESTOR_KEY);
 
-        CommunityCreateRequest request = new CommunityCreateRequest();
-
-        return request.setName(name)
+        return new CommunityCreateRequest().setName(name)
                 .setDescription(description)
-                .setAvatar(avatar == null ? null : Uri.parse(avatar));
+                .setAvatar(avatar == null ? null : Uri.parse(avatar))
+                .setAncestor(ancestor);
     }
 
 

@@ -48,6 +48,7 @@ public class AddCommunityFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        String ancestor = AddCommunityFragmentArgs.fromBundle(getArguments()).getAncestor();
         navController = Navigation.findNavController(view);
 
         binding.avatar.setOnClickListener(v -> mediaPickerLauncher.launch(new String[]{"image/*"}));
@@ -74,7 +75,7 @@ public class AddCommunityFragment extends Fragment {
                 requireActivity().getContentResolver().takePersistableUriPermission(photo,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-            viewModel.createCommunity(name, description, requireContext().getApplicationContext());
+            viewModel.createCommunity(name, description, ancestor, requireContext().getApplicationContext());
         });
 
     }

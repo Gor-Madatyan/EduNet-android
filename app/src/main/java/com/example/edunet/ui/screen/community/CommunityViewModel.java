@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -31,6 +32,7 @@ public class CommunityViewModel extends ViewModel {
         this.accountService = accountService;
     }
 
+    @SuppressWarnings("unchecked")
     void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id) {
         communityService.observeCommunity(lifecycleOwner, id,
                 (community, exception) -> {
@@ -38,6 +40,7 @@ public class CommunityViewModel extends ViewModel {
                         _uiState.setValue(new UiState(
                                 new Error(exception.getId()),
                                 null,
+                                new Pair[0],
                                 false)
                         );
                         Log.w(TAG, exception.toString());
@@ -49,9 +52,39 @@ public class CommunityViewModel extends ViewModel {
                     _uiState.setValue(new UiState(
                             null,
                             community,
+                            uiState.getValue() == null ? new Pair[0] : uiState.getValue().subCommunities(),
                             uid.equals(community.getOwnerId())));
                 }
         );
+        observeSubCommunities(lifecycleOwner, id);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void observeSubCommunities(@NonNull LifecycleOwner owner, @NonNull String id) {
+        communityService.observeSubCommunities(owner, id,
+                (e, subCommunities) -> {
+                    UiState currentUiState = uiState.getValue();
+                    Community community = currentUiState == null ? null : currentUiState.community();
+                    boolean isCurrentUserOwner = currentUiState != null && currentUiState.isCurrentUserOwner();
+
+                    if (e != null) {
+                        _uiState.setValue(new UiState(
+                                new Error(e.getId()),
+                                community,
+                                new Pair[0],
+                                isCurrentUserOwner)
+                        );
+                        Log.e(TAG, e.toString());
+                        return;
+                    }
+
+                    _uiState.setValue(
+                            new UiState(null,
+                                    community,
+                                    subCommunities,
+                                    isCurrentUserOwner)
+                    );
+                });
     }
 }
 
@@ -59,6 +92,7 @@ public class CommunityViewModel extends ViewModel {
 record UiState(
         Error error,
         Community community,
+        Pair<String, Community>[] subCommunities,
         boolean isCurrentUserOwner) {
 }
 

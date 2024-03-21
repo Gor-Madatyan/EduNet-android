@@ -23,6 +23,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
@@ -95,9 +96,22 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public void observeOwnedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer) {
+        observeCommunities(lifecycleOwner,
+                communityCollection.whereEqualTo("ownerId", uid),
+                biConsumer);
+    }
+
+    @Override
+    public void observeSubCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String cid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer) {
+        observeCommunities(lifecycleOwner,
+                communityCollection.whereEqualTo("ancestor", cid),
+                biConsumer);
+    }
+
+    private static void observeCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull Query query, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer) {
         FirestoreUtils.attachObserver(
                 FirestoreUtils.observeData(
-                        communityCollection.whereEqualTo("ownerId", uid),
+                        query,
                         Community.class,
                         (e, data) -> {
                             if (e != null) {
@@ -135,12 +149,16 @@ public class CommunityServiceImpl implements CommunityService {
 
         return new FirestoreUtils.Paginator<>(
                 communityCollection.orderBy("searchName")
-                .startAt(namePrefix)
-                .endAt(namePrefix + '\uf8ff'), limit, Community.class) {
+                        .whereEqualTo("ancestor",null)
+                        .startAt(namePrefix)
+                        .endAt(namePrefix + '\uf8ff'), limit, Community.class) {
             @Override
             public void next(Consumer<List<Pair<String, Community>>> onSuccess, Consumer<Exception> onFailure) {
                 super.next(onSuccess,
-                        e -> onFailure.accept(new ServiceException(R.string.error_cant_load_community, e))
+                        e -> {
+                            onFailure.accept(new ServiceException(R.string.error_cant_load_community, e));
+                            Log.e(TAG,e.toString());
+                        }
                 );
             }
         };
@@ -193,6 +211,7 @@ public class CommunityServiceImpl implements CommunityService {
         community.set(new Community(request.getName(),
                         request.getDescription(),
                         request.getAvatar() == null ? null : request.getAvatar().toString(),
+                        request.getAncestor(),
                         user.id()))
                 .addOnSuccessListener(r -> onResult.accept(null))
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_create_community, e)));

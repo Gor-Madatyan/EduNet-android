@@ -14,21 +14,27 @@
     <fragment
         android:id="@+id/navigation_chats"
         android:name="com.example.edunet.ui.screen.chats.ChatsFragment"
-        tools:layout="@layout/fragment_chats"
-        android:label="@string/title_chats" />
+        android:label="@string/title_chats"
+        tools:layout="@layout/fragment_chats" />
     <fragment
         android:id="@+id/navigation_search"
         android:name="com.example.edunet.ui.screen.search.SearchFragment"
-        tools:layout="@layout/fragment_search"
-        android:label="@string/title_search" />
+        android:label="@string/title_search"
+        tools:layout="@layout/fragment_search" />
     <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.edunet.ui.screen.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" >
+        tools:layout="@layout/fragment_profile">
         <action
             android:id="@+id/action_navigation_profile_to_addCommunityFragment"
-            app:destination="@id/addCommunityFragment" />
+            app:destination="@id/addCommunityFragment" >
+            <argument
+                android:name="ancestor"
+                android:defaultValue="@null"
+                app:argType="string"
+                app:nullable="true" />
+        </action>
         <action
             android:id="@+id/action_navigation_profile_to_profileUpdateFragment"
             app:destination="@id/profileUpdateFragment" />
@@ -41,13 +47,18 @@
     <fragment
         android:id="@+id/addCommunityFragment"
         android:name="com.example.edunet.ui.screen.addcommunity.AddCommunityFragment"
-        tools:layout="@layout/fragment_modify_community"
-        android:label="@string/title_add_community" />
+        android:label="@string/title_add_community"
+        tools:layout="@layout/fragment_modify_community">
+        <argument
+            android:name="ancestor"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
     <fragment
         android:id="@+id/communityFragment"
         android:name="com.example.edunet.ui.screen.community.CommunityFragment"
         android:label="@string/title_community"
-        tools:layout="@layout/fragment_community" >
+        tools:layout="@layout/fragment_community">
         <argument
             android:name="communityId"
             app:argType="string" />
@@ -57,12 +68,18 @@
         <action
             android:id="@+id/action_communityFragment_to_communityDeleteDialogFragment"
             app:destination="@id/communityDeleteDialogFragment" />
-    </fragment><action android:id="@+id/action_global_communityFragment" app:destination="@id/communityFragment"/>
+        <action
+            android:id="@+id/action_communityFragment_to_addCommunityFragment"
+            app:destination="@id/addCommunityFragment" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_communityFragment"
+        app:destination="@id/communityFragment" />
     <fragment
         android:id="@+id/communityUpdateFragment"
-        tools:layout="@layout/fragment_modify_community"
         android:name="com.example.edunet.ui.screen.community.update.CommunityUpdateFragment"
-        android:label="@string/title_edit_community" >
+        android:label="@string/title_edit_community"
+        tools:layout="@layout/fragment_modify_community">
         <argument
             android:name="community"
             app:argType="com.example.edunet.data.service.model.Community" />

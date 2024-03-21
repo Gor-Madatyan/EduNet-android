@@ -14,4 +14,10 @@
         android:title="@string/title_delete_community"
         android:visible="false"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_add_subcommunity"
+        android:title="@string/title_add_community"
+        android:visible="false"
+        app:showAsAction="never" />
 </menu>

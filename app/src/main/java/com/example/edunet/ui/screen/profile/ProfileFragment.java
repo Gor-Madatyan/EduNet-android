@@ -68,7 +68,7 @@ public class ProfileFragment extends Fragment {
             return false;
         });
 
-        binding.addCommunity.setOnClickListener(v -> navController.navigate(R.id.action_navigation_profile_to_addCommunityFragment));
+        binding.addCommunity.setOnClickListener(v -> navController.navigate(ProfileFragmentDirections.actionNavigationProfileToAddCommunityFragment()));
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
             binding.toolbarLayout.setTitle(state.user().name());
@@ -82,7 +82,7 @@ public class ProfileFragment extends Fragment {
                     navController.navigate(action);
                 }));
             } else
-                binding.ownedCommunitiesContainer.setVisibility(View.INVISIBLE);
+                binding.ownedCommunitiesContainer.setVisibility(View.GONE);
 
         });
     }

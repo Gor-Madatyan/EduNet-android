@@ -33,5 +33,6 @@
     <string name="community_avatar">Community avatar</string>
 
     <string name="community_delete_dialog">Do you want to delete this community?</string>
+    <string name="subcommunities">Modules</string>
 
 </resources>

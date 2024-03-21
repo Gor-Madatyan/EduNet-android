@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Locale;
 
@@ -12,18 +13,21 @@ public class Community implements Parcelable {
     private String searchName;
     private String avatar;
     private String description;
+    private String ancestor;
     private String ownerId;
 
     public Community() {
     }
 
-    public Community(String name, String description, String avatar, String ownerId) {
+    public Community(@NonNull String name, @NonNull String description, @Nullable String avatar, @Nullable String ancestor, @NonNull String ownerId) {
         this.name = name;
         searchName = name.toLowerCase(Locale.ROOT);
         this.avatar = avatar;
         this.description = description;
+        this.ancestor = ancestor;
         this.ownerId = ownerId;
     }
+
 
     protected Community(Parcel in) {
         name = in.readString();
@@ -87,5 +91,10 @@ public class Community implements Parcelable {
 
     public String getOwnerId() {
         return ownerId;
+    }
+
+    @SuppressWarnings("unused")
+    public String getAncestor() {
+        return ancestor;
     }
 }
