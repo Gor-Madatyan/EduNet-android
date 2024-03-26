@@ -27,6 +27,15 @@ public final class ImageLoadingUtils {
                 .into(into);
     }
 
+    public static void loadAvatar(
+            @NonNull View view,
+            @Nullable Uri uri,
+            @DrawableRes int placeholder,
+            @NonNull ImageView into
+    ) {
+        loadAvatar(Glide.with(view), uri, placeholder, into);
+    }
+
     public static void loadUserAvatar(
             @NonNull Fragment fragment,
             @Nullable Uri uri,
@@ -43,11 +52,4 @@ public final class ImageLoadingUtils {
         loadAvatar(Glide.with(fragment), uri, R.drawable.ic_default_group, into);
     }
 
-    public static void loadCommunityAvatar(
-            @NonNull View view,
-            @Nullable Uri uri,
-            @NonNull ImageView into
-    ) {
-        loadAvatar(Glide.with(view), uri, R.drawable.ic_default_group, into);
-    }
 }

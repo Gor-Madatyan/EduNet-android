@@ -1,25 +1,28 @@
 package com.example.edunet.ui.adapter;
 
 import android.util.Log;
+import android.view.View;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 
-import com.example.edunet.data.service.model.Community;
+import com.example.edunet.data.service.model.Entity;
 import com.example.edunet.data.service.util.common.Paginator;
 
 import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
-public class LazyCommunityAdapter extends CommunityAdapter {
-    private static final String TAG = LazyCommunityAdapter.class.getSimpleName();
-    private final Paginator<Pair<String, Community>> paginator;
+public class LazyEntityAdapter<T extends Entity> extends EntityAdapter<T> {
+    private static final String TAG = LazyEntityAdapter.class.getSimpleName();
+    private final Paginator<Pair<String, T>> paginator;
     private boolean isLoading = false;
 
-    public LazyCommunityAdapter(Paginator<Pair<String, Community>> paginator, Consumer<String> callBack) {
-        super(new ArrayList<>(), callBack);
+    public LazyEntityAdapter(Paginator<Pair<String, T>> paginator, @LayoutRes int itemLayout, @DrawableRes int defaultAvatar, BiConsumer<View, CallbackData> callBack) {
+        super(new ArrayList<>(), itemLayout, defaultAvatar, callBack);
         this.paginator = paginator;
         load();
     }
@@ -46,7 +49,7 @@ public class LazyCommunityAdapter extends CommunityAdapter {
             Log.e(TAG, e.toString());
     }
 
-    private void onSuccess(List<Pair<String, Community>> list) {
+    private void onSuccess(List<Pair<String, T>> list) {
         isLoading = false;
         dataSet.addAll(list);
         notifyItemRangeInserted((dataSet.size() - 1) - (list.size() - 1), list.size());

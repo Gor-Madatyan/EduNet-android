@@ -41,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
     val navVersion = "2.7.7"
     val workVersion = "2.9.0"
 
@@ -56,8 +57,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     //dependency injection
-    implementation("com.google.dagger:hilt-android:2.49")
-    kapt("com.google.dagger:hilt-android-compiler:2.44")
+    implementation("com.google.dagger:hilt-android:2.51")
+    kapt("com.google.dagger:hilt-android-compiler:2.51")
     implementation("androidx.hilt:hilt-work:1.2.0")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
 
@@ -77,6 +78,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")

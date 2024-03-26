@@ -42,13 +42,13 @@ public class ProfileUpdateViewModel extends ViewModel {
         User user = accountService.getCurrentUser();
         assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
 
-        _avatar.setValue(user.photo());
+        _avatar.setValue(user.avatar());
     }
 
     String getInitialName() {
         User user = accountService.getCurrentUser();
         assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
-        return user.name();
+        return user.getName();
     }
 
     String getInitialBio() {
@@ -61,7 +61,7 @@ public class ProfileUpdateViewModel extends ViewModel {
     Uri getInitialAvatar() {
         User user = accountService.getCurrentUser();
         assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
-        return user.photo();
+        return user.avatar();
     }
 
     void updateProfile(@NonNull String name, @NonNull String bio, @NonNull Context context) {

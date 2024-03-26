@@ -8,16 +8,19 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.edunet.MainNavDirections;
 import com.example.edunet.R;
 import com.example.edunet.StartUpActivity;
+import com.example.edunet.data.service.model.Community;
 import com.example.edunet.databinding.FragmentProfileBinding;
-import com.example.edunet.ui.adapter.CommunityAdapter;
+import com.example.edunet.ui.adapter.EntityAdapter;
 import com.example.edunet.ui.util.ImageLoadingUtils;
 
 import java.util.Arrays;
@@ -49,7 +52,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        viewModel.observeOwnedCommunities(getViewLifecycleOwner());
+        viewModel.observeAttachedCommunities(getViewLifecycleOwner());
 
         navController = Navigation.findNavController(view);
         binding.toolbar.setOnMenuItemClickListener(item -> {
@@ -71,20 +74,28 @@ public class ProfileFragment extends Fragment {
         binding.addCommunity.setOnClickListener(v -> navController.navigate(ProfileFragmentDirections.actionNavigationProfileToAddCommunityFragment()));
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
-            binding.toolbarLayout.setTitle(state.user().name());
+            binding.toolbarLayout.setTitle(state.user().getName());
             binding.bio.setText(Objects.requireNonNullElse(state.user().bio(), getString(R.string.default_bio)));
-            ImageLoadingUtils.loadUserAvatar(this, state.user().photo(), binding.avatar);
+            ImageLoadingUtils.loadUserAvatar(this, state.user().avatar(), binding.avatar);
 
-            if (state.ownedCommunities().length > 0) {
-                binding.ownedCommunitiesContainer.setVisibility(View.VISIBLE);
-                binding.ownedCommunities.setAdapter(new CommunityAdapter(Arrays.asList(state.ownedCommunities()), id -> {
-                    MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(id);
-                    navController.navigate(action);
-                }));
-            } else
-                binding.ownedCommunitiesContainer.setVisibility(View.GONE);
+            processAttachedCommunities(binding.ownedCommunitiesContainer, binding.ownedCommunities, state.ownedCommunities());
+            processAttachedCommunities(binding.adminedCommunitiesContainer, binding.adminedCommunities, state.adminedCommunities());
 
         });
+    }
+
+    private void processAttachedCommunities(ViewGroup container, RecyclerView recyclerView, Pair<String, Community>[] communities){
+        if (communities.length > 0) {
+            container.setVisibility(View.VISIBLE);
+            recyclerView.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, R.drawable.ic_default_group, (item, data) ->
+                    item.setOnClickListener(
+                            v -> {
+                                MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getId());
+                                navController.navigate(action);
+                            })
+            ));
+        } else
+            container.setVisibility(View.GONE);
     }
 
     @Override

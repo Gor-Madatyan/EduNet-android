@@ -3,21 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_edit_community"
-        android:title="@string/title_edit_community"
-        android:icon="@drawable/ic_edit_40dp"
+        android:id="@+id/action_admin_panel"
+        android:title="@string/title_admin_panel"
+        android:icon="@drawable/ic_admin_panel_40dp"
         android:visible="false"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_delete_community"
-        android:title="@string/title_delete_community"
+        android:id="@+id/action_add_subcommunity"
+        android:title="@string/title_add_community"
         android:visible="false"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_add_subcommunity"
-        android:title="@string/title_add_community"
+        android:id="@+id/action_request_admin_permissions"
+        android:title="@string/request_admin_permissions"
         android:visible="false"
         app:showAsAction="never" />
 </menu>

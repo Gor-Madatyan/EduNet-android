@@ -15,12 +15,15 @@ import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.model.CommunityUpdateRequest;
+import com.example.edunet.data.service.model.Role;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.util.common.Paginator;
 import com.example.edunet.data.service.util.firebase.FirestoreUtils;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
+import com.example.edunet.data.service.util.firebase.paginator.QueryPaginator;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
@@ -102,6 +105,13 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public void observeAdminedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer) {
+        observeCommunities(lifecycleOwner,
+                communityCollection.whereArrayContains("admins", uid),
+                biConsumer);
+    }
+
+    @Override
     public void observeSubCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String cid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer) {
         observeCommunities(lifecycleOwner,
                 communityCollection.whereEqualTo("ancestor", cid),
@@ -147,9 +157,9 @@ public class CommunityServiceImpl implements CommunityService {
     public Paginator<Pair<String, Community>> getCommunityPaginator(String namePrefix, int limit) {
         namePrefix = namePrefix.toLowerCase(Locale.ROOT);
 
-        return new FirestoreUtils.Paginator<>(
+        return new QueryPaginator<>(
                 communityCollection.orderBy("searchName")
-                        .whereEqualTo("ancestor",null)
+                        .whereEqualTo("ancestor", null)
                         .startAt(namePrefix)
                         .endAt(namePrefix + '\uf8ff'), limit, Community.class) {
             @Override
@@ -157,7 +167,7 @@ public class CommunityServiceImpl implements CommunityService {
                 super.next(onSuccess,
                         e -> {
                             onFailure.accept(new ServiceException(R.string.error_cant_load_community, e));
-                            Log.e(TAG,e.toString());
+                            Log.e(TAG, e.toString());
                         }
                 );
             }
@@ -183,6 +193,51 @@ public class CommunityServiceImpl implements CommunityService {
 
                 }
         );
+    }
+
+    @Override
+    public void requestAdminPermissions(@NonNull String cid, @NonNull Consumer<ServiceException> onResult) {
+        String uid = accountService.getUid();
+        assert uid != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+
+        DocumentReference community = communityCollection.document(cid);
+        community.update("adminsQueue", FieldValue.arrayUnion(uid))
+                .addOnSuccessListener(r -> onResult.accept(null))
+                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_request_permissions, e)));
+    }
+
+    @Override
+    public void setAdminPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+        manageRequest(Role.ADMIN, true, cid, uid, onResult);
+    }
+
+    @Override
+    public void deleteAdminRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+        manageRequest(Role.ADMIN, false, cid, uid, onResult);
+    }
+
+    @Override
+    public void setParticipantPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+        manageRequest(Role.PARTICIPANT, true, cid, uid, onResult);
+    }
+
+    @Override
+    public void deleteParticipantRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+        manageRequest(Role.PARTICIPANT, false, cid, uid, onResult);
+    }
+
+    private void manageRequest(@NonNull Role role, boolean accept, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+        assert role != Role.OWNER && role != Role.GUEST;
+        DocumentReference communityDocument = communityCollection.document(cid);
+        String permission = role == Role.ADMIN ? "admins" : "participants";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put(permission + "Queue", FieldValue.arrayRemove(uid));
+        if (accept) map.put(permission, FieldValue.arrayUnion(uid));
+
+        communityDocument.update(map)
+                .addOnSuccessListener(v -> onResult.accept(null))
+                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_manage_permissions, e)));
     }
 
     @Override
@@ -240,7 +295,10 @@ public class CommunityServiceImpl implements CommunityService {
         Map<String, Object> map = new HashMap<>();
 
         if (request.isAvatarSet()) map.put("avatar", request.getAvatar());
-        if (request.isNameSet()) map.put("name", request.getName());
+        if (request.isNameSet()) {
+            map.put("name", request.getName());
+            map.put("searchName",request.getName().toLowerCase(Locale.ROOT));
+        }
         if (request.isDescriptionSet()) map.put("description", request.getDescription());
 
         document.update(map)
@@ -270,6 +328,15 @@ public class CommunityServiceImpl implements CommunityService {
         }
 
         return true;
+    }
+
+    @Override
+    public void getCommunity(@NonNull String cid, @NonNull Consumer<Community> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
+        communityCollection.document(cid).get()
+                .addOnSuccessListener(snapshot ->
+                        onSuccess.accept(Objects.requireNonNull(snapshot.toObject(Community.class)))
+                )
+                .addOnFailureListener(e -> onFailure.accept(new ServiceException(R.string.error_cant_load_community, e)));
     }
 
     @Override

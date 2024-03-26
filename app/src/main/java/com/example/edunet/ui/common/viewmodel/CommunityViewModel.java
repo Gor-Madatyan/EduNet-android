@@ -1,4 +1,4 @@
-package com.example.edunet.ui.screen.community;
+package com.example.edunet.ui.common.viewmodel;
 
 import android.util.Log;
 
@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.model.Community;
+import com.example.edunet.data.service.model.Role;
 
 import javax.inject.Inject;
 
@@ -24,7 +25,18 @@ public class CommunityViewModel extends ViewModel {
     private final CommunityService communityService;
     private final AccountService accountService;
     private final MutableLiveData<UiState> _uiState = new MutableLiveData<>();
-    final LiveData<UiState> uiState = _uiState;
+    public final LiveData<UiState> uiState = _uiState;
+
+    public record UiState(
+            Error error,
+            Community community,
+            Pair<String, Community>[] subCommunities,
+            Role role,
+            boolean isCurrentUserRequestedAdminPermissions) {
+    }
+
+    public record Error(@StringRes int messageId) {
+    }
 
     @Inject
     CommunityViewModel(CommunityService communityService, AccountService accountService) {
@@ -33,7 +45,7 @@ public class CommunityViewModel extends ViewModel {
     }
 
     @SuppressWarnings("unchecked")
-    void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id) {
+    public void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id) {
         communityService.observeCommunity(lifecycleOwner, id,
                 (community, exception) -> {
                     if (exception != null) {
@@ -41,6 +53,7 @@ public class CommunityViewModel extends ViewModel {
                                 new Error(exception.getId()),
                                 null,
                                 new Pair[0],
+                                Role.GUEST,
                                 false)
                         );
                         Log.w(TAG, exception.toString());
@@ -53,7 +66,11 @@ public class CommunityViewModel extends ViewModel {
                             null,
                             community,
                             uiState.getValue() == null ? new Pair[0] : uiState.getValue().subCommunities(),
-                            uid.equals(community.getOwnerId())));
+                            uid.equals(community.getOwnerId()) ? Role.OWNER :
+                                    community.getAdmins().contains(uid) ? Role.ADMIN :
+                                            community.getParticipants().contains(uid) ? Role.PARTICIPANT :
+                                                    Role.GUEST,
+                            community.getAdminsQueue().contains(uid)));
                 }
         );
         observeSubCommunities(lifecycleOwner, id);
@@ -65,14 +82,16 @@ public class CommunityViewModel extends ViewModel {
                 (e, subCommunities) -> {
                     UiState currentUiState = uiState.getValue();
                     Community community = currentUiState == null ? null : currentUiState.community();
-                    boolean isCurrentUserOwner = currentUiState != null && currentUiState.isCurrentUserOwner();
+                    Role role = currentUiState == null ? Role.GUEST : currentUiState.role();
+                    boolean isCurrentUserRequestedAdminPermissions = currentUiState != null && currentUiState.isCurrentUserRequestedAdminPermissions();
 
                     if (e != null) {
                         _uiState.setValue(new UiState(
                                 new Error(e.getId()),
                                 community,
                                 new Pair[0],
-                                isCurrentUserOwner)
+                                role,
+                                isCurrentUserRequestedAdminPermissions)
                         );
                         Log.e(TAG, e.toString());
                         return;
@@ -82,19 +101,12 @@ public class CommunityViewModel extends ViewModel {
                             new UiState(null,
                                     community,
                                     subCommunities,
-                                    isCurrentUserOwner)
+                                    role,
+                                    isCurrentUserRequestedAdminPermissions)
                     );
                 });
     }
+
 }
 
 
-record UiState(
-        Error error,
-        Community community,
-        Pair<String, Community>[] subCommunities,
-        boolean isCurrentUserOwner) {
-}
-
-record Error(@StringRes int messageId) {
-}

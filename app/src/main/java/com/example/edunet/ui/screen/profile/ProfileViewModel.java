@@ -39,12 +39,15 @@ public class ProfileViewModel extends ViewModel {
                     if (user != null) {
                         UiState currentUiState = _uiState.getValue();
                         Pair<String, Community>[] ownedCommunities = currentUiState == null ? new Pair[0] : currentUiState.ownedCommunities();
-                        _uiState.setValue(new UiState(user, ownedCommunities));
+                        Pair<String, Community>[] adminedCommunities = currentUiState == null ? new Pair[0] : currentUiState.adminedCommunities();
+
+                        _uiState.setValue(new UiState(user, ownedCommunities,adminedCommunities));
                     }
                 });
     }
 
-    void observeOwnedCommunities(@NonNull LifecycleOwner owner) {
+    @SuppressWarnings("unchecked")
+    private void observeOwnedCommunities(@NonNull LifecycleOwner owner) {
         communityService.observeOwnedCommunities(owner,
                 Objects.requireNonNull(accountService.getUid()),
                 (e, communities) -> {
@@ -52,12 +55,36 @@ public class ProfileViewModel extends ViewModel {
                         Log.w(TAG,e.toString());
                         return;
                     }
-                    User user = accountService.getCurrentUser();
+                    UiState currentUiState = _uiState.getValue();
+                    User user = currentUiState == null ? null : currentUiState.user();
+                    Pair<String, Community>[] adminedCommunities = currentUiState == null ? new Pair[0] : currentUiState.adminedCommunities();
                     assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
-
-                    _uiState.setValue(new UiState(user, communities));
+                    _uiState.setValue(new UiState(user, communities, adminedCommunities));
                 }
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private void observeAdminedCommunities(@NonNull LifecycleOwner owner) {
+        communityService.observeAdminedCommunities(owner,
+                Objects.requireNonNull(accountService.getUid()),
+                (e, communities) -> {
+                    if (e != null) {
+                        Log.w(TAG,e.toString());
+                        return;
+                    }
+                    UiState currentUiState = _uiState.getValue();
+                    User user = accountService.getCurrentUser();
+                    Pair<String, Community>[] ownedCommunities = currentUiState == null ? new Pair[0] : currentUiState.ownedCommunities();
+                    assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+                    _uiState.setValue(new UiState(user, ownedCommunities, communities));
+                }
+        );
+    }
+
+    void observeAttachedCommunities(@NonNull LifecycleOwner owner){
+        observeOwnedCommunities(owner);
+        observeAdminedCommunities(owner);
     }
 
 
@@ -67,6 +94,8 @@ public class ProfileViewModel extends ViewModel {
 
 }
 
-record UiState(@NonNull User user, @NonNull Pair<String, Community>[] ownedCommunities) {
+record UiState(@NonNull User user,
+               @NonNull Pair<String, Community>[] ownedCommunities,
+               @NonNull Pair<String, Community>[] adminedCommunities) {
 
 }

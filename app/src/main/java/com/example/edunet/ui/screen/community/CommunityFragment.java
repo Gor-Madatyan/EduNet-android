@@ -18,8 +18,10 @@ import androidx.navigation.Navigation;
 import com.example.edunet.MainNavDirections;
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Community;
+import com.example.edunet.data.service.model.Role;
 import com.example.edunet.databinding.FragmentCommunityBinding;
-import com.example.edunet.ui.adapter.CommunityAdapter;
+import com.example.edunet.ui.adapter.EntityAdapter;
+import com.example.edunet.ui.common.viewmodel.CommunityViewModel;
 import com.example.edunet.ui.util.ImageLoadingUtils;
 
 import java.util.Arrays;
@@ -53,6 +55,24 @@ public class CommunityFragment extends Fragment {
         String communityId = CommunityFragmentArgs.fromBundle(getArguments()).getCommunityId();
         viewModel.observeCommunity(getViewLifecycleOwner(), communityId);
 
+        MenuItem adminPanel = binding.toolbar.getMenu().getItem(0);
+        MenuItem addSubCommunity = binding.toolbar.getMenu().getItem(1);
+        MenuItem requestAdminPermissions = binding.toolbar.getMenu().getItem(2);
+
+        adminPanel.setOnMenuItemClickListener(i -> {
+            navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToAdminPanelFragment(communityId));
+            return true;
+        });
+        requestAdminPermissions.setOnMenuItemClickListener(i -> {
+                    navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToAdminPermissionRequestDialog(communityId));
+                    return true;
+                }
+        );
+        addSubCommunity.setOnMenuItemClickListener(i -> {
+            navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToAddCommunityFragment(communityId));
+            return true;
+        });
+
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
             if (state.error() != null) {
                 Toast.makeText(requireContext().getApplicationContext(), R.string.error_cant_load_community, Toast.LENGTH_LONG).show();
@@ -62,39 +82,19 @@ public class CommunityFragment extends Fragment {
 
             if (state.subCommunities().length > 0) {
                 binding.subcommunitiesContainer.setVisibility(View.VISIBLE);
-                binding.subcommunities.setAdapter(new CommunityAdapter(Arrays.asList(state.subCommunities()), id -> {
-                    MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(id);
-                    navController.navigate(action);
-                }));
+                binding.subcommunities.setAdapter(new EntityAdapter<>(Arrays.asList(state.subCommunities()), R.layout.name_avatar_element, R.drawable.ic_default_group, (item, data) ->
+                        item.setOnClickListener(v -> {
+                            MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getId());
+                            navController.navigate(action);
+                        })));
 
             } else binding.subcommunitiesContainer.setVisibility(View.GONE);
 
-            if (state.isCurrentUserOwner()) {
-                MenuItem edit = binding.toolbar.getMenu().getItem(0);
-                MenuItem addSubCommunity = binding.toolbar.getMenu().getItem(2);
-                edit.setVisible(true);
-                addSubCommunity.setVisible(true);
 
-                edit.setOnMenuItemClickListener(i -> {
-                    navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToCommunityUpdateFragment(state.community(), communityId));
-                    return true;
-                });
+            adminPanel.setVisible(state.role() == Role.ADMIN || state.role() == Role.OWNER);
+            addSubCommunity.setVisible(state.role() == Role.OWNER);
+            requestAdminPermissions.setVisible(state.role() != Role.OWNER && state.role() != Role.ADMIN && !state.isCurrentUserRequestedAdminPermissions());
 
-                addSubCommunity.setOnMenuItemClickListener(i -> {
-                            navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToAddCommunityFragment(communityId));
-                            return true;
-                        }
-                );
-                MenuItem delete = binding.toolbar.getMenu().getItem(1);
-
-                if (state.subCommunities().length == 0) {
-                    delete.setVisible(true);
-                    delete.setOnMenuItemClickListener(i -> {
-                        navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToCommunityDeleteDialogFragment(communityId));
-                        return true;
-                    });
-                } else delete.setVisible(false);
-            }
             Community community = state.community();
 
             if (community != null) {

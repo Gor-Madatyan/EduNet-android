@@ -22,9 +22,19 @@ public interface CommunityService {
      */
     void createCommunity(@NonNull CommunityCreateRequest request, @NonNull Consumer<ServiceException> onResult);
 
-    Paginator<Pair<String,Community>> getCommunityPaginator(String namePrefix, int limit);
+    Paginator<Pair<String, Community>> getCommunityPaginator(String namePrefix, int limit);
 
     void deleteCommunity(@NonNull String id, Consumer<ServiceException> onResult);
+
+    void requestAdminPermissions(@NonNull String cid, @NonNull Consumer<ServiceException> onResult);
+
+    void setAdminPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
+
+    void deleteAdminRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
+
+    void setParticipantPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
+
+    void deleteParticipantRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
 
     boolean validateCommunityCreateRequest(@NonNull CommunityCreateRequest request);
 
@@ -32,9 +42,13 @@ public interface CommunityService {
 
     boolean validateCommunityUpdateRequest(@NonNull CommunityUpdateRequest request);
 
-    void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id, @NonNull BiConsumer<Community, ServiceException> listener);
+    void getCommunity(@NonNull String cid, @NonNull Consumer<Community> onSuccess, @NonNull Consumer<ServiceException> onFailure);
+
+    void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String cid, @NonNull BiConsumer<Community, ServiceException> listener);
 
     void observeOwnedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer);
+
+    void observeAdminedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer);
 
     void observeSubCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String cid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer);
 

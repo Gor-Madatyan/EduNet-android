@@ -63,14 +63,14 @@
             android:name="communityId"
             app:argType="string" />
         <action
-            android:id="@+id/action_communityFragment_to_communityUpdateFragment"
-            app:destination="@id/communityUpdateFragment" />
-        <action
-            android:id="@+id/action_communityFragment_to_communityDeleteDialogFragment"
-            app:destination="@id/communityDeleteDialogFragment" />
-        <action
             android:id="@+id/action_communityFragment_to_addCommunityFragment"
             app:destination="@id/addCommunityFragment" />
+        <action
+            android:id="@+id/action_communityFragment_to_adminPermissionRequestDialog"
+            app:destination="@id/adminPermissionRequestDialog" />
+        <action
+            android:id="@+id/action_communityFragment_to_adminPanelFragment"
+            app:destination="@id/adminPanelFragment" />
     </fragment>
     <action
         android:id="@+id/action_global_communityFragment"
@@ -81,11 +81,11 @@
         android:label="@string/title_edit_community"
         tools:layout="@layout/fragment_modify_community">
         <argument
-            android:name="community"
-            app:argType="com.example.edunet.data.service.model.Community" />
-        <argument
             android:name="communityId"
             app:argType="string" />
+        <argument
+            android:name="community"
+            app:argType="com.example.edunet.data.service.model.Community" />
     </fragment>
     <dialog
         android:id="@+id/communityDeleteDialogFragment"
@@ -94,4 +94,38 @@
             android:name="communityId"
             app:argType="string" />
     </dialog>
+    <dialog
+        android:id="@+id/adminPermissionRequestDialog"
+        android:name="com.example.edunet.ui.dialog.AdminPermissionRequestDialog"
+        android:label="AdminPermissionRequestDialog" >
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+    </dialog>
+    <fragment
+        android:id="@+id/adminPanelFragment"
+        android:name="com.example.edunet.ui.screen.adminpanel.AdminPanelFragment"
+        android:label="@string/title_admin_panel" >
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_adminPanelFragment_to_communityUpdateFragment"
+            app:destination="@id/communityUpdateFragment" />
+        <action
+            android:id="@+id/action_adminPanelFragment_to_communityDeleteDialogFragment"
+            app:destination="@id/communityDeleteDialogFragment" />
+        <action
+            android:id="@+id/action_adminPanelFragment_to_adminRequestsFragment"
+            app:destination="@id/adminRequestsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/adminRequestsFragment"
+        tools:layout="@layout/fragment_search"
+        android:name="com.example.edunet.ui.screen.adminpanel.adminrequests.AdminRequestsFragment"
+        android:label="@string/title_admin_requests" >
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+    </fragment>
 </navigation>

@@ -3,11 +3,13 @@ package com.example.edunet.data.service;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
+import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 
 import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
+import com.example.edunet.data.service.util.common.Paginator;
 
 public interface AccountService {
     final class InternalErrorMessages {
@@ -26,6 +28,8 @@ public interface AccountService {
 
     @Nullable
     User getCurrentUser();
+
+    Paginator<Pair<String, User>> getUserArrayPaginator(String[] uids, int limit);
 
     void updateCurrentUser(@NonNull UserUpdateRequest request, @NonNull Consumer<ServiceException> onResult);
 

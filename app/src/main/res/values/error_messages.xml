@@ -17,4 +17,7 @@
     <string name="error_cant_detach_community">Failed to detach community from user</string>
     <string name="error_cant_cleanup_community_photos">Failed to cleanup community photos</string>
     <string name="error_cant_initialize_user">Failed to initialize the user</string>
+    <string name="error_cant_request_permissions">Failed to request permissions</string>
+    <string name="error_cant_load_user">Failed to load user</string>
+    <string name="error_cant_manage_permissions">Failed to manage permissions of user</string>
 </resources>

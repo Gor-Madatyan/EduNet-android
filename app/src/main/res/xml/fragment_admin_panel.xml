@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/requests">
+        <Preference
+            android:key="admin_requests"
+            app:isPreferenceVisible="false"
+            android:persistent="false"
+            android:title="@string/title_admin_requests"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:key="participant_requests"
+            android:persistent="false"
+            android:title="@string/participant_requests"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/other"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="edit_community"
+            android:persistent="false"
+            android:title="@string/title_edit_community"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:key="delete_community"
+            app:isPreferenceVisible="false"
+            android:persistent="false"
+            android:title="@string/title_delete_community"
+            app:iconSpaceReserved="false"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -6,14 +6,25 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-public class Community implements Parcelable {
+
+// FIXME: 3/26/2024 Community is already not POJO and I want to
+//  store in it not only simple types such as String and also uris,
+//  build abstraction over Community class, and make Community class simple POJO
+@SuppressWarnings("unused")
+public class Community implements Entity, Parcelable {
     private String name;
     private String searchName;
     private String avatar;
     private String description;
     private String ancestor;
+    private List<String> admins;
+    private List<String> adminsQueue;
+    private List<String> participants;
+    private List<String> participantsQueue;
     private String ownerId;
 
     public Community() {
@@ -26,6 +37,10 @@ public class Community implements Parcelable {
         this.description = description;
         this.ancestor = ancestor;
         this.ownerId = ownerId;
+        admins = new ArrayList<>();
+        participants = new ArrayList<>();
+        adminsQueue = new ArrayList<>();
+        participantsQueue = new ArrayList<>();
     }
 
 
@@ -76,8 +91,14 @@ public class Community implements Parcelable {
         return description;
     }
 
+    @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getAvatar() {
+        return avatar;
     }
 
     @SuppressWarnings("unused")
@@ -85,9 +106,6 @@ public class Community implements Parcelable {
         return searchName;
     }
 
-    public String getAvatar() {
-        return avatar;
-    }
 
     public String getOwnerId() {
         return ownerId;
@@ -96,5 +114,21 @@ public class Community implements Parcelable {
     @SuppressWarnings("unused")
     public String getAncestor() {
         return ancestor;
+    }
+
+    public List<String> getAdmins() {
+        return admins;
+    }
+
+    public List<String> getParticipants() {
+        return participants;
+    }
+
+    public List<String> getAdminsQueue() {
+        return adminsQueue;
+    }
+
+    public List<String> getParticipantsQueue() {
+        return participantsQueue;
     }
 }

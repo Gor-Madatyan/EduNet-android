@@ -28,7 +28,7 @@ public final class StorageUtils {
                                  @NonNull Consumer<Uri> onSuccess,
                                  @NonNull Consumer<Exception> onFailure) {
         if (!validatePhoto(photo)) {
-            onFailure.accept(new IllegalArgumentException("Provided invalid photo"));
+            onFailure.accept(new IllegalArgumentException("Provided invalid avatar"));
             return;
         }
 

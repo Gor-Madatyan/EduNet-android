@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
+import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -18,7 +19,9 @@ import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
+import com.example.edunet.data.service.util.common.Paginator;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
+import com.example.edunet.data.service.util.firebase.paginator.ArrayPaginator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -28,7 +31,9 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -162,6 +167,43 @@ public final class AccountServiceImpl implements AccountService {
     @Nullable
     public User getCurrentUser() {
         return currentUserLiveData.getValue();
+    }
+
+    @Override
+    public Paginator<Pair<String, User>> getUserArrayPaginator(String[] uids, int limit) {
+        DocumentReference[] references = new DocumentReference[uids.length];
+
+        for (int i = 0; i < uids.length; i++) {
+            references[i] = firestoreUsers.document(uids[i]);
+        }
+
+        ArrayPaginator<FirestoreUser> paginator = new ArrayPaginator<>(FirestoreUser.class, references, limit);
+
+        return new Paginator<>() {
+            @SuppressWarnings("all")
+            @Override
+            public void next(Consumer<List<Pair<String, User>>> onSuccess, Consumer<Exception> onFailure) {
+                paginator.next(
+                        users -> {
+                            List<Pair<String,User>> parsedUsers =
+                                    users.stream().map(pair -> new Pair<>(pair.first, userFromFireStoreUser(pair.first, pair.second)))
+                                            .collect(Collectors.toList());
+                            onSuccess.accept(parsedUsers);
+                        },
+                        e -> onFailure.accept(new ServiceException(R.string.error_cant_load_user, e))
+                );
+            }
+
+            @Override
+            public boolean hasFailure() {
+                return paginator.hasFailure();
+            }
+
+            @Override
+            public boolean isEofReached() {
+                return paginator.isEofReached();
+            }
+        };
     }
 
     @Override
