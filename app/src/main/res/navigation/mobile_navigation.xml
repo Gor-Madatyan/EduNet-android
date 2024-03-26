@@ -71,6 +71,9 @@
         <action
             android:id="@+id/action_communityFragment_to_adminPanelFragment"
             app:destination="@id/adminPanelFragment" />
+        <action
+            android:id="@+id/action_communityFragment_to_participantPermissionRequestDialog"
+            app:destination="@id/participantPermissionRequestDialog" />
     </fragment>
     <action
         android:id="@+id/action_global_communityFragment"
@@ -116,16 +119,27 @@
             android:id="@+id/action_adminPanelFragment_to_communityDeleteDialogFragment"
             app:destination="@id/communityDeleteDialogFragment" />
         <action
-            android:id="@+id/action_adminPanelFragment_to_adminRequestsFragment"
-            app:destination="@id/adminRequestsFragment" />
+            android:id="@+id/action_adminPanelFragment_to_requestsFragment"
+            app:destination="@id/requestsFragment" />
     </fragment>
     <fragment
-        android:id="@+id/adminRequestsFragment"
+        android:id="@+id/requestsFragment"
         tools:layout="@layout/fragment_search"
-        android:name="com.example.edunet.ui.screen.adminpanel.adminrequests.AdminRequestsFragment"
-        android:label="@string/title_admin_requests" >
+        android:name="com.example.edunet.ui.screen.adminpanel.requests.RequestsFragment"
+        android:label="@string/title_requests" >
         <argument
             android:name="communityId"
             app:argType="string" />
+        <argument
+            android:name="role"
+            app:argType="com.example.edunet.data.service.model.Role" />
     </fragment>
+    <dialog
+        android:id="@+id/participantPermissionRequestDialog"
+        android:name="com.example.edunet.ui.dialog.ParticipantPermissionRequestDialog"
+        android:label="ParticipantPermissionRequestDialog" >
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+    </dialog>
 </navigation>

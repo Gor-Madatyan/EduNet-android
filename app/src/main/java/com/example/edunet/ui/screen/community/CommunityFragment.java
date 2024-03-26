@@ -57,7 +57,8 @@ public class CommunityFragment extends Fragment {
 
         MenuItem adminPanel = binding.toolbar.getMenu().getItem(0);
         MenuItem addSubCommunity = binding.toolbar.getMenu().getItem(1);
-        MenuItem requestAdminPermissions = binding.toolbar.getMenu().getItem(2);
+        MenuItem requestParticipantPermissions = binding.toolbar.getMenu().getItem(2);
+        MenuItem requestAdminPermissions = binding.toolbar.getMenu().getItem(3);
 
         adminPanel.setOnMenuItemClickListener(i -> {
             navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToAdminPanelFragment(communityId));
@@ -65,6 +66,11 @@ public class CommunityFragment extends Fragment {
         });
         requestAdminPermissions.setOnMenuItemClickListener(i -> {
                     navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToAdminPermissionRequestDialog(communityId));
+                    return true;
+                }
+        );
+        requestParticipantPermissions.setOnMenuItemClickListener(i -> {
+                    navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToParticipantPermissionRequestDialog(communityId));
                     return true;
                 }
         );
@@ -93,7 +99,14 @@ public class CommunityFragment extends Fragment {
 
             adminPanel.setVisible(state.role() == Role.ADMIN || state.role() == Role.OWNER);
             addSubCommunity.setVisible(state.role() == Role.OWNER);
-            requestAdminPermissions.setVisible(state.role() != Role.OWNER && state.role() != Role.ADMIN && !state.isCurrentUserRequestedAdminPermissions());
+            if (state.role() == Role.GUEST &&
+                    !state.isCurrentUserRequestedParticipantPermissions() && !state.isCurrentUserRequestedAdminPermissions()) {
+                requestAdminPermissions.setVisible(true);
+                requestParticipantPermissions.setVisible(true);
+            }else {
+                requestAdminPermissions.setVisible(false);
+                requestParticipantPermissions.setVisible(false);
+            }
 
             Community community = state.community();
 

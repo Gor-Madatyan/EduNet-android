@@ -32,7 +32,8 @@ public class CommunityViewModel extends ViewModel {
             Community community,
             Pair<String, Community>[] subCommunities,
             Role role,
-            boolean isCurrentUserRequestedAdminPermissions) {
+            boolean isCurrentUserRequestedAdminPermissions,
+            boolean isCurrentUserRequestedParticipantPermissions) {
     }
 
     public record Error(@StringRes int messageId) {
@@ -54,6 +55,7 @@ public class CommunityViewModel extends ViewModel {
                                 null,
                                 new Pair[0],
                                 Role.GUEST,
+                                false,
                                 false)
                         );
                         Log.w(TAG, exception.toString());
@@ -70,7 +72,8 @@ public class CommunityViewModel extends ViewModel {
                                     community.getAdmins().contains(uid) ? Role.ADMIN :
                                             community.getParticipants().contains(uid) ? Role.PARTICIPANT :
                                                     Role.GUEST,
-                            community.getAdminsQueue().contains(uid)));
+                            community.getAdminsQueue().contains(uid),
+                            community.getParticipantsQueue().contains(uid)));
                 }
         );
         observeSubCommunities(lifecycleOwner, id);
@@ -84,6 +87,7 @@ public class CommunityViewModel extends ViewModel {
                     Community community = currentUiState == null ? null : currentUiState.community();
                     Role role = currentUiState == null ? Role.GUEST : currentUiState.role();
                     boolean isCurrentUserRequestedAdminPermissions = currentUiState != null && currentUiState.isCurrentUserRequestedAdminPermissions();
+                    boolean isCurrentUserRequestedParticipantPermissions = currentUiState != null && currentUiState.isCurrentUserRequestedParticipantPermissions();
 
                     if (e != null) {
                         _uiState.setValue(new UiState(
@@ -91,7 +95,8 @@ public class CommunityViewModel extends ViewModel {
                                 community,
                                 new Pair[0],
                                 role,
-                                isCurrentUserRequestedAdminPermissions)
+                                isCurrentUserRequestedAdminPermissions,
+                                isCurrentUserRequestedParticipantPermissions)
                         );
                         Log.e(TAG, e.toString());
                         return;
@@ -102,7 +107,8 @@ public class CommunityViewModel extends ViewModel {
                                     community,
                                     subCommunities,
                                     role,
-                                    isCurrentUserRequestedAdminPermissions)
+                                    isCurrentUserRequestedAdminPermissions,
+                                    isCurrentUserRequestedParticipantPermissions)
                     );
                 });
     }

@@ -112,6 +112,13 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public void observeParticipatedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer) {
+        observeCommunities(lifecycleOwner,
+                communityCollection.whereArrayContains("participants", uid),
+                biConsumer);
+    }
+
+    @Override
     public void observeSubCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String cid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer) {
         observeCommunities(lifecycleOwner,
                 communityCollection.whereEqualTo("ancestor", cid),
@@ -197,39 +204,49 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public void requestAdminPermissions(@NonNull String cid, @NonNull Consumer<ServiceException> onResult) {
-        String uid = accountService.getUid();
-        assert uid != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+        addRequest(Role.ADMIN,cid,onResult);
+    }
 
-        DocumentReference community = communityCollection.document(cid);
-        community.update("adminsQueue", FieldValue.arrayUnion(uid))
-                .addOnSuccessListener(r -> onResult.accept(null))
-                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_request_permissions, e)));
+    @Override
+    public void requestParticipantPermissions(@NonNull String cid, @NonNull Consumer<ServiceException> onResult) {
+        addRequest(Role.PARTICIPANT,cid,onResult);
     }
 
     @Override
     public void setAdminPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        manageRequest(Role.ADMIN, true, cid, uid, onResult);
+        managePermissions(Role.ADMIN, true, cid, uid, onResult);
     }
 
     @Override
     public void deleteAdminRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        manageRequest(Role.ADMIN, false, cid, uid, onResult);
+        managePermissions(Role.ADMIN, false, cid, uid, onResult);
     }
 
     @Override
     public void setParticipantPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        manageRequest(Role.PARTICIPANT, true, cid, uid, onResult);
+        managePermissions(Role.PARTICIPANT, true, cid, uid, onResult);
     }
 
     @Override
     public void deleteParticipantRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        manageRequest(Role.PARTICIPANT, false, cid, uid, onResult);
+        managePermissions(Role.PARTICIPANT, false, cid, uid, onResult);
     }
 
-    private void manageRequest(@NonNull Role role, boolean accept, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+    private void addRequest(@NonNull Role role, @NonNull String cid, @NonNull Consumer<ServiceException> onResult) {
+        assert role != Role.OWNER && role != Role.GUEST;
+        String uid = accountService.getUid();
+        assert uid != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+
+        DocumentReference community = communityCollection.document(cid);
+        community.update(getPermissionsByRole(role) + "Queue", FieldValue.arrayUnion(uid))
+                .addOnSuccessListener(r -> onResult.accept(null))
+                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_request_permissions, e)));
+    }
+
+    private void managePermissions(@NonNull Role role, boolean accept, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
         assert role != Role.OWNER && role != Role.GUEST;
         DocumentReference communityDocument = communityCollection.document(cid);
-        String permission = role == Role.ADMIN ? "admins" : "participants";
+        String permission = getPermissionsByRole(role);
 
         Map<String, Object> map = new HashMap<>();
         map.put(permission + "Queue", FieldValue.arrayRemove(uid));
@@ -238,6 +255,11 @@ public class CommunityServiceImpl implements CommunityService {
         communityDocument.update(map)
                 .addOnSuccessListener(v -> onResult.accept(null))
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_manage_permissions, e)));
+    }
+
+    @NonNull
+    private static String getPermissionsByRole(@NonNull Role role) {
+        return role == Role.ADMIN ? "admins" : "participants";
     }
 
     @Override
@@ -297,7 +319,7 @@ public class CommunityServiceImpl implements CommunityService {
         if (request.isAvatarSet()) map.put("avatar", request.getAvatar());
         if (request.isNameSet()) {
             map.put("name", request.getName());
-            map.put("searchName",request.getName().toLowerCase(Locale.ROOT));
+            map.put("searchName", request.getName().toLowerCase(Locale.ROOT));
         }
         if (request.isDescriptionSet()) map.put("description", request.getDescription());
 

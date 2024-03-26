@@ -80,11 +80,11 @@ public class ProfileFragment extends Fragment {
 
             processAttachedCommunities(binding.ownedCommunitiesContainer, binding.ownedCommunities, state.ownedCommunities());
             processAttachedCommunities(binding.adminedCommunitiesContainer, binding.adminedCommunities, state.adminedCommunities());
-
+            processAttachedCommunities(binding.participatedCommunitiesContainer, binding.participatedCommunities, state.participatedCommunities());
         });
     }
 
-    private void processAttachedCommunities(ViewGroup container, RecyclerView recyclerView, Pair<String, Community>[] communities){
+    private void processAttachedCommunities(ViewGroup container, RecyclerView recyclerView, Pair<String, Community>[] communities) {
         if (communities.length > 0) {
             container.setVisibility(View.VISIBLE);
             recyclerView.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, R.drawable.ic_default_group, (item, data) ->

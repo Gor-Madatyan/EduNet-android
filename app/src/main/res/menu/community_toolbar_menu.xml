@@ -16,6 +16,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_request_participant_permissions"
+        android:title="@string/request_participant_permissions"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_request_admin_permissions"
         android:title="@string/request_admin_permissions"
         android:visible="false"

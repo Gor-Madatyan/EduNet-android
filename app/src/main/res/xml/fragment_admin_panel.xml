@@ -8,7 +8,7 @@
             android:key="admin_requests"
             app:isPreferenceVisible="false"
             android:persistent="false"
-            android:title="@string/title_admin_requests"
+            android:title="@string/admin_requests"
             app:iconSpaceReserved="false" />
 
         <Preference

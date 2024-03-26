@@ -38,10 +38,12 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
         String communityId = args.getCommunityId();
         viewModel.observeCommunity(getViewLifecycleOwner(), communityId);
         Preference adminRequests = findPreference("admin_requests");
+        Preference participantRequests = findPreference("participant_requests");
         Preference editCommunity = findPreference("edit_community");
         Preference deleteCommunity = findPreference("delete_community");
         assert deleteCommunity != null;
         assert adminRequests != null;
+        assert participantRequests != null;
         assert editCommunity != null;
 
 
@@ -56,10 +58,14 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
         );
 
         adminRequests.setOnPreferenceClickListener(p -> {
-            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToAdminRequestsFragment(communityId));
+            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToRequestsFragment(communityId,Role.ADMIN));
             return true;
         });
 
+        participantRequests.setOnPreferenceClickListener(p -> {
+            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToRequestsFragment(communityId,Role.PARTICIPANT));
+            return true;
+        });
 
         deleteCommunity.setOnPreferenceClickListener(p -> {
                     navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToCommunityDeleteDialogFragment(communityId));

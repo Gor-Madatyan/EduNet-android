@@ -1,4 +1,4 @@
-package com.example.edunet.ui.screen.adminpanel.adminrequests;
+package com.example.edunet.ui.screen.adminpanel.requests;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -13,20 +13,22 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.edunet.R;
+import com.example.edunet.data.service.model.Role;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.databinding.FragmentSearchBinding;
 import com.example.edunet.ui.adapter.EntityAdapter;
 import com.example.edunet.ui.adapter.LazyEntityAdapter;
+import com.example.edunet.ui.common.viewmodel.RequestsViewModel;
 
 import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class AdminRequestsFragment extends Fragment {
-    private static final String TAG = AdminRequestsFragment.class.getSimpleName();
+public class RequestsFragment extends Fragment {
+    private static final String TAG = RequestsFragment.class.getSimpleName();
     private FragmentSearchBinding binding;
-    private AdminRequestsViewModel viewModel;
+    private RequestsViewModel viewModel;
 
     @SuppressWarnings("unchecked")
     private void deleteRequest(int position) {
@@ -44,7 +46,7 @@ public class AdminRequestsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(AdminRequestsViewModel.class);
+        viewModel = new ViewModelProvider(this).get(RequestsViewModel.class);
     }
 
     @Override
@@ -57,20 +59,23 @@ public class AdminRequestsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        String communityId = AdminRequestsFragmentArgs.fromBundle(getArguments()).getCommunityId();
-        viewModel.setCommunity(communityId);
+        var args = RequestsFragmentArgs.fromBundle(getArguments());
+        String communityId = args.getCommunityId();
+        Role role = args.getRole();
+
+        viewModel.setCommunity(communityId, role);
 
         viewModel.paginator.observe(getViewLifecycleOwner(), paginator ->
                 binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, R.drawable.ic_default_user, (item, data) -> {
                     item.findViewById(R.id.addRequest).setOnClickListener(
                             v -> {
-                                viewModel.acceptAdmin(data.getId(), this::processOperation);
+                                viewModel.accept(data.getId(), this::processOperation);
                                 deleteRequest(data.getPosition());
                             }
                     );
                     item.findViewById(R.id.removeRequest).setOnClickListener(
                             v -> {
-                                viewModel.deleteAdminRequest(data.getId(), this::processOperation);
+                                viewModel.delete(data.getId(), this::processOperation);
                                 deleteRequest(data.getPosition());
                             }
                     );
