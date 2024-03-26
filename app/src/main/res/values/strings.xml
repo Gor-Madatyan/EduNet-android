@@ -43,9 +43,11 @@
     <string name="requests">Requests</string>
     <string name="participant_requests">Participant requests</string>
     <string name="other">Other</string>
-    <string name="Admin">Admin</string>
+    <string name="admin">Admin</string>
     <string name="admin_requests">Admin Requests</string>
     <string name="request_participant_permissions">Request participant permissions</string>
     <string name="participant">Participant</string>
+    <string name="members">Members</string>
+    <string name="title_members">{role} Members</string>
 
 </resources>

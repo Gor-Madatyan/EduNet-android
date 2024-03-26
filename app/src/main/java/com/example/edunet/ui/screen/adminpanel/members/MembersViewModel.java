@@ -1,4 +1,4 @@
-package com.example.edunet.ui.common.viewmodel;
+package com.example.edunet.ui.screen.adminpanel.members;
 
 import android.util.Log;
 
@@ -20,22 +20,22 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
-public class RequestsViewModel extends ViewModel {
-    private static final String TAG = RequestsViewModel.class.getSimpleName();
+public class MembersViewModel extends ViewModel  {
+    private static final String TAG = MembersViewModel.class.getSimpleName();
     private static final int PAGINATOR_LIMIT = 20;
     private String communityId;
     private Role role;
     private final CommunityService communityService;
     private final AccountService accountService;
-    public  LiveData<Paginator<Pair<String, User>>> paginator;
+    LiveData<Paginator<Pair<String, User>>> paginator;
 
     @Inject
-    RequestsViewModel(CommunityService communityService, AccountService accountService) {
+    MembersViewModel(CommunityService communityService, AccountService accountService) {
         this.communityService = communityService;
         this.accountService = accountService;
     }
 
-    public void setCommunity(@NonNull String communityId, @NonNull Role role) {
+     void setCommunity(@NonNull String communityId, @NonNull Role role) {
         assert role != Role.OWNER && role != Role.GUEST;
         MutableLiveData<Paginator<Pair<String, User>>> _paginator = new MutableLiveData<>();
         paginator = _paginator;
@@ -45,7 +45,7 @@ public class RequestsViewModel extends ViewModel {
         communityService.getCommunity(communityId,
                 community ->
                         _paginator.setValue(accountService.getUserArrayPaginator(
-                                (role == Role.ADMIN ? community.getAdminsQueue() : community.getParticipantsQueue()).toArray(new String[0]),
+                                (role == Role.ADMIN ? community.getAdmins() : community.getParticipants()).toArray(new String[0]),
                                 PAGINATOR_LIMIT
                         )),
                 e ->
@@ -53,13 +53,8 @@ public class RequestsViewModel extends ViewModel {
         );
     }
 
-    public void accept(String uid, Consumer<Exception> onResult) {
-        if(role == Role.ADMIN) communityService.setAdminPermissions(communityId, uid, onResult::accept);
-        else communityService.setParticipantPermissions(communityId, uid, onResult::accept);
-    }
-
-    public void delete(String uid, Consumer<Exception> onResult) {
-        if(role == Role.ADMIN) communityService.deleteAdminRequest(communityId, uid, onResult::accept);
-        else communityService.deleteParticipantRequest(communityId, uid, onResult::accept);
+     void delete(String uid, Consumer<Exception> onResult) {
+        if(role == Role.ADMIN) communityService.deleteAdmin(communityId, uid, onResult::accept);
+        else communityService.deleteParticipant(communityId, uid, onResult::accept);
     }
 }

@@ -41,10 +41,15 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
         Preference participantRequests = findPreference("participant_requests");
         Preference editCommunity = findPreference("edit_community");
         Preference deleteCommunity = findPreference("delete_community");
+        Preference admins = findPreference("admins");
+        Preference participants = findPreference("participants");
+
         assert deleteCommunity != null;
         assert adminRequests != null;
         assert participantRequests != null;
         assert editCommunity != null;
+        assert admins != null;
+        assert participants != null;
 
 
         SavedStateHandle savedStateHandle = navController.getBackStackEntry(R.id.adminPanelFragment).getSavedStateHandle();
@@ -56,6 +61,16 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
                     if (isDeleted) navController.navigateUp();
                 }
         );
+
+        admins.setOnPreferenceClickListener(p->{
+            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToMembersFragment(communityId,Role.ADMIN));
+            return true;
+        });
+
+        participants.setOnPreferenceClickListener(p->{
+            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToMembersFragment(communityId,Role.PARTICIPANT));
+            return true;
+        });
 
         adminRequests.setOnPreferenceClickListener(p -> {
             navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToRequestsFragment(communityId,Role.ADMIN));
@@ -76,6 +91,7 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
             if (state.role() == Role.OWNER) {
                 adminRequests.setVisible(true);
+                admins.setVisible(true);
                 deleteCommunity.setVisible(state.subCommunities().length == 0);
             }
 

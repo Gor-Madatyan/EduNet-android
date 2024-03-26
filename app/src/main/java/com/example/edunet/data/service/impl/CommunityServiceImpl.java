@@ -204,12 +204,12 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public void requestAdminPermissions(@NonNull String cid, @NonNull Consumer<ServiceException> onResult) {
-        addRequest(Role.ADMIN,cid,onResult);
+        addRequest(Role.ADMIN, cid, onResult);
     }
 
     @Override
     public void requestParticipantPermissions(@NonNull String cid, @NonNull Consumer<ServiceException> onResult) {
-        addRequest(Role.PARTICIPANT,cid,onResult);
+        addRequest(Role.PARTICIPANT, cid, onResult);
     }
 
     @Override
@@ -223,6 +223,16 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public void deleteAdmin(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+        deleteMember(Role.ADMIN, cid, uid, onResult);
+    }
+
+    @Override
+    public void deleteParticipant(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+        deleteMember(Role.PARTICIPANT, cid, uid, onResult);
+    }
+
+    @Override
     public void setParticipantPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
         managePermissions(Role.PARTICIPANT, true, cid, uid, onResult);
     }
@@ -230,6 +240,15 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public void deleteParticipantRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
         managePermissions(Role.PARTICIPANT, false, cid, uid, onResult);
+    }
+
+    private void deleteMember(@NonNull Role role, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+        assert role != Role.OWNER && role != Role.GUEST;
+
+        DocumentReference community = communityCollection.document(cid);
+        community.update(getPermissionsByRole(role), FieldValue.arrayRemove(uid))
+                .addOnSuccessListener(r -> onResult.accept(null))
+                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_delete_member, e)));
     }
 
     private void addRequest(@NonNull Role role, @NonNull String cid, @NonNull Consumer<ServiceException> onResult) {

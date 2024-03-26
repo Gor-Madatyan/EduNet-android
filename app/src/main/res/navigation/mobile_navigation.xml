@@ -121,6 +121,9 @@
         <action
             android:id="@+id/action_adminPanelFragment_to_requestsFragment"
             app:destination="@id/requestsFragment" />
+        <action
+            android:id="@+id/action_adminPanelFragment_to_membersFragment"
+            app:destination="@id/membersFragment" />
     </fragment>
     <fragment
         android:id="@+id/requestsFragment"
@@ -136,10 +139,20 @@
     </fragment>
     <dialog
         android:id="@+id/participantPermissionRequestDialog"
-        android:name="com.example.edunet.ui.dialog.ParticipantPermissionRequestDialog"
-        android:label="ParticipantPermissionRequestDialog" >
+        android:name="com.example.edunet.ui.dialog.ParticipantPermissionRequestDialog" >
         <argument
             android:name="communityId"
             app:argType="string" />
     </dialog>
+    <fragment
+        android:id="@+id/membersFragment"
+        tools:layout="@layout/fragment_search"
+        android:name="com.example.edunet.ui.screen.adminpanel.members.MembersFragment"
+        android:label="@string/title_members" >
+        <argument android:name="communityId"
+            app:argType="string" />
+        <argument
+            android:name="role"
+            app:argType="com.example.edunet.data.service.model.Role" />
+    </fragment>
 </navigation>

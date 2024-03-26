@@ -1,4 +1,4 @@
-package com.example.edunet.ui.screen.adminpanel.requests;
+package com.example.edunet.ui.screen.adminpanel.members;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -24,13 +24,13 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class RequestsFragment extends Fragment {
-    private static final String TAG = RequestsFragment.class.getSimpleName();
+public class MembersFragment extends Fragment {
+    private static final String TAG = MembersFragment.class.getSimpleName();
     private FragmentSearchBinding binding;
-    private RequestsViewModel viewModel;
+    private MembersViewModel viewModel;
 
     @SuppressWarnings("unchecked")
-    private void deleteRequest(int position) {
+    private void deleteMember(int position) {
         ((EntityAdapter<User>) Objects.requireNonNull(binding.result.getAdapter())).deleteItem(position);
     }
 
@@ -45,7 +45,7 @@ public class RequestsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(this).get(RequestsViewModel.class);
+        viewModel = new ViewModelProvider(this).get(MembersViewModel.class);
     }
 
     @Override
@@ -58,30 +58,20 @@ public class RequestsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        var args = RequestsFragmentArgs.fromBundle(getArguments());
+        var args = MembersFragmentArgs.fromBundle(getArguments());
         String communityId = args.getCommunityId();
         Role role = args.getRole();
 
         viewModel.setCommunity(communityId, role);
 
         viewModel.paginator.observe(getViewLifecycleOwner(), paginator ->
-                binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, R.drawable.ic_default_user, (item, data) -> {
-                    View add = item.findViewById(R.id.add);
-                    add.setVisibility(View.VISIBLE);
-
-                    add.setOnClickListener(
-                            v -> {
-                                viewModel.accept(data.getId(), this::processOperation);
-                                deleteRequest(data.getPosition());
-                            }
-                    );
-                    item.findViewById(R.id.remove).setOnClickListener(
-                            v -> {
-                                viewModel.delete(data.getId(), this::processOperation);
-                                deleteRequest(data.getPosition());
-                            }
-                    );
-                })));
+                binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, R.drawable.ic_default_user, (item, data) ->
+                        item.findViewById(R.id.remove).setOnClickListener(
+                                v -> {
+                                    viewModel.delete(data.getId(), this::processOperation);
+                                    deleteMember(data.getPosition());
+                                }
+                        ))));
     }
 
     @Override

@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="14dp"
                     android:fontFamily="serif"
-                    android:text="@string/Admin"
+                    android:text="@string/admin"
                     android:textColor="@color/text"
                     android:textSize="25sp"
                     android:textStyle="bold" />

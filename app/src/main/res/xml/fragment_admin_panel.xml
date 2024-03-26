@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:title="@string/members"
+        app:iconSpaceReserved="false">
+        <Preference
+            android:key="admins"
+            app:isPreferenceVisible="false"
+            android:persistent="false"
+            android:title="@string/admin"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:key="participants"
+            android:persistent="false"
+            android:title="@string/participant"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/requests">
