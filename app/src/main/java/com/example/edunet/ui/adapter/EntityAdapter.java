@@ -3,27 +3,20 @@ package com.example.edunet.ui.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.edunet.R;
-import com.example.edunet.common.util.UriUtils;
 import com.example.edunet.data.service.model.Entity;
-import com.example.edunet.ui.util.ImageLoadingUtils;
+import com.example.edunet.ui.util.EntityUtils;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 
 
 public class EntityAdapter<T extends Entity> extends RecyclerView.Adapter<EntityAdapter<T>.ViewHolder> {
-    @DrawableRes
-    private final int defaultAvatar;
     @LayoutRes
     private final int itemLayout;
     protected final List<Pair<String, T>> dataSet;
@@ -41,35 +34,25 @@ public class EntityAdapter<T extends Entity> extends RecyclerView.Adapter<Entity
         }
     }
 
-    public EntityAdapter(List<Pair<String, T>> dataSet, @LayoutRes int itemLayout, @DrawableRes int defaultAvatar, BiConsumer<View, CallbackData> callback) {
+    public EntityAdapter(List<Pair<String, T>> dataSet, @LayoutRes int itemLayout, BiConsumer<View, CallbackData> callback) {
         this.dataSet = dataSet;
         this.itemLayout = itemLayout;
-        this.defaultAvatar = defaultAvatar;
         this.callback = callback;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private final EntityAdapter.CallbackData callbackData = new CallbackData();
-        private final ImageView avatar;
-        private final TextView name;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            avatar = itemView.findViewById(R.id.avatar);
-            name = itemView.findViewById(R.id.name);
             callback.accept(itemView, callbackData);
         }
 
         public void setEntity(int position, @NonNull String id, @NonNull T entity) {
             callbackData.id = id;
             callbackData.position = position;
-            name.setText(entity.getName());
-            ImageLoadingUtils.loadAvatar(
-                    itemView,
-                    UriUtils.safeParse(entity.getAvatar()),
-                    defaultAvatar,
-                    avatar);
+            EntityUtils.bindNameAvatarElement(entity, itemView);
         }
     }
     public void deleteItem(int position){

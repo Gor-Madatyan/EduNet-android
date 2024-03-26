@@ -3,7 +3,6 @@ package com.example.edunet.ui.adapter;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -21,8 +20,8 @@ public class LazyEntityAdapter<T extends Entity> extends EntityAdapter<T> {
     private final Paginator<Pair<String, T>> paginator;
     private boolean isLoading = false;
 
-    public LazyEntityAdapter(Paginator<Pair<String, T>> paginator, @LayoutRes int itemLayout, @DrawableRes int defaultAvatar, BiConsumer<View, CallbackData> callBack) {
-        super(new ArrayList<>(), itemLayout, defaultAvatar, callBack);
+    public LazyEntityAdapter(Paginator<Pair<String, T>> paginator, @LayoutRes int itemLayout, BiConsumer<View, CallbackData> callBack) {
+        super(new ArrayList<>(), itemLayout, callBack);
         this.paginator = paginator;
         load();
     }

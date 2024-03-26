@@ -65,7 +65,7 @@ public class RequestsFragment extends Fragment {
         viewModel.setCommunity(communityId, role);
 
         viewModel.paginator.observe(getViewLifecycleOwner(), paginator ->
-                binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, R.drawable.ic_default_user, (item, data) -> {
+                binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, (item, data) -> {
                     View add = item.findViewById(R.id.add);
                     add.setVisibility(View.VISIBLE);
 

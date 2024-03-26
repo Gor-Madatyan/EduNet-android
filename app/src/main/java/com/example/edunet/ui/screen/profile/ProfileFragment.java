@@ -87,7 +87,7 @@ public class ProfileFragment extends Fragment {
     private void processAttachedCommunities(ViewGroup container, RecyclerView recyclerView, Pair<String, Community>[] communities) {
         if (communities.length > 0) {
             container.setVisibility(View.VISIBLE);
-            recyclerView.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, R.drawable.ic_default_group, (item, data) ->
+            recyclerView.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, (item, data) ->
                     item.setOnClickListener(
                             v -> {
                                 MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getId());

@@ -3,8 +3,11 @@ package com.example.edunet.data.service.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.example.edunet.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,6 +102,12 @@ public class Community implements Entity, Parcelable {
     @Override
     public String getAvatar() {
         return avatar;
+    }
+
+    @DrawableRes
+    @Override
+    public int requireDefaultAvatar() {
+        return R.drawable.ic_default_group;
     }
 
     @SuppressWarnings("unused")

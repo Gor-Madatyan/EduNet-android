@@ -22,6 +22,7 @@ import com.example.edunet.data.service.model.Role;
 import com.example.edunet.databinding.FragmentCommunityBinding;
 import com.example.edunet.ui.adapter.EntityAdapter;
 import com.example.edunet.ui.common.viewmodel.CommunityViewModel;
+import com.example.edunet.ui.util.EntityUtils;
 import com.example.edunet.ui.util.ImageLoadingUtils;
 
 import java.util.Arrays;
@@ -88,7 +89,7 @@ public class CommunityFragment extends Fragment {
 
             if (state.subCommunities().length > 0) {
                 binding.subcommunitiesContainer.setVisibility(View.VISIBLE);
-                binding.subcommunities.setAdapter(new EntityAdapter<>(Arrays.asList(state.subCommunities()), R.layout.name_avatar_element, R.drawable.ic_default_group, (item, data) ->
+                binding.subcommunities.setAdapter(new EntityAdapter<>(Arrays.asList(state.subCommunities()), R.layout.name_avatar_element, (item, data) ->
                         item.setOnClickListener(v -> {
                             MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getId());
                             navController.navigate(action);
@@ -103,18 +104,30 @@ public class CommunityFragment extends Fragment {
                     !state.isCurrentUserRequestedParticipantPermissions() && !state.isCurrentUserRequestedAdminPermissions()) {
                 requestAdminPermissions.setVisible(true);
                 requestParticipantPermissions.setVisible(true);
-            }else {
+            } else {
                 requestAdminPermissions.setVisible(false);
                 requestParticipantPermissions.setVisible(false);
             }
 
             Community community = state.community();
+            Community ancestor = state.superCommunity();
 
             if (community != null) {
                 String avatar = community.getAvatar();
                 binding.toolbarLayout.setTitle(community.getName());
                 binding.description.setText(community.getDescription());
                 ImageLoadingUtils.loadCommunityAvatar(this, avatar == null ? null : Uri.parse(avatar), binding.avatar);
+            }
+
+            if (ancestor != null) {
+                assert community != null;
+                binding.ancestorContainer.setVisibility(View.VISIBLE);
+                EntityUtils.bindNameAvatarElement(ancestor, binding.ancestor.getRoot());
+                binding.ancestor.getRoot().setOnClickListener(
+                        v ->
+                            navController.navigate(MainNavDirections.actionGlobalCommunityFragment(community.getAncestor()))
+
+                );
             }
 
         });

@@ -65,7 +65,7 @@ public class MembersFragment extends Fragment {
         viewModel.setCommunity(communityId, role);
 
         viewModel.paginator.observe(getViewLifecycleOwner(), paginator ->
-                binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, R.drawable.ic_default_user, (item, data) ->
+                binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, (item, data) ->
                         item.findViewById(R.id.remove).setOnClickListener(
                                 v -> {
                                     viewModel.delete(data.getId(), this::processOperation);

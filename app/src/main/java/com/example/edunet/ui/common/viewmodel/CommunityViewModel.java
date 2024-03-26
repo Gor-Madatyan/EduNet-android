@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.CommunityService;
+import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.Role;
 
@@ -25,11 +26,13 @@ public class CommunityViewModel extends ViewModel {
     private final CommunityService communityService;
     private final AccountService accountService;
     private final MutableLiveData<UiState> _uiState = new MutableLiveData<>();
+    private boolean isSuperCommunityObserved = false;
     public final LiveData<UiState> uiState = _uiState;
 
     public record UiState(
             Error error,
             Community community,
+            Community superCommunity,
             Pair<String, Community>[] subCommunities,
             Role role,
             boolean isCurrentUserRequestedAdminPermissions,
@@ -46,27 +49,39 @@ public class CommunityViewModel extends ViewModel {
     }
 
     @SuppressWarnings("unchecked")
+    private void onError(ServiceException exception) {
+        _uiState.setValue(new UiState(
+                new Error(exception.getId()),
+                null,
+                null,
+                new Pair[0],
+                Role.GUEST,
+                false,
+                false)
+        );
+        Log.w(TAG, exception);
+    }
+
+    @SuppressWarnings("unchecked")
     public void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id) {
         communityService.observeCommunity(lifecycleOwner, id,
-                (community, exception) -> {
-                    if (exception != null) {
-                        _uiState.setValue(new UiState(
-                                new Error(exception.getId()),
-                                null,
-                                new Pair[0],
-                                Role.GUEST,
-                                false,
-                                false)
-                        );
-                        Log.w(TAG, exception.toString());
+                (community, e) -> {
+                    if (e != null) {
+                        onError(e);
                         return;
                     }
                     String uid = accountService.getUid();
                     assert uid != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
 
+                    if(community.getAncestor() != null && !isSuperCommunityObserved){
+                        isSuperCommunityObserved = true;
+                        observeSuperCommunity(lifecycleOwner, community.getAncestor());
+                    }
+
                     _uiState.setValue(new UiState(
                             null,
                             community,
+                            uiState.getValue() == null ? null : uiState.getValue().superCommunity(),
                             uiState.getValue() == null ? new Pair[0] : uiState.getValue().subCommunities(),
                             uid.equals(community.getOwnerId()) ? Role.OWNER :
                                     community.getAdmins().contains(uid) ? Role.ADMIN :
@@ -79,32 +94,27 @@ public class CommunityViewModel extends ViewModel {
         observeSubCommunities(lifecycleOwner, id);
     }
 
-    @SuppressWarnings("unchecked")
+
     private void observeSubCommunities(@NonNull LifecycleOwner owner, @NonNull String id) {
         communityService.observeSubCommunities(owner, id,
                 (e, subCommunities) -> {
+                    if (e != null) {
+                        onError(e);
+                        return;
+                    }
                     UiState currentUiState = uiState.getValue();
                     Community community = currentUiState == null ? null : currentUiState.community();
+                    Community superCommunity = currentUiState == null ? null : currentUiState.superCommunity();
+
                     Role role = currentUiState == null ? Role.GUEST : currentUiState.role();
                     boolean isCurrentUserRequestedAdminPermissions = currentUiState != null && currentUiState.isCurrentUserRequestedAdminPermissions();
                     boolean isCurrentUserRequestedParticipantPermissions = currentUiState != null && currentUiState.isCurrentUserRequestedParticipantPermissions();
 
-                    if (e != null) {
-                        _uiState.setValue(new UiState(
-                                new Error(e.getId()),
-                                community,
-                                new Pair[0],
-                                role,
-                                isCurrentUserRequestedAdminPermissions,
-                                isCurrentUserRequestedParticipantPermissions)
-                        );
-                        Log.e(TAG, e.toString());
-                        return;
-                    }
 
                     _uiState.setValue(
                             new UiState(null,
                                     community,
+                                    superCommunity,
                                     subCommunities,
                                     role,
                                     isCurrentUserRequestedAdminPermissions,
@@ -113,6 +123,32 @@ public class CommunityViewModel extends ViewModel {
                 });
     }
 
+    private void observeSuperCommunity(@NonNull LifecycleOwner owner, @NonNull String id) {
+        communityService.observeCommunity(owner, id,
+                (superCommunity,e) -> {
+                    if (e != null) {
+                        onError(e);
+                        return;
+                    }
+                    UiState currentUiState = uiState.getValue();
+                    Community community = currentUiState == null ? null : currentUiState.community();
+                    Pair<String, Community>[] subCommunities = currentUiState == null ? null : currentUiState.subCommunities();
+                    Role role = currentUiState == null ? Role.GUEST : currentUiState.role();
+                    boolean isCurrentUserRequestedAdminPermissions = currentUiState != null && currentUiState.isCurrentUserRequestedAdminPermissions();
+                    boolean isCurrentUserRequestedParticipantPermissions = currentUiState != null && currentUiState.isCurrentUserRequestedParticipantPermissions();
+
+
+                    _uiState.setValue(
+                            new UiState(null,
+                                    community,
+                                    superCommunity,
+                                    subCommunities,
+                                    role,
+                                    isCurrentUserRequestedAdminPermissions,
+                                    isCurrentUserRequestedParticipantPermissions)
+                    );
+                });
+    }
 }
 
 

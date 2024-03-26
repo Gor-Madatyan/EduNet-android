@@ -49,5 +49,6 @@
     <string name="participant">Participant</string>
     <string name="members">Members</string>
     <string name="title_members">{role} Members</string>
+    <string name="ancestor">Ancestor</string>
 
 </resources>

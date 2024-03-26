@@ -42,7 +42,7 @@ public class SearchFragment extends Fragment {
         navController = Navigation.findNavController(view);
 
         viewModel.paginatorLiveData.observe(getViewLifecycleOwner(),
-                paginator -> binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.name_avatar_element, R.drawable.ic_default_group, (item,data) ->
+                paginator -> binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.name_avatar_element, (item, data) ->
                        item.setOnClickListener(v->navController.navigate(MainNavDirections.actionGlobalCommunityFragment(data.getId())))
                 ))
         );
