@@ -52,4 +52,5 @@ public final class ImageLoadingUtils {
         loadAvatar(Glide.with(fragment), uri, R.drawable.ic_default_group, into);
     }
 
+
 }

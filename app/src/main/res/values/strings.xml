@@ -14,14 +14,11 @@
     <string name="title_delete_community">Delete</string>
     <string name="title_admin_panel">Admin Panel</string>
     <string name="title_requests">{role} Requests</string>
-
+    <string name="title_members">{role} Members</string>
 
 
     <string name="action_settings">Settings</string>
     <string name="settings_page_placeholder">Settings Page</string>
-    <string name="home_page_placeholder">Home Page</string>
-    <string name="chats_page_placeholder">Chats</string>
-    <string name="search_page_placeholder">Search</string>
 
     <string name="sign_out">Sign Out</string>
     <string name="edit_profile">Edit Profile</string>
@@ -48,7 +45,8 @@
     <string name="request_participant_permissions">Request participant permissions</string>
     <string name="participant">Participant</string>
     <string name="members">Members</string>
-    <string name="title_members">{role} Members</string>
     <string name="ancestor">Ancestor</string>
+    <string name="message">Message</string>
+    <string name="chat">Chat</string>
 
 </resources>

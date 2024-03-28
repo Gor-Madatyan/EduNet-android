@@ -1,5 +1,6 @@
 package com.example.edunet.ui.adapter;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.edunet.common.util.UriUtils;
 import com.example.edunet.data.service.model.Entity;
 import com.example.edunet.ui.util.EntityUtils;
 
@@ -23,6 +25,8 @@ public class EntityAdapter<T extends Entity> extends RecyclerView.Adapter<Entity
     private final BiConsumer<View, CallbackData> callback;
 
     public static class CallbackData {
+        private String title;
+        private Uri avatar;
         private String id;
         private int position;
 
@@ -31,6 +35,14 @@ public class EntityAdapter<T extends Entity> extends RecyclerView.Adapter<Entity
         }
         public String getId() {
             return id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Uri getAvatar() {
+            return avatar;
         }
     }
 
@@ -52,6 +64,8 @@ public class EntityAdapter<T extends Entity> extends RecyclerView.Adapter<Entity
         public void setEntity(int position, @NonNull String id, @NonNull T entity) {
             callbackData.id = id;
             callbackData.position = position;
+            callbackData.title = entity.getName();
+            callbackData.avatar = UriUtils.safeParse(entity.getAvatar());
             EntityUtils.bindNameAvatarElement(entity, itemView);
         }
     }

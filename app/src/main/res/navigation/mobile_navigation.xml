@@ -3,19 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_nav"
-    app:startDestination="@id/navigation_home">
-
-
-    <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.example.edunet.ui.screen.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+    app:startDestination="@id/navigation_chats">
     <fragment
         android:id="@+id/navigation_chats"
         android:name="com.example.edunet.ui.screen.chats.ChatsFragment"
         android:label="@string/title_chats"
-        tools:layout="@layout/fragment_chats" />
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_navigation_chats_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_search"
         android:name="com.example.edunet.ui.screen.search.SearchFragment"
@@ -154,5 +151,18 @@
         <argument
             android:name="role"
             app:argType="com.example.edunet.data.service.model.Role" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatFragment"
+        tools:layout="@layout/fragment_chat"
+        android:name="com.example.edunet.ui.screen.chats.chat.ChatFragment"
+        android:label="{title}">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="avatar"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 </navigation>

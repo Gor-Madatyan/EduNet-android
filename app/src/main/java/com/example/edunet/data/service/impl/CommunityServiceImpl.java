@@ -24,6 +24,7 @@ import com.example.edunet.data.service.util.firebase.paginator.QueryPaginator;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
@@ -95,6 +96,17 @@ public class CommunityServiceImpl implements CommunityService {
         this.storage = storage;
         this.communityCollection = firestore.collection("communities");
         avatarManager = new AvatarManager();
+    }
+
+    @Override
+    public void observeAttachedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Pair<String, Community>[]> biConsumer) {
+        observeCommunities(lifecycleOwner,
+                communityCollection.where(Filter.or(
+                        Filter.equalTo("ownerId", uid),
+                        Filter.arrayContains("admins", uid),
+                        Filter.arrayContains("participants", uid)
+                )),
+                biConsumer);
     }
 
     @Override

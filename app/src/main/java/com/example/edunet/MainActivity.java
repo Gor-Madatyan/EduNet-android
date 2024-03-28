@@ -27,12 +27,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
          appBarConfiguration =
-                 new AppBarConfiguration.Builder(R.id.navigation_home,R.id.navigation_chats,R.id.navigation_search,R.id.navigation_profile)
+                 new AppBarConfiguration.Builder(R.id.navigation_chats,R.id.navigation_search,R.id.navigation_profile)
                          .build();
 
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
+        NavigationUI.setupWithNavController(binding.bottomNavView, navController);
     }
 
 
