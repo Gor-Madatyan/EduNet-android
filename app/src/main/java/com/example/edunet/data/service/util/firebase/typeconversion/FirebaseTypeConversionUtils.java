@@ -5,6 +5,8 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 
 import com.example.edunet.data.service.impl.AccountServiceImpl;
+import com.example.edunet.data.service.impl.MessagingServiceImpl;
+import com.example.edunet.data.service.model.Message;
 import com.example.edunet.data.service.model.User;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -32,5 +34,9 @@ public final class FirebaseTypeConversionUtils {
                 user.getAvatar() == null ? null : Uri.parse(user.getAvatar()),
                 user.getBio()
         );
+    }
+
+    public static Message messageFromFirestoreMessage(MessagingServiceImpl.FirestoreMessage message) {
+        return new Message(message.getMessage(), message.getSenderId(), message.getTimestamp().toDate());
     }
 }

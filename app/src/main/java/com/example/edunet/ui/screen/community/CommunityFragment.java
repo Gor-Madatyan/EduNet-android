@@ -56,10 +56,10 @@ public class CommunityFragment extends Fragment {
         String communityId = CommunityFragmentArgs.fromBundle(getArguments()).getCommunityId();
         viewModel.observeCommunity(getViewLifecycleOwner(), communityId);
 
-        MenuItem adminPanel = binding.toolbar.getMenu().getItem(0);
-        MenuItem addSubCommunity = binding.toolbar.getMenu().getItem(1);
-        MenuItem requestParticipantPermissions = binding.toolbar.getMenu().getItem(2);
-        MenuItem requestAdminPermissions = binding.toolbar.getMenu().getItem(3);
+        MenuItem adminPanel = binding.toolbar.getMenu().findItem(R.id.action_admin_panel);
+        MenuItem addSubCommunity = binding.toolbar.getMenu().findItem(R.id.action_add_subcommunity);
+        MenuItem requestParticipantPermissions = binding.toolbar.getMenu().findItem(R.id.action_request_participant_permissions);
+        MenuItem requestAdminPermissions = binding.toolbar.getMenu().findItem(R.id.action_request_admin_permissions);
 
         adminPanel.setOnMenuItemClickListener(i -> {
             navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToAdminPanelFragment(communityId));

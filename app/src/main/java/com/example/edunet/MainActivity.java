@@ -1,6 +1,7 @@
 package com.example.edunet;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -33,6 +34,13 @@ public class MainActivity extends AppCompatActivity {
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.bottomNavView, navController);
+
+        navController.addOnDestinationChangedListener((controller,destination,bundle)->{
+            if(destination.getId() == R.id.chatFragment)
+                binding.bottomNavView.setVisibility(View.GONE);
+            else  binding.bottomNavView.setVisibility(View.VISIBLE);
+
+        });
     }
 
 

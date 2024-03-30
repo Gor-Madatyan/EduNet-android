@@ -14,12 +14,15 @@ import com.example.edunet.data.service.util.common.Paginator;
 public interface AccountService {
     final class InternalErrorMessages {
         public static final String CURRENT_USER_IS_NULL = "current user was null when it was not expected";
+
         private InternalErrorMessages() {
         }
     }
 
     @Nullable
     String getUid();
+
+    void getUserById(@NonNull String uid, @NonNull Consumer<User> onSuccess, @NonNull Consumer<ServiceException> onFailure);
 
     boolean isUserAvailable();
 

@@ -32,6 +32,7 @@ public class ArrayPaginator<T> extends AbstractPaginator<T> {
         }
         int currentPosition = position;
         List<Pair<String,T>> objects = new ArrayList<>();
+        setLoading(true);
 
         for (; position - currentPosition < limit && position < references.length; position++) {
             DocumentReference document = references[position];
@@ -41,11 +42,14 @@ public class ArrayPaginator<T> extends AbstractPaginator<T> {
                         successes++;
                         objects.add(new Pair<>(document.getId(), Objects.requireNonNull(snapshot.toObject(clazz))));
 
-                        if (objects.size() == limit || successes == references.length)
+                        if (objects.size() == limit || successes == references.length) {
                             onSuccess.accept(objects);
+                            setLoading(false);
+                        }
                     })
                     .addOnFailureListener(e->{
                         setFailed();
+                        setLoading(false);
                         onFailure.accept(e);
                     })
 

@@ -16,6 +16,8 @@ public interface Paginator<T> {
      */
     void next(Consumer<List<T>> onSuccess, Consumer<Exception> onFailure);
 
+    boolean isLoading();
+
     boolean hasFailure();
 
     boolean isEofReached();

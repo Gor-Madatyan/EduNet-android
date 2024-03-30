@@ -164,5 +164,8 @@
             android:name="avatar"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="communityId"
+            app:argType="string" />
     </fragment>
 </navigation>

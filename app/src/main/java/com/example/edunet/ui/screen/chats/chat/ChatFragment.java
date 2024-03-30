@@ -10,26 +10,33 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.edunet.R;
 import com.example.edunet.common.util.UriUtils;
 import com.example.edunet.databinding.FragmentChatBinding;
+import com.example.edunet.ui.adapter.LazyMessageAdapter;
 import com.example.edunet.ui.util.ImageLoadingUtils;
 
 import java.util.Objects;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class ChatFragment extends Fragment {
     private FragmentChatBinding binding;
+    private ChatViewModel viewModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requireActivity().findViewById(R.id.bottom_nav_view).setVisibility(View.GONE);
+        viewModel = new ViewModelProvider(this).get(ChatViewModel.class);
     }
 
     @Nullable
@@ -42,7 +49,36 @@ public class ChatFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        String avatar = ChatFragmentArgs.fromBundle(getArguments()).getAvatar();
+        var args = ChatFragmentArgs.fromBundle(getArguments());
+        String communityId = args.getCommunityId();
+        String avatar = args.getAvatar();
+        viewModel.setCommunity(communityId);
+
+        LazyMessageAdapter adapter = viewModel.createAdapter();
+
+        binding.messages.setAdapter(adapter);
+
+        viewModel.listenNewMessages(getViewLifecycleOwner(),
+                messages -> {
+                    boolean scrollDownAvailable = binding.messages.canScrollVertically(1);
+                    boolean userSend = messages.stream().anyMatch(i->viewModel.isUserOwner(i.second));
+                    adapter.addNewMessages(messages);
+
+                    if(userSend || !scrollDownAvailable){
+                        binding.messages.scrollToPosition(0);
+                    }
+                },
+                e-> Toast.makeText(requireContext(), e.getId(), Toast.LENGTH_SHORT).show()
+        );
+
+        binding.send.setOnClickListener(v->{
+            Editable message = binding.message.getEditableText();
+            viewModel.sendMessage(message.toString(),error -> {
+                if(error != null)
+                    Toast.makeText(getContext(), error.message(), Toast.LENGTH_SHORT).show();
+            });
+            message.clear();
+        });
 
         binding.message.addTextChangedListener(new TextWatcher() {
             @Override
@@ -72,7 +108,7 @@ public class ChatFragment extends Fragment {
             @Override
             public void onPrepareMenu(@NonNull Menu menu) {
                 MenuProvider.super.onPrepareMenu(menu);
-                ImageView avatarView = Objects.requireNonNull(menu.getItem(0).getActionView()).findViewById(R.id.avatar);
+                ImageView avatarView = Objects.requireNonNull(menu.findItem(R.id.chat_overview).getActionView()).findViewById(R.id.avatar);
                 assert avatarView != null;
 
                 ImageLoadingUtils.loadCommunityAvatar(ChatFragment.this, UriUtils.safeParse(avatar), avatarView);
@@ -89,6 +125,5 @@ public class ChatFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-        requireActivity().findViewById(R.id.bottom_nav_view).setVisibility(View.VISIBLE);
     }
 }

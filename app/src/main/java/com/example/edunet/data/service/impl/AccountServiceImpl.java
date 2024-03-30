@@ -153,6 +153,13 @@ public final class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public void getUserById(@NonNull String uid, @NonNull Consumer<User> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
+        firestoreUsers.document(uid).get()
+                .addOnSuccessListener(snapshot -> onSuccess.accept(userFromFireStoreUser(uid, snapshot.toObject(FirestoreUser.class))))
+                .addOnFailureListener(e-> onFailure.accept(new ServiceException(R.string.error_cant_load_user,e)));
+    }
+
+    @Override
     public boolean isUserAvailable() {
         return auth.getCurrentUser() != null;
     }
@@ -177,15 +184,15 @@ public final class AccountServiceImpl implements AccountService {
             references[i] = firestoreUsers.document(uids[i]);
         }
 
-        ArrayPaginator<FirestoreUser> paginator = new ArrayPaginator<>(FirestoreUser.class, references, limit);
+        ArrayPaginator<FirestoreUser> in = new ArrayPaginator<>(FirestoreUser.class, references, limit);
 
         return new Paginator<>() {
             @SuppressWarnings("all")
             @Override
             public void next(Consumer<List<Pair<String, User>>> onSuccess, Consumer<Exception> onFailure) {
-                paginator.next(
+                in.next(
                         users -> {
-                            List<Pair<String,User>> parsedUsers =
+                            List<Pair<String, User>> parsedUsers =
                                     users.stream().map(pair -> new Pair<>(pair.first, userFromFireStoreUser(pair.first, pair.second)))
                                             .collect(Collectors.toList());
                             onSuccess.accept(parsedUsers);
@@ -195,13 +202,18 @@ public final class AccountServiceImpl implements AccountService {
             }
 
             @Override
+            public boolean isLoading() {
+                return in.isLoading();
+            }
+
+            @Override
             public boolean hasFailure() {
-                return paginator.hasFailure();
+                return in.hasFailure();
             }
 
             @Override
             public boolean isEofReached() {
-                return paginator.isEofReached();
+                return in.isEofReached();
             }
         };
     }

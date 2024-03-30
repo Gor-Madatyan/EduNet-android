@@ -21,7 +21,9 @@ public class QueryPaginator<T> extends AbstractPaginator<T> {
     }
 
     @Override
-    public void next(Consumer<List<Pair<String,T>>> onSuccess, Consumer<Exception> onFailure) {
+    public void next(Consumer<List<Pair<String, T>>> onSuccess, Consumer<Exception> onFailure) {
+        assert !isLoading();
+
         if (isEofReached()) {
             onFailure.accept(new EOFException());
             return;
@@ -29,6 +31,7 @@ public class QueryPaginator<T> extends AbstractPaginator<T> {
             onFailure.accept(new IllegalStateException());
             return;
         }
+        setLoading(true);
         query.get()
                 .addOnSuccessListener(snapshots -> {
                     if (snapshots.isEmpty()) {
@@ -36,7 +39,7 @@ public class QueryPaginator<T> extends AbstractPaginator<T> {
                         onFailure.accept(new EOFException());
                         return;
                     }
-                    List<Pair<String,T>> objects = new ArrayList<>();
+                    List<Pair<String, T>> objects = new ArrayList<>();
 
                     for (QueryDocumentSnapshot snapshot : snapshots) {
                         objects.add(new Pair<>(snapshot.getId(), snapshot.toObject(clazz)));
@@ -48,7 +51,8 @@ public class QueryPaginator<T> extends AbstractPaginator<T> {
                 .addOnFailureListener(e -> {
                     setFailed();
                     onFailure.accept(e);
-                });
+                })
+                .addOnCompleteListener(r -> setLoading(false));
     }
 
 }
