@@ -119,24 +119,14 @@ public final class AccountServiceImpl implements AccountService {
         this.firestoreUsers = firestore.collection("users");
         this.avatarManager = new AvatarManager();
 
-        auth.addAuthStateListener(firebaseAuth -> {
-                    FirebaseUser user = auth.getCurrentUser();
-                    firebaseUserLiveData.setValue(user);
-
-                    if (user != null) {
-                        firestoreUserReference = firestoreUsers.document(user.getUid());
-                        if (firestoreUserListener != null) firestoreUserListener.remove();
-                        firestoreUserListener = setFirestoreUserListener();
-                    }
-
-                }
-        );
+        if (isUserAvailable()) onSignIn();
+        auth.addAuthStateListener(firebaseAuth -> firebaseUserLiveData.setValue(auth.getCurrentUser()));
     }
 
     private void initialize(@NonNull Consumer<ServiceException> onResult) {
         FirebaseUser user = auth.getCurrentUser();
         assert user != null : InternalErrorMessages.CURRENT_USER_IS_NULL;
-        DocumentReference userPath = firestoreUsers.document(Objects.requireNonNull(getUid()));
+        DocumentReference userPath = firestoreUsers.document(Objects.requireNonNull(user.getUid()));
 
         userPath.set(new FirestoreUser(
                         user.getDisplayName(),
@@ -144,6 +134,12 @@ public final class AccountServiceImpl implements AccountService {
                         null))
                 .addOnSuccessListener(r -> onResult.accept(null))
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_initialize_user, e)));
+    }
+
+    @Override
+    public void onSignIn() {
+        firestoreUserReference = firestoreUsers.document(Objects.requireNonNull(getUid()));
+        firestoreUserListener = setFirestoreUserListener();
     }
 
     @Nullable
@@ -156,7 +152,7 @@ public final class AccountServiceImpl implements AccountService {
     public void getUserById(@NonNull String uid, @NonNull Consumer<User> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
         firestoreUsers.document(uid).get()
                 .addOnSuccessListener(snapshot -> onSuccess.accept(userFromFireStoreUser(uid, snapshot.toObject(FirestoreUser.class))))
-                .addOnFailureListener(e-> onFailure.accept(new ServiceException(R.string.error_cant_load_user,e)));
+                .addOnFailureListener(e -> onFailure.accept(new ServiceException(R.string.error_cant_load_user, e)));
     }
 
     @Override
@@ -271,6 +267,7 @@ public final class AccountServiceImpl implements AccountService {
 
     @Override
     public void signOut() {
+        firestoreUserListener.remove();
         auth.signOut();
     }
 

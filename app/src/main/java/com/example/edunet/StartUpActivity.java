@@ -35,8 +35,10 @@ public class StartUpActivity extends AppCompatActivity {
     private void onSignInResult(@NonNull FirebaseAuthUIAuthenticationResult result) {
         IdpResponse response = result.getIdpResponse();
 
-        if (result.getResultCode() == RESULT_OK)
+        if (result.getResultCode() == RESULT_OK) {
             startActivity(new Intent(this, MainActivity.class));
+            accountService.onSignIn();
+        }
 
         else if (response != null) {
                 FirebaseUiException error = response.getError();

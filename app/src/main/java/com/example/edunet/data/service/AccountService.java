@@ -18,6 +18,7 @@ public interface AccountService {
         private InternalErrorMessages() {
         }
     }
+    void onSignIn();
 
     @Nullable
     String getUid();
