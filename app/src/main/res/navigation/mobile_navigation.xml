@@ -81,9 +81,6 @@
         android:label="@string/title_edit_community"
         tools:layout="@layout/fragment_modify_community">
         <argument
-            android:name="communityId"
-            app:argType="string" />
-        <argument
             android:name="community"
             app:argType="com.example.edunet.data.service.model.Community" />
     </fragment>
@@ -162,7 +159,7 @@
             app:argType="string" />
         <argument
             android:name="avatar"
-            app:argType="string"
+            app:argType="android.net.Uri"
             app:nullable="true" />
         <argument
             android:name="communityId"

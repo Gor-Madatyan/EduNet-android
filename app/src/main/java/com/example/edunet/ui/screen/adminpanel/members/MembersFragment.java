@@ -68,7 +68,7 @@ public class MembersFragment extends Fragment {
                 binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, (item, data) ->
                         item.findViewById(R.id.remove).setOnClickListener(
                                 v -> {
-                                    viewModel.delete(data.getId(), this::processOperation);
+                                    viewModel.delete(data.getEntity().getId(), this::processOperation);
                                     deleteMember(data.getPosition());
                                 }
                         ))));

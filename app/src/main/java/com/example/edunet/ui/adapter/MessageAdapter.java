@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.edunet.R;
@@ -23,9 +22,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     private static final String TAG = MessageAdapter.class.getSimpleName();
     private final AccountService accountService;
     private final MessagingService messagingService;
-    protected final List<Pair<String, Message>> dataSet;
+    protected final List<Message> dataSet;
 
-    public MessageAdapter(List<Pair<String, Message>> dataSet, AccountService accountService, MessagingService messagingService) {
+    public MessageAdapter(List<Message> dataSet, AccountService accountService, MessagingService messagingService) {
         this.dataSet = dataSet;
         this.accountService = accountService;
         this.messagingService = messagingService;
@@ -67,12 +66,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.setMessage(dataSet.get(position).second);
+        holder.setMessage(dataSet.get(position));
     }
 
     @Override
     public int getItemViewType(int position) {
-        Message message = dataSet.get(position).second;
+        Message message = dataSet.get(position);
         return messagingService.isCurrentUserOwner(message) ? R.layout.user_message : R.layout.foreign_message;
     }
 

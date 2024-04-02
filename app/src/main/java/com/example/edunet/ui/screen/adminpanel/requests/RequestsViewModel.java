@@ -4,7 +4,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -27,7 +26,7 @@ public class RequestsViewModel extends ViewModel {
     private Role role;
     private final CommunityService communityService;
     private final AccountService accountService;
-    LiveData<Paginator<Pair<String, User>>> paginator;
+    LiveData<Paginator<User>> paginator;
 
     @Inject
     RequestsViewModel(CommunityService communityService, AccountService accountService) {
@@ -37,7 +36,7 @@ public class RequestsViewModel extends ViewModel {
 
     void setCommunity(@NonNull String communityId, @NonNull Role role) {
         assert role != Role.OWNER && role != Role.GUEST;
-        MutableLiveData<Paginator<Pair<String, User>>> _paginator = new MutableLiveData<>();
+        MutableLiveData<Paginator<User>> _paginator = new MutableLiveData<>();
         paginator = _paginator;
         this.communityId = communityId;
         this.role = role;

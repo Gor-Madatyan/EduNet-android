@@ -2,7 +2,6 @@ package com.example.edunet.ui.screen.chats;
 
 import android.util.Log;
 
-import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -21,8 +20,8 @@ public class ChatsViewModel extends ViewModel {
     private static final String TAG = ChatsViewModel.class.getSimpleName();
     private final CommunityService communityService;
     private final AccountService accountService;
-    private final MutableLiveData<Pair<String, Community>[]> _dataset = new MutableLiveData<>();
-    final LiveData<Pair<String, Community>[]> dataset = _dataset;
+    private final MutableLiveData<Community[]> _dataset = new MutableLiveData<>();
+    final LiveData<Community[]> dataset = _dataset;
 
     @Inject
     ChatsViewModel(CommunityService communityService, AccountService accountService) {

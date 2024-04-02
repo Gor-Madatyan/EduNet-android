@@ -83,7 +83,7 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     @Override
-    public Paginator<Pair<String, Message>> getDescendingMessagePaginator(String sourceId, int limit) {
+    public Paginator<Message> getDescendingMessagePaginator(String sourceId, int limit) {
         CollectionReference messagesReference = getMessagesCollection(sourceId);
         Paginator<Pair<String, FirestoreMessage>> in = new QueryPaginator<>(
                 messagesReference.orderBy("timestamp", Query.Direction.DESCENDING)
@@ -92,9 +92,9 @@ public class MessagingServiceImpl implements MessagingService {
 
         return new Paginator<>() {
             @Override
-            public void next(androidx.core.util.Consumer<List<Pair<String, Message>>> onSuccess, androidx.core.util.Consumer<Exception> onFailure) {
+            public void next(androidx.core.util.Consumer<List<Message>> onSuccess, androidx.core.util.Consumer<Exception> onFailure) {
                 in.next(
-                        list -> onSuccess.accept(list.stream().map(pair -> new Pair<>(pair.first, messageFromFirestoreMessage(pair.second))).collect(Collectors.toList())),
+                        list -> onSuccess.accept(list.stream().map(pair -> messageFromFirestoreMessage(pair.second)).collect(Collectors.toList())),
                         e -> onFailure.accept(new ServiceException(R.string.error_cant_load_message, e))
                 );
             }
@@ -117,7 +117,7 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     @Override
-    public void listenNewMessages(@NonNull LifecycleOwner lifecycleOwner, @NonNull String sourceId, @NonNull Date after, @NonNull Consumer<List<Pair<String, Message>>> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
+    public void listenNewMessages(@NonNull LifecycleOwner lifecycleOwner, @NonNull String sourceId, @NonNull Date after, @NonNull Consumer<List<Message>> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
         CollectionReference messages = getMessagesCollection(sourceId);
 
         FirestoreUtils.attachObserver(messages.orderBy("timestamp", Query.Direction.DESCENDING).endBefore(after)
@@ -128,13 +128,13 @@ public class MessagingServiceImpl implements MessagingService {
                                 return;
                             }
                             assert snapshots != null;
-                            List<Pair<String, Message>> newMessages = new ArrayList<>();
+                            List<Message> newMessages = new ArrayList<>();
 
 
                             for (DocumentChange documentChange : snapshots.getDocumentChanges()) {
                                 if (documentChange.getType() == DocumentChange.Type.ADDED) {
                                     QueryDocumentSnapshot snapshot = documentChange.getDocument();
-                                    newMessages.add(new Pair<>(snapshot.getId(), messageFromFirestoreMessage(snapshot.toObject(FirestoreMessage.class))));
+                                    newMessages.add(messageFromFirestoreMessage(snapshot.toObject(FirestoreMessage.class)));
                                 }
                             }
 

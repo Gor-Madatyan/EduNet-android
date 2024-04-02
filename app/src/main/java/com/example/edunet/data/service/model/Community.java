@@ -1,5 +1,6 @@
 package com.example.edunet.data.service.model;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,56 +10,69 @@ import androidx.annotation.Nullable;
 
 import com.example.edunet.R;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-
-// FIXME: 3/26/2024 Community is already not POJO and I want to
-//  store in it not only simple types such as String and also uris,
-//  build abstraction over Community class, and make Community class simple POJO
 @SuppressWarnings("unused")
 public class Community implements Entity, Parcelable {
-    private String name;
-    private String searchName;
-    private String avatar;
-    private String description;
-    private String ancestor;
-    private List<String> admins;
-    private List<String> adminsQueue;
-    private List<String> participants;
-    private List<String> participantsQueue;
-    private String ownerId;
+    private final String name;
+    private final Uri avatar;
+    private final String description;
+    private final List<String> admins;
+    private final List<String> adminsQueue;
+    private final List<String> participants;
+    private final List<String> participantsQueue;
+    private final String id;
+    private final String ancestor;
+    private final String ownerId;
 
-    public Community() {
-    }
-
-    public Community(@NonNull String name, @NonNull String description, @Nullable String avatar, @Nullable String ancestor, @NonNull String ownerId) {
+    public Community(@NonNull String name,
+                     @NonNull String description,
+                     @Nullable Uri avatar,
+                     @NonNull List<String> admins,
+                     @NonNull List<String> adminsQueue,
+                     @NonNull List<String> participants,
+                     @NonNull List<String> participantsQueue,
+                     @Nullable String ancestor,
+                     @NonNull String id,
+                     @NonNull String ownerId) {
         this.name = name;
-        searchName = name.toLowerCase(Locale.ROOT);
         this.avatar = avatar;
         this.description = description;
+        this.admins = admins;
+        this.adminsQueue = adminsQueue;
+        this.participants = participants;
+        this.participantsQueue = participantsQueue;
         this.ancestor = ancestor;
         this.ownerId = ownerId;
-        admins = new ArrayList<>();
-        participants = new ArrayList<>();
-        adminsQueue = new ArrayList<>();
-        participantsQueue = new ArrayList<>();
+        this.id = id;
+
     }
 
 
     protected Community(Parcel in) {
         name = in.readString();
-        avatar = in.readString();
+        avatar = in.readParcelable(Uri.class.getClassLoader());
         description = in.readString();
+        admins = in.createStringArrayList();
+        adminsQueue = in.createStringArrayList();
+        participants = in.createStringArrayList();
+        participantsQueue = in.createStringArrayList();
+        id = in.readString();
+        ancestor = in.readString();
         ownerId = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
-        dest.writeString(avatar);
+        dest.writeParcelable(avatar, flags);
         dest.writeString(description);
+        dest.writeStringList(admins);
+        dest.writeStringList(adminsQueue);
+        dest.writeStringList(participants);
+        dest.writeStringList(participantsQueue);
+        dest.writeString(id);
+        dest.writeString(ancestor);
         dest.writeString(ownerId);
     }
 
@@ -79,17 +93,6 @@ public class Community implements Entity, Parcelable {
         }
     };
 
-    @NonNull
-    @Override
-    public String toString() {
-        return "Community{" +
-                "name='" + name + '\'' +
-                ", avatar='" + avatar + '\'' +
-                ", description='" + description + '\'' +
-                ", ownerId='" + ownerId + '\'' +
-                '}';
-    }
-
     public String getDescription() {
         return description;
     }
@@ -100,7 +103,12 @@ public class Community implements Entity, Parcelable {
     }
 
     @Override
-    public String getAvatar() {
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public Uri getAvatar() {
         return avatar;
     }
 
@@ -111,10 +119,6 @@ public class Community implements Entity, Parcelable {
     }
 
     @SuppressWarnings("unused")
-    public String getSearchName() {
-        return searchName;
-    }
-
 
     public String getOwnerId() {
         return ownerId;

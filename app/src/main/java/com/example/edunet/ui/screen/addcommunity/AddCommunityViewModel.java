@@ -47,7 +47,7 @@ public class AddCommunityViewModel extends ViewModel {
                 .setDescription(description)
                 .setAncestor(ancestor);
 
-        if (!communityService.validateCommunityCreateRequest(request)) {
+        if (communityService.isCommunityCreateRequestInvalid(request)) {
             _error.setValue(new Error(R.string.error_invalid_community_create_request));
             return;
         }

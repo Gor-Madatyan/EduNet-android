@@ -97,7 +97,7 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
 
             if (state.community() != null)
                 editCommunity.setOnPreferenceClickListener(p -> {
-                            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToCommunityUpdateFragment(communityId, state.community()));
+                            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToCommunityUpdateFragment(state.community()));
                             return true;
                         }
                 );

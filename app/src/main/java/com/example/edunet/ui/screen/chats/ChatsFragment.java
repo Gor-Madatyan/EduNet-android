@@ -13,7 +13,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.edunet.R;
-import com.example.edunet.common.util.UriUtils;
+import com.example.edunet.data.service.model.Entity;
 import com.example.edunet.databinding.FragmentSearchBinding;
 import com.example.edunet.ui.adapter.EntityAdapter;
 
@@ -48,7 +48,10 @@ public class ChatsFragment extends Fragment {
 
         viewModel.dataset.observe(getViewLifecycleOwner(), communities ->
                 binding.result.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, (v, data) ->
-                        v.setOnClickListener(v1 -> navController.navigate(ChatsFragmentDirections.actionNavigationChatsToChatFragment(data.getTitle(), UriUtils.safeToString(data.getAvatar()), data.getId()))))));
+                        v.setOnClickListener(v1 -> {
+                            Entity community = data.getEntity();
+                            navController.navigate(ChatsFragmentDirections.actionNavigationChatsToChatFragment(community.getName(), community.getAvatar(), community.getId()));
+                        }))));
     }
 
     @Override

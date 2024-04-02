@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -84,13 +83,13 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void processAttachedCommunities(ViewGroup container, RecyclerView recyclerView, Pair<String, Community>[] communities) {
+    private void processAttachedCommunities(ViewGroup container, RecyclerView recyclerView, Community[] communities) {
         if (communities.length > 0) {
             container.setVisibility(View.VISIBLE);
             recyclerView.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, (item, data) ->
                     item.setOnClickListener(
                             v -> {
-                                MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getId());
+                                MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getEntity().getId());
                                 navController.navigate(action);
                             })
             ));

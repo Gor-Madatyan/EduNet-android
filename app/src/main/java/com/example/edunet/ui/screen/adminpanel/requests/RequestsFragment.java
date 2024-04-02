@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.edunet.R;
+import com.example.edunet.data.service.model.Entity;
 import com.example.edunet.data.service.model.Role;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.databinding.FragmentSearchBinding;
@@ -71,13 +72,15 @@ public class RequestsFragment extends Fragment {
 
                     add.setOnClickListener(
                             v -> {
-                                viewModel.accept(data.getId(), this::processOperation);
+                                Entity user = data.getEntity();
+                                viewModel.accept(user.getId(), this::processOperation);
                                 deleteRequest(data.getPosition());
                             }
                     );
                     item.findViewById(R.id.remove).setOnClickListener(
                             v -> {
-                                viewModel.delete(data.getId(), this::processOperation);
+                                Entity user = data.getEntity();
+                                viewModel.delete(user.getId(), this::processOperation);
                                 deleteRequest(data.getPosition());
                             }
                     );

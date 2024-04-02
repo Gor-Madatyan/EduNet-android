@@ -9,7 +9,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -173,7 +172,7 @@ public final class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Paginator<Pair<String, User>> getUserArrayPaginator(String[] uids, int limit) {
+    public Paginator<User> getUserArrayPaginator(String[] uids, int limit) {
         DocumentReference[] references = new DocumentReference[uids.length];
 
         for (int i = 0; i < uids.length; i++) {
@@ -185,13 +184,13 @@ public final class AccountServiceImpl implements AccountService {
         return new Paginator<>() {
             @SuppressWarnings("all")
             @Override
-            public void next(Consumer<List<Pair<String, User>>> onSuccess, Consumer<Exception> onFailure) {
+            public void next(Consumer<List<User>> onSuccess, Consumer<Exception> onFailure) {
                 in.next(
                         users -> {
-                            List<Pair<String, User>> parsedUsers =
-                                    users.stream().map(pair -> new Pair<>(pair.first, userFromFireStoreUser(pair.first, pair.second)))
-                                            .collect(Collectors.toList());
-                            onSuccess.accept(parsedUsers);
+                            onSuccess.accept(
+                                    users.stream().map(pair -> userFromFireStoreUser(pair.first, pair.second))
+                                            .collect(Collectors.toList())
+                            );
                         },
                         e -> onFailure.accept(new ServiceException(R.string.error_cant_load_user, e))
                 );
@@ -216,7 +215,7 @@ public final class AccountServiceImpl implements AccountService {
 
     @Override
     public void updateCurrentUser(@NonNull UserUpdateRequest request, @NonNull Consumer<ServiceException> onResult) {
-        if (!validateUserUpdate(request)) {
+        if (isUserUpdateInvalid(request)) {
             onResult.accept(new ServiceException(R.string.error_invalid_profile_update_request));
             return;
         }
@@ -241,19 +240,19 @@ public final class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean validateUserUpdate(@NonNull UserUpdateRequest request) {
+    public boolean isUserUpdateInvalid(@NonNull UserUpdateRequest request) {
         if (!firestoreUserLiveData.isInitialized())
-            return false;
+            return true;
 
         String name = request.getName();
         String bio = request.getBio();
         Uri avatar = request.getAvatar();
 
         if (avatar != null && !AvatarManager.validateAvatar(avatar))
-            return false;
+            return true;
 
         if (request.isNameSet() && name == null)
-            return false;
+            return true;
 
         if (name != null) request.setName(name = name.trim());
 
@@ -262,7 +261,7 @@ public final class AccountServiceImpl implements AccountService {
             if (bio.isEmpty()) request.setBio(null);
             else request.setBio(bio);
         }
-        return name == null || !name.isEmpty();
+        return name != null && name.isEmpty();
     }
 
     @Override

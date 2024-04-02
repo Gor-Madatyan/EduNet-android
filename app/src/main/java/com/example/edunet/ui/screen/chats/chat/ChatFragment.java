@@ -1,5 +1,6 @@
 package com.example.edunet.ui.screen.chats.chat;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,7 +20,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.edunet.R;
-import com.example.edunet.common.util.UriUtils;
 import com.example.edunet.databinding.FragmentChatBinding;
 import com.example.edunet.ui.adapter.LazyMessageAdapter;
 import com.example.edunet.ui.util.ImageLoadingUtils;
@@ -51,7 +51,7 @@ public class ChatFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         var args = ChatFragmentArgs.fromBundle(getArguments());
         String communityId = args.getCommunityId();
-        String avatar = args.getAvatar();
+        Uri avatar = args.getAvatar();
         viewModel.setCommunity(communityId);
 
         LazyMessageAdapter adapter = viewModel.createAdapter();
@@ -61,7 +61,7 @@ public class ChatFragment extends Fragment {
         viewModel.listenNewMessages(getViewLifecycleOwner(),
                 messages -> {
                     boolean scrollDownAvailable = binding.messages.canScrollVertically(1);
-                    boolean userSend = messages.stream().anyMatch(i->viewModel.isUserOwner(i.second));
+                    boolean userSend = messages.stream().anyMatch(i->viewModel.isUserOwner(i));
                     adapter.addNewMessages(messages);
 
                     if(userSend || !scrollDownAvailable){
@@ -111,7 +111,7 @@ public class ChatFragment extends Fragment {
                 ImageView avatarView = Objects.requireNonNull(menu.findItem(R.id.chat_overview).getActionView()).findViewById(R.id.avatar);
                 assert avatarView != null;
 
-                ImageLoadingUtils.loadCommunityAvatar(ChatFragment.this, UriUtils.safeParse(avatar), avatarView);
+                ImageLoadingUtils.loadCommunityAvatar(ChatFragment.this, avatar, avatarView);
             }
 
             @Override

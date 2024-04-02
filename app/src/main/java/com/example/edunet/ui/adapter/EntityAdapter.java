@@ -1,16 +1,13 @@
 package com.example.edunet.ui.adapter;
 
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.edunet.common.util.UriUtils;
 import com.example.edunet.data.service.model.Entity;
 import com.example.edunet.ui.util.EntityUtils;
 
@@ -21,32 +18,22 @@ import java.util.function.BiConsumer;
 public class EntityAdapter<T extends Entity> extends RecyclerView.Adapter<EntityAdapter<T>.ViewHolder> {
     @LayoutRes
     private final int itemLayout;
-    protected final List<Pair<String, T>> dataSet;
+    protected final List<T> dataSet;
     private final BiConsumer<View, CallbackData> callback;
 
-    public static class CallbackData {
-        private String title;
-        private Uri avatar;
-        private String id;
+    public class CallbackData {
+        private T entity;
         private int position;
 
         public int getPosition() {
             return position;
         }
-        public String getId() {
-            return id;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public Uri getAvatar() {
-            return avatar;
+        public T getEntity(){
+            return entity;
         }
     }
 
-    public EntityAdapter(List<Pair<String, T>> dataSet, @LayoutRes int itemLayout, BiConsumer<View, CallbackData> callback) {
+    public EntityAdapter(List<T> dataSet, @LayoutRes int itemLayout, BiConsumer<View, CallbackData> callback) {
         this.dataSet = dataSet;
         this.itemLayout = itemLayout;
         this.callback = callback;
@@ -54,18 +41,16 @@ public class EntityAdapter<T extends Entity> extends RecyclerView.Adapter<Entity
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private final EntityAdapter.CallbackData callbackData = new CallbackData();
+        private final CallbackData callbackData = new CallbackData();
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             callback.accept(itemView, callbackData);
         }
 
-        public void setEntity(int position, @NonNull String id, @NonNull T entity) {
-            callbackData.id = id;
+        public void setEntity(int position, @NonNull T entity) {
             callbackData.position = position;
-            callbackData.title = entity.getName();
-            callbackData.avatar = UriUtils.safeParse(entity.getAvatar());
+            callbackData.entity = entity;
             EntityUtils.bindNameAvatarElement(entity, itemView);
         }
     }
@@ -84,8 +69,8 @@ public class EntityAdapter<T extends Entity> extends RecyclerView.Adapter<Entity
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Pair<String, T> entity = dataSet.get(position);
-        holder.setEntity(position, entity.first, entity.second);
+        T entity = dataSet.get(position);
+        holder.setEntity(position, entity);
     }
 
     @Override

@@ -91,7 +91,7 @@ public class CommunityFragment extends Fragment {
                 binding.subcommunitiesContainer.setVisibility(View.VISIBLE);
                 binding.subcommunities.setAdapter(new EntityAdapter<>(Arrays.asList(state.subCommunities()), R.layout.name_avatar_element, (item, data) ->
                         item.setOnClickListener(v -> {
-                            MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getId());
+                            MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getEntity().getId());
                             navController.navigate(action);
                         })));
 
@@ -113,10 +113,10 @@ public class CommunityFragment extends Fragment {
             Community ancestor = state.superCommunity();
 
             if (community != null) {
-                String avatar = community.getAvatar();
+                Uri avatar = community.getAvatar();
                 binding.toolbarLayout.setTitle(community.getName());
                 binding.description.setText(community.getDescription());
-                ImageLoadingUtils.loadCommunityAvatar(this, avatar == null ? null : Uri.parse(avatar), binding.avatar);
+                ImageLoadingUtils.loadCommunityAvatar(this, avatar, binding.avatar);
             }
 
             if (ancestor != null) {

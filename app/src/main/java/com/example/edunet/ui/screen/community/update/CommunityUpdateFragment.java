@@ -49,11 +49,10 @@ public class CommunityUpdateFragment extends Fragment {
 
         CommunityUpdateFragmentArgs args = CommunityUpdateFragmentArgs.fromBundle(getArguments());
         Community community = args.getCommunity();
-        String communityId = args.getCommunityId();
 
         binding.editName.setText(community.getName());
         binding.editDescription.setText(community.getDescription());
-        viewModel.setCommunity(communityId, community);
+        viewModel.setCommunity(community.getId(), community);
 
         viewModel.avatar.observe(getViewLifecycleOwner(), uri ->
                 ImageLoadingUtils.loadCommunityAvatar(

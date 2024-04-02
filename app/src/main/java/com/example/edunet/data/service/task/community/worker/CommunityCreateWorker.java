@@ -1,7 +1,6 @@
 package com.example.edunet.data.service.task.community.worker;
 
 import android.content.Context;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -11,6 +10,7 @@ import androidx.work.Data;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
+import com.example.edunet.common.util.UriUtils;
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
@@ -54,7 +54,7 @@ public class CommunityCreateWorker extends ListenableWorker {
 
     public static Data getDataFromCommunityCreateRequest(CommunityCreateRequest request) {
         return new Data.Builder()
-                .putString(AVATAR_KEY, request.getAvatar() == null ? null : request.getAvatar().toString())
+                .putString(AVATAR_KEY, UriUtils.safeToString(request.getAvatar()))
                 .putString(NAME_KEY, request.getName())
                 .putString(DESCRIPTION_KEY, request.getDescription())
                 .putString(ANCESTOR_KEY,request.getAncestor()).build();
@@ -69,7 +69,7 @@ public class CommunityCreateWorker extends ListenableWorker {
 
         return new CommunityCreateRequest().setName(name)
                 .setDescription(description)
-                .setAvatar(avatar == null ? null : Uri.parse(avatar))
+                .setAvatar(UriUtils.safeParse(avatar))
                 .setAncestor(ancestor);
     }
 

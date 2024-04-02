@@ -47,7 +47,7 @@ public class CommunityUpdateViewModel extends ViewModel {
         Uri avatar = _avatar.getValue();
         if(!Objects.equals(getInitialAvatar(), avatar)) request.setAvatar(avatar);
 
-        if (!communityService.validateCommunityUpdateRequest(request)) {
+        if (communityService.isCommunityUpdateRequestInvalid(request)) {
             _error.setValue(new Error(R.string.error_invalid_community_update_request));
             return;
         }
@@ -65,14 +65,13 @@ public class CommunityUpdateViewModel extends ViewModel {
     void setCommunity(@NonNull String communityId,@NonNull Community community) {
         this.communityId = communityId;
         this.community = community;
-        String avatar = community.getAvatar();
+        Uri avatar = community.getAvatar();
 
-        _avatar.setValue(avatar == null ? null : Uri.parse(avatar));
+        _avatar.setValue(avatar);
     }
 
     Uri getInitialAvatar(){
-       String avatar = community.getAvatar();
-       return avatar == null ? null : Uri.parse(avatar);
+       return community.getAvatar();
     }
 
 }

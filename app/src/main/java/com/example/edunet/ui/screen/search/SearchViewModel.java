@@ -1,6 +1,5 @@
 package com.example.edunet.ui.screen.search;
 
-import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -17,8 +16,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class SearchViewModel extends ViewModel {
     private final static int PAGINATOR_LIMIT = 20;
     private final CommunityService communityService;
-    private final MutableLiveData<Paginator<Pair<String,Community>>> _paginatorLiveData = new MutableLiveData<>();
-    final LiveData<Paginator<Pair<String,Community>>> paginatorLiveData = _paginatorLiveData;
+    private final MutableLiveData<Paginator<Community>> _paginatorLiveData = new MutableLiveData<>();
+    final LiveData<Paginator<Community>> paginatorLiveData = _paginatorLiveData;
 
 
     @Inject

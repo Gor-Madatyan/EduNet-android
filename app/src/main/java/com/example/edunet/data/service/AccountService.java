@@ -3,7 +3,6 @@ package com.example.edunet.data.service;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 
 import com.example.edunet.data.service.exception.ServiceException;
@@ -33,11 +32,11 @@ public interface AccountService {
     @Nullable
     User getCurrentUser();
 
-    Paginator<Pair<String, User>> getUserArrayPaginator(String[] uids, int limit);
+    Paginator<User> getUserArrayPaginator(String[] uids, int limit);
 
     void updateCurrentUser(@NonNull UserUpdateRequest request, @NonNull Consumer<ServiceException> onResult);
 
-    boolean validateUserUpdate(@NonNull UserUpdateRequest request);
+    boolean isUserUpdateInvalid(@NonNull UserUpdateRequest request);
 
     void signOut();
 }

@@ -76,7 +76,7 @@ public class ProfileUpdateViewModel extends ViewModel {
         if (!Objects.equals(avatar, currentAvatar))
             request.setAvatar(avatar);
 
-       if (!accountService.validateUserUpdate(request)) {
+       if (accountService.isUserUpdateInvalid(request)) {
             _error.setValue(new Error(R.string.error_invalid_profile_update_request));
             return;
         }

@@ -1,7 +1,6 @@
 package com.example.edunet.data.service;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.example.edunet.data.service.exception.ServiceException;
@@ -17,12 +16,12 @@ public interface MessagingService {
                      @NonNull String receiverId,
                      @NonNull Consumer<ServiceException> onResult);
 
-    Paginator<Pair<String, Message>> getDescendingMessagePaginator(String sourceId, int limit);
+    Paginator<Message> getDescendingMessagePaginator(String sourceId, int limit);
 
     void listenNewMessages(@NonNull LifecycleOwner lifecycleOwner,
                            @NonNull String sourceId,
                            @NonNull Date after,
-                           @NonNull Consumer<List<Pair<String,Message>>> onSuccess,
+                           @NonNull Consumer<List<Message>> onSuccess,
                            @NonNull Consumer<ServiceException> onFailure);
 
     boolean isCurrentUserOwner(Message message);

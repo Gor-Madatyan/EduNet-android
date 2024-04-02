@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.core.util.Consumer;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModel;
 
@@ -49,7 +48,7 @@ public class ChatViewModel extends ViewModel {
         );
     }
 
-    void listenNewMessages(LifecycleOwner lifecycleOwner, Consumer<List<Pair<String, Message>>> onSuccess, Consumer<UserFriendlyException> onFailure) {
+    void listenNewMessages(LifecycleOwner lifecycleOwner, Consumer<List<Message>> onSuccess, Consumer<UserFriendlyException> onFailure) {
         messagingService.listenNewMessages(lifecycleOwner, communityId, new Date(),
                 onSuccess::accept,
                 e -> {
@@ -59,9 +58,6 @@ public class ChatViewModel extends ViewModel {
         );
     }
 
-    public Paginator<Pair<String, Message>> getPaginator() {
-        return messagingService.getDescendingMessagePaginator(communityId, PAGINATOR_LIMIT);
-    }
     public  boolean isUserOwner(Message message){
         return messagingService.isCurrentUserOwner(message);
     }
@@ -72,6 +68,10 @@ public class ChatViewModel extends ViewModel {
                 accountService,
                 messagingService
         );
+    }
+
+    private Paginator<Message> getPaginator() {
+        return messagingService.getDescendingMessagePaginator(communityId, PAGINATOR_LIMIT);
     }
 
 }

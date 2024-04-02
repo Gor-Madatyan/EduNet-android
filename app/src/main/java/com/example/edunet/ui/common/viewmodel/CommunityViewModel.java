@@ -4,7 +4,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -33,7 +32,7 @@ public class CommunityViewModel extends ViewModel {
             Error error,
             Community community,
             Community superCommunity,
-            Pair<String, Community>[] subCommunities,
+            Community[] subCommunities,
             Role role,
             boolean isCurrentUserRequestedAdminPermissions,
             boolean isCurrentUserRequestedParticipantPermissions) {
@@ -48,13 +47,12 @@ public class CommunityViewModel extends ViewModel {
         this.accountService = accountService;
     }
 
-    @SuppressWarnings("unchecked")
     private void onError(ServiceException exception) {
         _uiState.setValue(new UiState(
                 new Error(exception.getId()),
                 null,
                 null,
-                new Pair[0],
+                new Community[0],
                 Role.GUEST,
                 false,
                 false)
@@ -62,7 +60,6 @@ public class CommunityViewModel extends ViewModel {
         Log.w(TAG, exception);
     }
 
-    @SuppressWarnings("unchecked")
     public void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id) {
         communityService.observeCommunity(lifecycleOwner, id,
                 (community, e) -> {
@@ -82,7 +79,7 @@ public class CommunityViewModel extends ViewModel {
                             null,
                             community,
                             uiState.getValue() == null ? null : uiState.getValue().superCommunity(),
-                            uiState.getValue() == null ? new Pair[0] : uiState.getValue().subCommunities(),
+                            uiState.getValue() == null ? new Community[0] : uiState.getValue().subCommunities(),
                             uid.equals(community.getOwnerId()) ? Role.OWNER :
                                     community.getAdmins().contains(uid) ? Role.ADMIN :
                                             community.getParticipants().contains(uid) ? Role.PARTICIPANT :
@@ -132,7 +129,7 @@ public class CommunityViewModel extends ViewModel {
                     }
                     UiState currentUiState = uiState.getValue();
                     Community community = currentUiState == null ? null : currentUiState.community();
-                    Pair<String, Community>[] subCommunities = currentUiState == null ? null : currentUiState.subCommunities();
+                    Community[] subCommunities = currentUiState == null ? null : currentUiState.subCommunities();
                     Role role = currentUiState == null ? Role.GUEST : currentUiState.role();
                     boolean isCurrentUserRequestedAdminPermissions = currentUiState != null && currentUiState.isCurrentUserRequestedAdminPermissions();
                     boolean isCurrentUserRequestedParticipantPermissions = currentUiState != null && currentUiState.isCurrentUserRequestedParticipantPermissions();
