@@ -1,16 +1,20 @@
 package com.example.edunet.ui.screen.adminpanel.members;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Role;
@@ -18,6 +22,7 @@ import com.example.edunet.data.service.model.User;
 import com.example.edunet.databinding.FragmentSearchBinding;
 import com.example.edunet.ui.adapter.EntityAdapter;
 import com.example.edunet.ui.adapter.LazyEntityAdapter;
+import com.example.edunet.ui.itemtouchhelper.ItemTouchHelpers;
 
 import java.util.Objects;
 
@@ -25,22 +30,12 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MembersFragment extends Fragment {
-    private static final String TAG = MembersFragment.class.getSimpleName();
+    public static final String IS_ITEM_DELETED_KEY = "IS_ITEM_DELETED";
+
     private FragmentSearchBinding binding;
     private MembersViewModel viewModel;
-
-    @SuppressWarnings("unchecked")
-    private void deleteMember(int position) {
-        ((EntityAdapter<User>) Objects.requireNonNull(binding.result.getAdapter())).deleteItem(position);
-    }
-
-    private void processOperation(Exception e) {
-        if (e != null) {
-            String message = "cant complete operation";
-            Log.w(TAG, e);
-            Toast.makeText(requireContext().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        }
-    }
+    private NavController navController;
+    private EntityAdapter<User> entityAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,20 +53,40 @@ public class MembersFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(view);
         var args = MembersFragmentArgs.fromBundle(getArguments());
         String communityId = args.getCommunityId();
         Role role = args.getRole();
-
         viewModel.setCommunity(communityId, role);
 
-        viewModel.paginator.observe(getViewLifecycleOwner(), paginator ->
-                binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, (item, data) ->
-                        item.findViewById(R.id.remove).setOnClickListener(
-                                v -> {
-                                    viewModel.delete(data.getEntity().getId(), this::processOperation);
-                                    deleteMember(data.getPosition());
-                                }
-                        ))));
+        viewModel.paginator.observe(getViewLifecycleOwner(), paginator -> {
+            entityAdapter = new LazyEntityAdapter<>(paginator, R.layout.name_avatar_element, (item, data) -> {
+            });
+            binding.result.setAdapter(entityAdapter);
+        });
+        Context context = requireContext();
+
+        ItemTouchHelpers.getRightSwipableItemTouchHelper(
+                position -> {
+                    entityAdapter.notifyItemChanged(position);
+                    NavBackStackEntry currentEntry = navController.getBackStackEntry(R.id.membersFragment);
+                    SavedStateHandle currentSavedStateHandle = currentEntry.getSavedStateHandle();
+                    navController.navigate(MembersFragmentDirections.actionMembersFragmentToDeleteMemberDialog(
+                            role,
+                            communityId,
+                            entityAdapter.getItem(position).id()
+                    ));
+
+                    currentSavedStateHandle.<Boolean>getLiveData(IS_ITEM_DELETED_KEY).observe(getViewLifecycleOwner(),
+                            isDeleted -> {
+                                currentSavedStateHandle.remove(IS_ITEM_DELETED_KEY);
+                                if (isDeleted)
+                                    entityAdapter.deleteItem(position);
+                            }
+                    );
+                },
+                context.getColor(R.color.error),
+                Objects.requireNonNull(AppCompatResources.getDrawable(context, R.drawable.ic_delete_40dp))).attachToRecyclerView(binding.result);
     }
 
     @Override

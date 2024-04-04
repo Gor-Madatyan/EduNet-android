@@ -148,6 +148,9 @@
         <argument
             android:name="role"
             app:argType="com.example.edunet.data.service.model.Role" />
+        <action
+            android:id="@+id/action_membersFragment_to_deleteMemberDialog"
+            app:destination="@id/deleteMemberDialog" />
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
@@ -165,4 +168,18 @@
             android:name="communityId"
             app:argType="string" />
     </fragment>
+    <dialog
+        android:id="@+id/deleteMemberDialog"
+        android:name="com.example.edunet.ui.dialog.DeleteMemberDialog"
+        android:label="DeleteMemberDialog" >
+        <argument
+            android:name="role"
+            app:argType="com.example.edunet.data.service.model.Role" />
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+        <argument
+            android:name="userId"
+            app:argType="string" />
+    </dialog>
 </navigation>

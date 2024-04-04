@@ -72,7 +72,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="14dp"
+                    android:layout_margin="10dp"
                     android:fontFamily="serif"
                     android:text="@string/owner"
                     android:textColor="@color/text"
@@ -83,7 +83,7 @@
                     android:id="@+id/owned_communities"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginStart="10dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </LinearLayout>
 
@@ -97,7 +97,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="14dp"
+                    android:layout_margin="10dp"
                     android:fontFamily="serif"
                     android:text="@string/admin"
                     android:textColor="@color/text"
@@ -108,7 +108,7 @@
                     android:id="@+id/admined_communities"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginStart="10dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </LinearLayout>
 
@@ -123,7 +123,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="14dp"
+                    android:layout_margin="10dp"
                     android:fontFamily="serif"
                     android:text="@string/participant"
                     android:textColor="@color/text"
@@ -134,7 +134,7 @@
                     android:id="@+id/participated_communities"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
+                    android:layout_marginStart="10dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </LinearLayout>
 

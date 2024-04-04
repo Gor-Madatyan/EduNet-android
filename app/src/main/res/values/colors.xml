@@ -14,4 +14,5 @@
     <color name="bold_primary_button">#C5009A</color>
     <color name="error">#DF1111</color>
     <color name="text">#37375C</color>
+    <color name="accept">#2BDA17</color>
 </resources>

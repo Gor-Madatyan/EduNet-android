@@ -45,7 +45,6 @@ public class ChatsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
         viewModel.setListener(getViewLifecycleOwner());
-
         viewModel.dataset.observe(getViewLifecycleOwner(), communities ->
                 binding.result.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, (v, data) ->
                         v.setOnClickListener(v1 -> {

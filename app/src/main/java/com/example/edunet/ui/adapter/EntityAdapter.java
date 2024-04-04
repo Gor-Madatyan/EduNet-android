@@ -58,6 +58,9 @@ public class EntityAdapter<T extends Entity> extends RecyclerView.Adapter<Entity
         dataSet.remove(position);
         notifyItemRemoved(position);
     }
+    public T getItem(int position){
+        return dataSet.get(position);
+    }
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -67,10 +67,7 @@ public class RequestsFragment extends Fragment {
 
         viewModel.paginator.observe(getViewLifecycleOwner(), paginator ->
                 binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, (item, data) -> {
-                    View add = item.findViewById(R.id.add);
-                    add.setVisibility(View.VISIBLE);
-
-                    add.setOnClickListener(
+                    item.findViewById(R.id.add).setOnClickListener(
                             v -> {
                                 Entity user = data.getEntity();
                                 viewModel.accept(user.getId(), this::processOperation);

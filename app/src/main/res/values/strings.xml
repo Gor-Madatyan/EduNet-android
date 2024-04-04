@@ -48,5 +48,8 @@
     <string name="ancestor">Ancestor</string>
     <string name="message">Message</string>
     <string name="chat">Chat</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="member_delete_dialog">Do you want to delete this member?</string>
 
 </resources>

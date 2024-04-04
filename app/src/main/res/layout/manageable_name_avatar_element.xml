@@ -2,37 +2,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:orientation="vertical">
-
-
-    <LinearLayout
-        android:id="@+id/actions_container"
-        android:padding="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/add"
-            android:visibility="gone"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@color/primary_button"
-            android:src="@drawable/ic_add_40dp"
-            android:layout_marginEnd="15dp"
-            android:contentDescription="@android:string/yes" />
-
-        <ImageButton
-            android:id="@+id/remove"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@color/primary_button"
-            android:src="@drawable/ic_remove_40p"
-            android:contentDescription="@android:string/no"/>
-    </LinearLayout>
 
     <include layout="@layout/name_avatar_element" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="5dp">
 
+        <Button
+            android:id="@+id/remove"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:backgroundTint="@color/error"
+            android:contentDescription="@android:string/no"
+            android:text="@string/decline"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/add"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/accept"
+            android:contentDescription="@android:string/yes"
+            android:text="@string/accept"
+            android:textColor="@color/white" />
+    </LinearLayout>
 </LinearLayout>
