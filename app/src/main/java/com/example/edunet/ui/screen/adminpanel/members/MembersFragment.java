@@ -36,13 +36,13 @@ public class MembersFragment extends Fragment {
     private NavController navController;
     private SavedStateHandle currentSavedStateHandle;
     private EntityAdapter<User> entityAdapter;
+    private int lastManagedItemPosition;
 
-    private void listenIsItemDeleted(int position){
+    private void listenItemDeletions(){
         currentSavedStateHandle.<Boolean>getLiveData(IS_ITEM_DELETED_KEY).observe(getViewLifecycleOwner(),
                 isDeleted -> {
-                    currentSavedStateHandle.remove(IS_ITEM_DELETED_KEY);
                     if (isDeleted)
-                        entityAdapter.deleteItem(position);
+                        entityAdapter.deleteItem(lastManagedItemPosition);
                 }
         );
     }
@@ -69,6 +69,7 @@ public class MembersFragment extends Fragment {
         String communityId = args.getCommunityId();
         Role role = args.getRole();
         viewModel.setCommunity(communityId, role);
+        listenItemDeletions();
 
         viewModel.paginator.observe(getViewLifecycleOwner(), paginator -> {
             entityAdapter = new LazyEntityAdapter<>(paginator, R.layout.name_avatar_element, (item, data) -> {
@@ -79,13 +80,13 @@ public class MembersFragment extends Fragment {
 
         ItemTouchHelpers.getRightSwipableItemTouchHelper(
                 position -> {
+                    lastManagedItemPosition = position;
                     entityAdapter.notifyItemChanged(position);
                     navController.navigate(MembersFragmentDirections.actionMembersFragmentToDeleteMemberDialog(
                             role,
                             communityId,
                             entityAdapter.getItem(position).id()
                     ));
-                    listenIsItemDeleted(position);
                 },
                 context.getColor(R.color.error),
                 Objects.requireNonNull(AppCompatResources.getDrawable(context, R.drawable.ic_delete_40dp))).attachToRecyclerView(binding.result);

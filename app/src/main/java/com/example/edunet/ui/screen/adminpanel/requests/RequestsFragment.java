@@ -31,19 +31,20 @@ public class RequestsFragment extends Fragment {
     private NavController navController;
     private SavedStateHandle currentSavedStateHandle;
     private EntityAdapter<User> entityAdapter;
+    private int lastManagedItemPosition;
 
-    private void listenIsRequestManaged(int position) {
+    private void listenRequestManagement() {
         currentSavedStateHandle.<Boolean>getLiveData(IS_REQUEST_MANAGED_KEY).observe(getViewLifecycleOwner(),
                 isManaged -> {
-                    currentSavedStateHandle.remove(IS_REQUEST_MANAGED_KEY);
-                    if (isManaged) entityAdapter.deleteItem(position);
+                    if (isManaged)
+                        entityAdapter.deleteItem(lastManagedItemPosition);
                 }
         );
     }
 
     private void managePermissions(int position, String communityId, Entity entity, boolean accept, Role role) {
+        lastManagedItemPosition = position;
         navController.navigate(RequestsFragmentDirections.actionRequestsFragmentToManagePermissionsDialog(communityId, entity.getId(), accept, role));
-        listenIsRequestManaged(position);
     }
 
     @Override
@@ -68,14 +69,15 @@ public class RequestsFragment extends Fragment {
         String communityId = args.getCommunityId();
         Role role = args.getRole();
         viewModel.setCommunity(communityId, role);
+        listenRequestManagement();
 
         viewModel.paginator.observe(getViewLifecycleOwner(), paginator -> {
             entityAdapter = new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, (item, data) -> {
                 item.findViewById(R.id.add).setOnClickListener(
-                        v -> managePermissions(data.getPosition(),communityId,data.getEntity(),true,role)
+                        v -> managePermissions(data.getPosition(), communityId, data.getEntity(), true, role)
                 );
                 item.findViewById(R.id.remove).setOnClickListener(
-                        v -> managePermissions(data.getPosition(),communityId,data.getEntity(),false,role)
+                        v -> managePermissions(data.getPosition(), communityId, data.getEntity(), false, role)
                 );
             });
 
