@@ -35,6 +35,11 @@
     <string name="community_delete_dialog">Do you want to delete this community?</string>
     <string name="request_admin_permissions_dialog">Do you want to request admin permissions to this community?</string>
     <string name="request_participant_permissions_dialog">Do you want to request participant permissions to this community?</string>
+    <string name="member_delete_dialog">Do you want to delete this member?</string>
+    <string name="accept_admin_dialog">Do you want to accept this admin request?</string>
+    <string name="decline_admin_dialog">Do you want to decline this admin request?</string>
+    <string name="accept_participant_dialog">Do you want to accept this participant request?</string>
+    <string name="decline_participant_dialog">Do you want to decline this participant request?</string>
     <string name="subcommunities">Modules</string>
     <string name="request_admin_permissions">Request admin permissions</string>
     <string name="requests">Requests</string>
@@ -50,6 +55,5 @@
     <string name="chat">Chat</string>
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
-    <string name="member_delete_dialog">Do you want to delete this member?</string>
 
 </resources>

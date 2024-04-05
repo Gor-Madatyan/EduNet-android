@@ -327,16 +327,6 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public void setAdminPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        managePermissions(Role.ADMIN, true, cid, uid, onResult);
-    }
-
-    @Override
-    public void deleteAdminRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        managePermissions(Role.ADMIN, false, cid, uid, onResult);
-    }
-
-    @Override
     public void deleteAdmin(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
         deleteMember(Role.ADMIN, cid, uid, onResult);
     }
@@ -344,16 +334,6 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public void deleteParticipant(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
         deleteMember(Role.PARTICIPANT, cid, uid, onResult);
-    }
-
-    @Override
-    public void setParticipantPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        managePermissions(Role.PARTICIPANT, true, cid, uid, onResult);
-    }
-
-    @Override
-    public void deleteParticipantRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        managePermissions(Role.PARTICIPANT, false, cid, uid, onResult);
     }
 
     private void deleteMember(@NonNull Role role, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
@@ -376,7 +356,8 @@ public class CommunityServiceImpl implements CommunityService {
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_request_permissions, e)));
     }
 
-    private void managePermissions(@NonNull Role role, boolean accept, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
+    @Override
+    public void managePermissions(@NonNull Role role, boolean accept, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
         assert role != Role.OWNER && role != Role.GUEST;
         DocumentReference communityDocument = communityCollection.document(cid);
         String permission = getPermissionsByRole(role);

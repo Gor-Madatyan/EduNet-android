@@ -3,7 +3,6 @@ package com.example.edunet.ui.screen.adminpanel.requests;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -22,8 +21,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class RequestsViewModel extends ViewModel {
     private static final String TAG = RequestsViewModel.class.getSimpleName();
     private static final int PAGINATOR_LIMIT = 20;
-    private String communityId;
-    private Role role;
     private final CommunityService communityService;
     private final AccountService accountService;
     LiveData<Paginator<User>> paginator;
@@ -38,8 +35,6 @@ public class RequestsViewModel extends ViewModel {
         assert role != Role.OWNER && role != Role.GUEST;
         MutableLiveData<Paginator<User>> _paginator = new MutableLiveData<>();
         paginator = _paginator;
-        this.communityId = communityId;
-        this.role = role;
 
         communityService.getCommunity(communityId,
                 community ->
@@ -52,13 +47,4 @@ public class RequestsViewModel extends ViewModel {
         );
     }
 
-    void accept(String uid, Consumer<Exception> onResult) {
-        if(role == Role.ADMIN) communityService.setAdminPermissions(communityId, uid, onResult::accept);
-        else communityService.setParticipantPermissions(communityId, uid, onResult::accept);
-    }
-
-    void delete(String uid, Consumer<Exception> onResult) {
-        if(role == Role.ADMIN) communityService.deleteAdminRequest(communityId, uid, onResult::accept);
-        else communityService.deleteParticipantRequest(communityId, uid, onResult::accept);
-    }
 }

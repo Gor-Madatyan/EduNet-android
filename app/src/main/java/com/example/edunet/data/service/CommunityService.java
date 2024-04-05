@@ -8,6 +8,7 @@ import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.model.CommunityUpdateRequest;
+import com.example.edunet.data.service.model.Role;
 import com.example.edunet.data.service.util.common.Paginator;
 
 import java.util.function.BiConsumer;
@@ -30,17 +31,11 @@ public interface CommunityService {
     void requestParticipantPermissions(@NonNull String cid, @NonNull Consumer<ServiceException> onResult);
 
 
-    void setAdminPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
-
-    void deleteAdminRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
-
     void deleteAdmin(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
 
     void deleteParticipant(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
 
-    void setParticipantPermissions(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
-
-    void deleteParticipantRequest(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
+    void managePermissions(@NonNull Role role, boolean accept, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
 
     boolean isCommunityCreateRequestInvalid(@NonNull CommunityCreateRequest request);
 

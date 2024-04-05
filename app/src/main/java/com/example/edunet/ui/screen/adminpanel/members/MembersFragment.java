@@ -12,7 +12,6 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -35,7 +34,18 @@ public class MembersFragment extends Fragment {
     private FragmentSearchBinding binding;
     private MembersViewModel viewModel;
     private NavController navController;
+    private SavedStateHandle currentSavedStateHandle;
     private EntityAdapter<User> entityAdapter;
+
+    private void listenIsItemDeleted(int position){
+        currentSavedStateHandle.<Boolean>getLiveData(IS_ITEM_DELETED_KEY).observe(getViewLifecycleOwner(),
+                isDeleted -> {
+                    currentSavedStateHandle.remove(IS_ITEM_DELETED_KEY);
+                    if (isDeleted)
+                        entityAdapter.deleteItem(position);
+                }
+        );
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +64,7 @@ public class MembersFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
+        currentSavedStateHandle = navController.getBackStackEntry(R.id.membersFragment).getSavedStateHandle();
         var args = MembersFragmentArgs.fromBundle(getArguments());
         String communityId = args.getCommunityId();
         Role role = args.getRole();
@@ -69,21 +80,12 @@ public class MembersFragment extends Fragment {
         ItemTouchHelpers.getRightSwipableItemTouchHelper(
                 position -> {
                     entityAdapter.notifyItemChanged(position);
-                    NavBackStackEntry currentEntry = navController.getBackStackEntry(R.id.membersFragment);
-                    SavedStateHandle currentSavedStateHandle = currentEntry.getSavedStateHandle();
                     navController.navigate(MembersFragmentDirections.actionMembersFragmentToDeleteMemberDialog(
                             role,
                             communityId,
                             entityAdapter.getItem(position).id()
                     ));
-
-                    currentSavedStateHandle.<Boolean>getLiveData(IS_ITEM_DELETED_KEY).observe(getViewLifecycleOwner(),
-                            isDeleted -> {
-                                currentSavedStateHandle.remove(IS_ITEM_DELETED_KEY);
-                                if (isDeleted)
-                                    entityAdapter.deleteItem(position);
-                            }
-                    );
+                    listenIsItemDeleted(position);
                 },
                 context.getColor(R.color.error),
                 Objects.requireNonNull(AppCompatResources.getDrawable(context, R.drawable.ic_delete_40dp))).attachToRecyclerView(binding.result);

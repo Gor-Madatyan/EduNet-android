@@ -130,6 +130,9 @@
         <argument
             android:name="role"
             app:argType="com.example.edunet.data.service.model.Role" />
+        <action
+            android:id="@+id/action_requestsFragment_to_managePermissionsDialog"
+            app:destination="@id/managePermissionsDialog" />
     </fragment>
     <dialog
         android:id="@+id/participantPermissionRequestDialog"
@@ -181,5 +184,22 @@
         <argument
             android:name="userId"
             app:argType="string" />
+    </dialog>
+    <dialog
+        android:id="@+id/managePermissionsDialog"
+        android:name="com.example.edunet.ui.dialog.ManagePermissionsDialog"
+        android:label="ManagePermissionsDialog" >
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+        <argument
+            android:name="userId"
+            app:argType="string" />
+        <argument
+            android:name="accept"
+            app:argType="boolean" />
+        <argument
+            android:name="role"
+            app:argType="com.example.edunet.data.service.model.Role" />
     </dialog>
 </navigation>

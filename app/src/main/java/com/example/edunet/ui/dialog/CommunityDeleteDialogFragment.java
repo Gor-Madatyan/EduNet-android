@@ -34,6 +34,7 @@ public class CommunityDeleteDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         String communityId = CommunityDeleteDialogFragmentArgs.fromBundle(getArguments()).getCommunityId();
         navController = NavHostFragment.findNavController(this);
+        SavedStateHandle previousSavedStateHandle = Objects.requireNonNull(navController.getPreviousBackStackEntry()).getSavedStateHandle();
 
         return new AlertDialog.Builder(requireContext())
                 .setMessage(R.string.community_delete_dialog)
@@ -43,13 +44,12 @@ public class CommunityDeleteDialogFragment extends DialogFragment {
                                     R.string.error_cant_delete_community
                             );
 
-                            SavedStateHandle previousSavedStateHandle = Objects.requireNonNull(navController.getPreviousBackStackEntry()).getSavedStateHandle();
                             navController.navigateUp();
                             previousSavedStateHandle.set(AdminPanelFragment.IS_COMMUNITY_DESTROYED_KEY, true);
                         }
                 )
-                .setNegativeButton(android.R.string.no, (dialog, which) -> {
-                })
+                .setNegativeButton(android.R.string.no, (dialog, which) ->
+                        previousSavedStateHandle.set(AdminPanelFragment.IS_COMMUNITY_DESTROYED_KEY, false))
                 .create();
     }
 

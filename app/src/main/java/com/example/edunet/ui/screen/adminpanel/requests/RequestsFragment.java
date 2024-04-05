@@ -1,16 +1,17 @@
 package com.example.edunet.ui.screen.adminpanel.requests;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Entity;
@@ -20,27 +21,29 @@ import com.example.edunet.databinding.FragmentSearchBinding;
 import com.example.edunet.ui.adapter.EntityAdapter;
 import com.example.edunet.ui.adapter.LazyEntityAdapter;
 
-import java.util.Objects;
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class RequestsFragment extends Fragment {
-    private static final String TAG = RequestsFragment.class.getSimpleName();
+    public static final String IS_REQUEST_MANAGED_KEY = "IS_REQUEST_MANAGED";
     private FragmentSearchBinding binding;
     private RequestsViewModel viewModel;
+    private NavController navController;
+    private SavedStateHandle currentSavedStateHandle;
+    private EntityAdapter<User> entityAdapter;
 
-    @SuppressWarnings("unchecked")
-    private void deleteRequest(int position) {
-        ((EntityAdapter<User>) Objects.requireNonNull(binding.result.getAdapter())).deleteItem(position);
+    private void listenIsRequestManaged(int position) {
+        currentSavedStateHandle.<Boolean>getLiveData(IS_REQUEST_MANAGED_KEY).observe(getViewLifecycleOwner(),
+                isManaged -> {
+                    currentSavedStateHandle.remove(IS_REQUEST_MANAGED_KEY);
+                    if (isManaged) entityAdapter.deleteItem(position);
+                }
+        );
     }
 
-    private void processOperation(Exception e) {
-        if (e != null) {
-            String message = "cant complete operation";
-            Log.w(TAG, e);
-            Toast.makeText(requireContext().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        }
+    private void managePermissions(int position, String communityId, Entity entity, boolean accept, Role role) {
+        navController.navigate(RequestsFragmentDirections.actionRequestsFragmentToManagePermissionsDialog(communityId, entity.getId(), accept, role));
+        listenIsRequestManaged(position);
     }
 
     @Override
@@ -59,29 +62,25 @@ public class RequestsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(view);
+        currentSavedStateHandle = navController.getBackStackEntry(R.id.requestsFragment).getSavedStateHandle();
         var args = RequestsFragmentArgs.fromBundle(getArguments());
         String communityId = args.getCommunityId();
         Role role = args.getRole();
-
         viewModel.setCommunity(communityId, role);
 
-        viewModel.paginator.observe(getViewLifecycleOwner(), paginator ->
-                binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, (item, data) -> {
-                    item.findViewById(R.id.add).setOnClickListener(
-                            v -> {
-                                Entity user = data.getEntity();
-                                viewModel.accept(user.getId(), this::processOperation);
-                                deleteRequest(data.getPosition());
-                            }
-                    );
-                    item.findViewById(R.id.remove).setOnClickListener(
-                            v -> {
-                                Entity user = data.getEntity();
-                                viewModel.delete(user.getId(), this::processOperation);
-                                deleteRequest(data.getPosition());
-                            }
-                    );
-                })));
+        viewModel.paginator.observe(getViewLifecycleOwner(), paginator -> {
+            entityAdapter = new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, (item, data) -> {
+                item.findViewById(R.id.add).setOnClickListener(
+                        v -> managePermissions(data.getPosition(),communityId,data.getEntity(),true,role)
+                );
+                item.findViewById(R.id.remove).setOnClickListener(
+                        v -> managePermissions(data.getPosition(),communityId,data.getEntity(),false,role)
+                );
+            });
+
+            binding.result.setAdapter(entityAdapter);
+        });
     }
 
     @Override
