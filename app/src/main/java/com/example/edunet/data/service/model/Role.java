@@ -4,5 +4,6 @@ public enum Role {
     OWNER,
     ADMIN,
     PARTICIPANT,
+    GRADUATED,
     GUEST
 }

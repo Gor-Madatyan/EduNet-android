@@ -55,5 +55,12 @@
     <string name="chat">Chat</string>
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
+    <string name="is_selected">Is selected</string>
+    <string name="selection_mode">Selection mode</string>
+    <string name="graduate">Graduate</string>
+    <string name="select_all">Select all</string>
+    <string name="dialog_add_graduated">Do you want to make these participants graduated</string>
+    <string name="error_cant_graduate_participants">Failed to graduate participants</string>
+    <string name="graduated">Graduated</string>
 
 </resources>

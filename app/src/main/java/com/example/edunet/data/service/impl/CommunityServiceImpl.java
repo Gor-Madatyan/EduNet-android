@@ -20,10 +20,10 @@ import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.model.CommunityUpdateRequest;
 import com.example.edunet.data.service.model.Role;
 import com.example.edunet.data.service.model.User;
-import com.example.edunet.data.service.util.common.Paginator;
 import com.example.edunet.data.service.util.firebase.FirestoreUtils;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
 import com.example.edunet.data.service.util.firebase.paginator.QueryPaginator;
+import com.example.edunet.data.service.util.paginator.Paginator;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
@@ -107,6 +107,7 @@ public class CommunityServiceImpl implements CommunityService {
         private List<String> adminsQueue;
         private List<String> participants;
         private List<String> participantsQueue;
+        private List<String> graduated;
 
         public FirestoreCommunity() {
         }
@@ -122,6 +123,7 @@ public class CommunityServiceImpl implements CommunityService {
             participants = new ArrayList<>();
             adminsQueue = new ArrayList<>();
             participantsQueue = new ArrayList<>();
+            graduated = new ArrayList<>();
         }
 
         public String getName() {
@@ -163,6 +165,10 @@ public class CommunityServiceImpl implements CommunityService {
         public List<String> getParticipantsQueue() {
             return participantsQueue;
         }
+
+        public List<String> getGraduated() {
+            return graduated;
+        }
     }
 
 
@@ -203,6 +209,13 @@ public class CommunityServiceImpl implements CommunityService {
     public void observeParticipatedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Community[]> biConsumer) {
         observeCommunities(lifecycleOwner,
                 communityCollection.whereArrayContains("participants", uid),
+                biConsumer);
+    }
+
+    @Override
+    public void observeGraduatedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Community[]> biConsumer) {
+        observeCommunities(lifecycleOwner,
+                communityCollection.whereArrayContains("graduated", uid),
                 biConsumer);
     }
 
@@ -336,8 +349,21 @@ public class CommunityServiceImpl implements CommunityService {
         deleteMember(Role.PARTICIPANT, cid, uid, onResult);
     }
 
+    @Override
+    public void graduateParticipants(@NonNull String cid, @NonNull String[] uids, @NonNull Consumer<ServiceException> onResult) {
+        DocumentReference community = communityCollection.document(cid);
+        Map<String, Object> updates = new HashMap<>();
+
+        updates.put("participants", FieldValue.arrayRemove((Object[]) uids));
+        updates.put("graduated", FieldValue.arrayUnion((Object[]) uids));
+
+        community.update(updates)
+                .addOnSuccessListener(v -> onResult.accept(null))
+                .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_manage_permissions, e)));
+    }
+
     private void deleteMember(@NonNull Role role, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        assert role != Role.OWNER && role != Role.GUEST;
+        assert role == Role.ADMIN || role == Role.PARTICIPANT;
 
         DocumentReference community = communityCollection.document(cid);
         community.update(getPermissionsByRole(role), FieldValue.arrayRemove(uid))
@@ -346,7 +372,7 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     private void addRequest(@NonNull Role role, @NonNull String cid, @NonNull Consumer<ServiceException> onResult) {
-        assert role != Role.OWNER && role != Role.GUEST;
+        assert role == Role.ADMIN || role == Role.PARTICIPANT;
         String uid = accountService.getUid();
         assert uid != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
 
@@ -358,7 +384,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public void managePermissions(@NonNull Role role, boolean accept, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult) {
-        assert role != Role.OWNER && role != Role.GUEST;
+        assert role == Role.ADMIN || role == Role.PARTICIPANT;
         DocumentReference communityDocument = communityCollection.document(cid);
         String permission = getPermissionsByRole(role);
 
@@ -371,9 +397,14 @@ public class CommunityServiceImpl implements CommunityService {
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_manage_permissions, e)));
     }
 
-    @NonNull
     private static String getPermissionsByRole(@NonNull Role role) {
-        return role == Role.ADMIN ? "admins" : "participants";
+        return switch (role){
+            case OWNER -> "ownerId";
+            case ADMIN -> "admins";
+            case PARTICIPANT -> "participants";
+            case GRADUATED -> "graduated";
+            default -> null;
+        };
     }
 
     @Override
@@ -403,7 +434,7 @@ public class CommunityServiceImpl implements CommunityService {
                         request.getDescription(),
                         UriUtils.safeToString(request.getAvatar()),
                         request.getAncestor(),
-                        user.id()))
+                        user.getId()))
                 .addOnSuccessListener(r -> onResult.accept(null))
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_create_community, e)));
     }

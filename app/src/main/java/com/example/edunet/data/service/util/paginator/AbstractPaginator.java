@@ -1,4 +1,4 @@
-package com.example.edunet.data.service.util.common;
+package com.example.edunet.data.service.util.paginator;
 
 import androidx.core.util.Pair;
 

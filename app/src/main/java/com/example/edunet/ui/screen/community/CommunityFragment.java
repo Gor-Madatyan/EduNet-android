@@ -20,10 +20,10 @@ import com.example.edunet.R;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.Role;
 import com.example.edunet.databinding.FragmentCommunityBinding;
-import com.example.edunet.ui.adapter.EntityAdapter;
-import com.example.edunet.ui.common.viewmodel.CommunityViewModel;
 import com.example.edunet.ui.util.EntityUtils;
 import com.example.edunet.ui.util.ImageLoadingUtils;
+import com.example.edunet.ui.util.adapter.impl.EntityAdapter;
+import com.example.edunet.ui.util.viewmodel.CommunityViewModel;
 
 import java.util.Arrays;
 
@@ -97,9 +97,7 @@ public class CommunityFragment extends Fragment {
 
             } else binding.subcommunitiesContainer.setVisibility(View.GONE);
 
-
             adminPanel.setVisible(state.role() == Role.ADMIN || state.role() == Role.OWNER);
-            addSubCommunity.setVisible(state.role() == Role.OWNER);
             if (state.role() == Role.GUEST &&
                     !state.isCurrentUserRequestedParticipantPermissions() && !state.isCurrentUserRequestedAdminPermissions()) {
                 requestAdminPermissions.setVisible(true);
@@ -108,11 +106,11 @@ public class CommunityFragment extends Fragment {
                 requestAdminPermissions.setVisible(false);
                 requestParticipantPermissions.setVisible(false);
             }
-
             Community community = state.community();
             Community ancestor = state.superCommunity();
 
             if (community != null) {
+                addSubCommunity.setVisible(community.getGraduated().isEmpty() && state.role() == Role.OWNER);
                 Uri avatar = community.getAvatar();
                 binding.toolbarLayout.setTitle(community.getName());
                 binding.description.setText(community.getDescription());

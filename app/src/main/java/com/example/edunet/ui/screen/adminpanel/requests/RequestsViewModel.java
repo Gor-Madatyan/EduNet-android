@@ -11,7 +11,7 @@ import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.model.Role;
 import com.example.edunet.data.service.model.User;
-import com.example.edunet.data.service.util.common.Paginator;
+import com.example.edunet.data.service.util.paginator.Paginator;
 
 import javax.inject.Inject;
 
@@ -32,7 +32,7 @@ public class RequestsViewModel extends ViewModel {
     }
 
     void setCommunity(@NonNull String communityId, @NonNull Role role) {
-        assert role != Role.OWNER && role != Role.GUEST;
+        assert role == Role.ADMIN || role == Role.PARTICIPANT;
         MutableLiveData<Paginator<User>> _paginator = new MutableLiveData<>();
         paginator = _paginator;
 

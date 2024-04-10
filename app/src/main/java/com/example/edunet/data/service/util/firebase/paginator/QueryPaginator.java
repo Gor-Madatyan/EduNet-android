@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 
-import com.example.edunet.data.service.util.common.AbstractPaginator;
+import com.example.edunet.data.service.util.paginator.AbstractPaginator;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 

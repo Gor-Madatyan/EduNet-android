@@ -19,8 +19,8 @@ import com.example.edunet.R;
 import com.example.edunet.StartUpActivity;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.databinding.FragmentProfileBinding;
-import com.example.edunet.ui.adapter.EntityAdapter;
 import com.example.edunet.ui.util.ImageLoadingUtils;
+import com.example.edunet.ui.util.adapter.impl.EntityAdapter;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -74,12 +74,14 @@ public class ProfileFragment extends Fragment {
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
             binding.toolbarLayout.setTitle(state.user().getName());
-            binding.bio.setText(Objects.requireNonNullElse(state.user().bio(), getString(R.string.default_bio)));
-            ImageLoadingUtils.loadUserAvatar(this, state.user().avatar(), binding.avatar);
+            binding.bio.setText(Objects.requireNonNullElse(state.user().getBio(), getString(R.string.default_bio)));
+            ImageLoadingUtils.loadUserAvatar(this, state.user().getAvatar(), binding.avatar);
 
             processAttachedCommunities(binding.ownedCommunitiesContainer, binding.ownedCommunities, state.ownedCommunities());
             processAttachedCommunities(binding.adminedCommunitiesContainer, binding.adminedCommunities, state.adminedCommunities());
             processAttachedCommunities(binding.participatedCommunitiesContainer, binding.participatedCommunities, state.participatedCommunities());
+            processAttachedCommunities(binding.graduatedCommunitiesContainer, binding.graduatedCommunities, state.graduatedCommunities());
+
         });
     }
 

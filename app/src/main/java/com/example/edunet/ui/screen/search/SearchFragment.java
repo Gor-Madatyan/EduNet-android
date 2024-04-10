@@ -20,7 +20,10 @@ import androidx.navigation.Navigation;
 import com.example.edunet.MainNavDirections;
 import com.example.edunet.R;
 import com.example.edunet.databinding.FragmentSearchBinding;
-import com.example.edunet.ui.adapter.LazyEntityAdapter;
+import com.example.edunet.ui.util.adapter.impl.EntityAdapter;
+import com.example.edunet.ui.util.adapter.impl.LazyAdapter;
+
+import java.util.ArrayList;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -42,10 +45,12 @@ public class SearchFragment extends Fragment {
         navController = Navigation.findNavController(view);
 
         viewModel.paginatorLiveData.observe(getViewLifecycleOwner(),
-                paginator -> binding.result.setAdapter(new LazyEntityAdapter<>(paginator, R.layout.name_avatar_element, (item, data) ->
-                       item.setOnClickListener(v->navController.navigate(MainNavDirections.actionGlobalCommunityFragment(data.getEntity().getId())))
-                ))
-        );
+                paginator -> binding.result.setAdapter(
+                        new LazyAdapter<>(new EntityAdapter<>(new ArrayList<>(), R.layout.name_avatar_element,
+                                (item, data) ->
+                                        item.setOnClickListener(v -> navController.navigate(MainNavDirections.actionGlobalCommunityFragment(data.getEntity().getId())))
+                        ),paginator)
+                ));
     }
 
     @Override

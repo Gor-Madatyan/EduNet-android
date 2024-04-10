@@ -3,11 +3,22 @@ package com.example.edunet.data.service.model;
 import android.net.Uri;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 
 import com.example.edunet.R;
 
+public final class User extends Entity {
+    private final String id;
+    private final String name;
+    private final Uri avatar;
+    private final String bio;
 
-public record User(String id, String name, Uri avatar, String bio) implements Entity {
+    public User(String id, String name, Uri avatar, String bio) {
+        this.id = id;
+        this.name = name;
+        this.avatar = avatar;
+        this.bio = bio;
+    }
 
     @Override
     public String getName() {
@@ -15,13 +26,18 @@ public record User(String id, String name, Uri avatar, String bio) implements En
     }
 
     @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
     public Uri getAvatar() {
         return avatar;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    @NonNull
+    @Override
+    public String getId() {
+        return id;
     }
 
     @DrawableRes
@@ -29,4 +45,5 @@ public record User(String id, String name, Uri avatar, String bio) implements En
     public int requireDefaultAvatar() {
         return R.drawable.ic_default_user;
     }
+
 }

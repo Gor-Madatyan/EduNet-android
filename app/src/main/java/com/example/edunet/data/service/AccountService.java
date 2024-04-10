@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData;
 import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
-import com.example.edunet.data.service.util.common.Paginator;
+import com.example.edunet.data.service.util.paginator.Paginator;
 
 public interface AccountService {
     final class InternalErrorMessages {

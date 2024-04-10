@@ -154,6 +154,9 @@
         <action
             android:id="@+id/action_membersFragment_to_deleteMemberDialog"
             app:destination="@id/deleteMemberDialog" />
+        <action
+            android:id="@+id/action_membersFragment_to_graduateDialog"
+            app:destination="@id/graduateDialog" />
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
@@ -173,8 +176,7 @@
     </fragment>
     <dialog
         android:id="@+id/deleteMemberDialog"
-        android:name="com.example.edunet.ui.dialog.DeleteMemberDialog"
-        android:label="DeleteMemberDialog" >
+        android:name="com.example.edunet.ui.dialog.DeleteMemberDialog">
         <argument
             android:name="role"
             app:argType="com.example.edunet.data.service.model.Role" />
@@ -187,8 +189,7 @@
     </dialog>
     <dialog
         android:id="@+id/managePermissionsDialog"
-        android:name="com.example.edunet.ui.dialog.ManagePermissionsDialog"
-        android:label="ManagePermissionsDialog" >
+        android:name="com.example.edunet.ui.dialog.ManagePermissionsDialog" >
         <argument
             android:name="communityId"
             app:argType="string" />
@@ -201,5 +202,15 @@
         <argument
             android:name="role"
             app:argType="com.example.edunet.data.service.model.Role" />
+    </dialog>
+    <dialog
+        android:id="@+id/graduateDialog"
+        android:name="com.example.edunet.ui.dialog.GraduateDialog">
+        <argument
+            android:name="participants"
+            app:argType="string[]" />
+        <argument
+            android:name="communityId"
+            app:argType="string" />
     </dialog>
 </navigation>

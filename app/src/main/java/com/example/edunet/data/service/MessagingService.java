@@ -5,7 +5,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.Message;
-import com.example.edunet.data.service.util.common.Paginator;
+import com.example.edunet.data.service.util.paginator.Paginator;
 
 import java.util.Date;
 import java.util.List;

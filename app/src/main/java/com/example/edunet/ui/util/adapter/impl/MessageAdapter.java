@@ -1,4 +1,4 @@
-package com.example.edunet.ui.adapter;
+package com.example.edunet.ui.util.adapter.impl;
 
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -15,10 +15,12 @@ import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.MessagingService;
 import com.example.edunet.data.service.model.Message;
 import com.example.edunet.ui.util.EntityUtils;
+import com.example.edunet.ui.util.adapter.ListAdapter;
 
 import java.util.List;
 
-public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
+public class MessageAdapter
+        extends ListAdapter<MessageAdapter.ViewHolder,Message> {
     private static final String TAG = MessageAdapter.class.getSimpleName();
     private final AccountService accountService;
     private final MessagingService messagingService;
@@ -28,6 +30,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         this.dataSet = dataSet;
         this.accountService = accountService;
         this.messagingService = messagingService;
+    }
+
+    @Override
+    public List<Message> getDataset() {
+        return dataSet;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

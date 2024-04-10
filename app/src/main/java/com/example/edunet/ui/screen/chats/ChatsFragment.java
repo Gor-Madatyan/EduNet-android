@@ -15,7 +15,7 @@ import androidx.navigation.Navigation;
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Entity;
 import com.example.edunet.databinding.FragmentSearchBinding;
-import com.example.edunet.ui.adapter.EntityAdapter;
+import com.example.edunet.ui.util.adapter.impl.EntityAdapter;
 
 import java.util.Arrays;
 

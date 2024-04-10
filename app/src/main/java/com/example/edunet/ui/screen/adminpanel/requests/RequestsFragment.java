@@ -18,8 +18,11 @@ import com.example.edunet.data.service.model.Entity;
 import com.example.edunet.data.service.model.Role;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.databinding.FragmentSearchBinding;
-import com.example.edunet.ui.adapter.EntityAdapter;
-import com.example.edunet.ui.adapter.LazyEntityAdapter;
+import com.example.edunet.ui.util.adapter.impl.EntityAdapter;
+import com.example.edunet.ui.util.adapter.impl.LazyAdapter;
+import com.example.edunet.ui.util.adapter.util.ListAdapterUtils;
+
+import java.util.ArrayList;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -30,14 +33,14 @@ public class RequestsFragment extends Fragment {
     private RequestsViewModel viewModel;
     private NavController navController;
     private SavedStateHandle currentSavedStateHandle;
-    private EntityAdapter<User> entityAdapter;
+    private LazyAdapter<?, User> entityAdapter;
     private int lastManagedItemPosition;
 
     private void listenRequestManagement() {
         currentSavedStateHandle.<Boolean>getLiveData(IS_REQUEST_MANAGED_KEY).observe(getViewLifecycleOwner(),
                 isManaged -> {
                     if (isManaged)
-                        entityAdapter.deleteItem(lastManagedItemPosition);
+                        ListAdapterUtils.remove(entityAdapter, lastManagedItemPosition);
                 }
         );
     }
@@ -72,14 +75,15 @@ public class RequestsFragment extends Fragment {
         listenRequestManagement();
 
         viewModel.paginator.observe(getViewLifecycleOwner(), paginator -> {
-            entityAdapter = new LazyEntityAdapter<>(paginator, R.layout.manageable_name_avatar_element, (item, data) -> {
-                item.findViewById(R.id.add).setOnClickListener(
-                        v -> managePermissions(data.getPosition(), communityId, data.getEntity(), true, role)
-                );
-                item.findViewById(R.id.remove).setOnClickListener(
-                        v -> managePermissions(data.getPosition(), communityId, data.getEntity(), false, role)
-                );
-            });
+            entityAdapter = new LazyAdapter<>(
+                    new EntityAdapter<>(new ArrayList<>(), R.layout.manageable_name_avatar_element, (item, data) -> {
+                        item.findViewById(R.id.add).setOnClickListener(
+                                v -> managePermissions(data.getPosition(), communityId, data.getEntity(), true, role)
+                        );
+                        item.findViewById(R.id.remove).setOnClickListener(
+                                v -> managePermissions(data.getPosition(), communityId, data.getEntity(), false, role)
+                        );
+                    }), paginator);
 
             binding.result.setAdapter(entityAdapter);
         });

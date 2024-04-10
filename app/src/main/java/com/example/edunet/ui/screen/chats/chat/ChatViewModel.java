@@ -12,9 +12,11 @@ import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.MessagingService;
 import com.example.edunet.data.service.exception.UserFriendlyException;
 import com.example.edunet.data.service.model.Message;
-import com.example.edunet.data.service.util.common.Paginator;
-import com.example.edunet.ui.adapter.LazyMessageAdapter;
+import com.example.edunet.data.service.util.paginator.Paginator;
+import com.example.edunet.ui.util.adapter.impl.LazyAdapter;
+import com.example.edunet.ui.util.adapter.impl.MessageAdapter;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,15 +60,14 @@ public class ChatViewModel extends ViewModel {
         );
     }
 
-    public  boolean isUserOwner(Message message){
+    public boolean isUserOwner(Message message) {
         return messagingService.isCurrentUserOwner(message);
     }
 
-    public LazyMessageAdapter createAdapter(){
-        return new LazyMessageAdapter(
-                getPaginator(),
-                accountService,
-                messagingService
+    public LazyAdapter<?, Message> createAdapter() {
+        return new LazyAdapter<>(
+                new MessageAdapter(new ArrayList<>(), accountService, messagingService),
+                getPaginator()
         );
     }
 

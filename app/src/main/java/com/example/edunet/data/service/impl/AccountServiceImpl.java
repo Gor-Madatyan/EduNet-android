@@ -18,9 +18,9 @@ import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
-import com.example.edunet.data.service.util.common.Paginator;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
 import com.example.edunet.data.service.util.firebase.paginator.ArrayPaginator;
+import com.example.edunet.data.service.util.paginator.Paginator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -69,7 +69,7 @@ public final class AccountServiceImpl implements AccountService {
             assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
 
             String uploadPhotoName = "avatar";
-            StorageReference uploadDestination = users.child(user.id()).child(uploadPhotoName);
+            StorageReference uploadDestination = users.child(user.getId()).child(uploadPhotoName);
 
             StorageUtils.savePhoto(uploadDestination, photo, onSuccess,
                     e -> onFailure.accept(new ServiceException(R.string.error_cant_upload_photo, e))

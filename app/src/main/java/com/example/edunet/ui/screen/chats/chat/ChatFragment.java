@@ -20,9 +20,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.edunet.R;
+import com.example.edunet.data.service.model.Message;
 import com.example.edunet.databinding.FragmentChatBinding;
-import com.example.edunet.ui.adapter.LazyMessageAdapter;
 import com.example.edunet.ui.util.ImageLoadingUtils;
+import com.example.edunet.ui.util.adapter.impl.LazyAdapter;
+import com.example.edunet.ui.util.adapter.util.LazyAdapterUtils;
+import com.example.edunet.ui.util.adapter.util.ListAdapterUtils;
 
 import java.util.Objects;
 
@@ -54,27 +57,27 @@ public class ChatFragment extends Fragment {
         Uri avatar = args.getAvatar();
         viewModel.setCommunity(communityId);
 
-        LazyMessageAdapter adapter = viewModel.createAdapter();
+        LazyAdapter<?, Message> adapter = viewModel.createAdapter();
 
         binding.messages.setAdapter(adapter);
 
         viewModel.listenNewMessages(getViewLifecycleOwner(),
                 messages -> {
                     boolean scrollDownAvailable = binding.messages.canScrollVertically(1);
-                    boolean userSend = messages.stream().anyMatch(i->viewModel.isUserOwner(i));
-                    adapter.addNewMessages(messages);
+                    boolean userSend = messages.stream().anyMatch(i -> viewModel.isUserOwner(i));
+                    ListAdapterUtils.addAll(adapter, messages, LazyAdapterUtils.InsertionPlace.START);
 
-                    if(userSend || !scrollDownAvailable){
+                    if (userSend || !scrollDownAvailable) {
                         binding.messages.scrollToPosition(0);
                     }
                 },
-                e-> Toast.makeText(requireContext(), e.getId(), Toast.LENGTH_SHORT).show()
+                e -> Toast.makeText(requireContext(), e.getId(), Toast.LENGTH_SHORT).show()
         );
 
-        binding.send.setOnClickListener(v->{
+        binding.send.setOnClickListener(v -> {
             Editable message = binding.message.getEditableText();
-            viewModel.sendMessage(message.toString(),error -> {
-                if(error != null)
+            viewModel.sendMessage(message.toString(), error -> {
+                if (error != null)
                     Toast.makeText(getContext(), error.message(), Toast.LENGTH_SHORT).show();
             });
             message.clear();

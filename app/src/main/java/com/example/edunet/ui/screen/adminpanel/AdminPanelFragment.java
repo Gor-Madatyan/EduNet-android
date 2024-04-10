@@ -14,7 +14,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Role;
-import com.example.edunet.ui.common.viewmodel.CommunityViewModel;
+import com.example.edunet.ui.util.viewmodel.CommunityViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
 

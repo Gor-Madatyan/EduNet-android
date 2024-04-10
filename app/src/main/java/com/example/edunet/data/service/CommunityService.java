@@ -9,7 +9,7 @@ import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
 import com.example.edunet.data.service.model.CommunityUpdateRequest;
 import com.example.edunet.data.service.model.Role;
-import com.example.edunet.data.service.util.common.Paginator;
+import com.example.edunet.data.service.util.paginator.Paginator;
 
 import java.util.function.BiConsumer;
 
@@ -30,10 +30,11 @@ public interface CommunityService {
 
     void requestParticipantPermissions(@NonNull String cid, @NonNull Consumer<ServiceException> onResult);
 
-
     void deleteAdmin(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
 
     void deleteParticipant(@NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
+
+    void graduateParticipants(@NonNull String cid, @NonNull String[] uids, @NonNull Consumer<ServiceException> onResult);
 
     void managePermissions(@NonNull Role role, boolean accept, @NonNull String cid, @NonNull String uid, @NonNull Consumer<ServiceException> onResult);
 
@@ -54,6 +55,8 @@ public interface CommunityService {
     void observeAdminedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Community[]> biConsumer);
 
     void observeParticipatedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Community[]> biConsumer);
+
+    void observeGraduatedCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String uid, @NonNull BiConsumer<ServiceException, Community[]> biConsumer);
 
     void observeSubCommunities(@NonNull LifecycleOwner lifecycleOwner, @NonNull String cid, @NonNull BiConsumer<ServiceException, Community[]> biConsumer);
 

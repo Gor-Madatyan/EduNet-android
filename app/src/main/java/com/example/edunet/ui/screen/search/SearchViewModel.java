@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.model.Community;
-import com.example.edunet.data.service.util.common.Paginator;
+import com.example.edunet.data.service.util.paginator.Paginator;
 
 import javax.inject.Inject;
 

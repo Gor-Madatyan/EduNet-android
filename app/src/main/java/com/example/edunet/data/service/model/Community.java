@@ -13,7 +13,7 @@ import com.example.edunet.R;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class Community implements Entity, Parcelable {
+public class Community extends Entity implements Parcelable {
     private final String name;
     private final Uri avatar;
     private final String description;
@@ -21,6 +21,7 @@ public class Community implements Entity, Parcelable {
     private final List<String> adminsQueue;
     private final List<String> participants;
     private final List<String> participantsQueue;
+    private final List<String> graduated;
     private final String id;
     private final String ancestor;
     private final String ownerId;
@@ -32,6 +33,7 @@ public class Community implements Entity, Parcelable {
                      @NonNull List<String> adminsQueue,
                      @NonNull List<String> participants,
                      @NonNull List<String> participantsQueue,
+                     @NonNull List<String> graduated,
                      @Nullable String ancestor,
                      @NonNull String id,
                      @NonNull String ownerId) {
@@ -42,6 +44,7 @@ public class Community implements Entity, Parcelable {
         this.adminsQueue = adminsQueue;
         this.participants = participants;
         this.participantsQueue = participantsQueue;
+        this.graduated = graduated;
         this.ancestor = ancestor;
         this.ownerId = ownerId;
         this.id = id;
@@ -57,6 +60,7 @@ public class Community implements Entity, Parcelable {
         adminsQueue = in.createStringArrayList();
         participants = in.createStringArrayList();
         participantsQueue = in.createStringArrayList();
+        graduated = in.createStringArrayList();
         id = in.readString();
         ancestor = in.readString();
         ownerId = in.readString();
@@ -71,6 +75,7 @@ public class Community implements Entity, Parcelable {
         dest.writeStringList(adminsQueue);
         dest.writeStringList(participants);
         dest.writeStringList(participantsQueue);
+        dest.writeStringList(graduated);
         dest.writeString(id);
         dest.writeString(ancestor);
         dest.writeString(ownerId);
@@ -102,6 +107,7 @@ public class Community implements Entity, Parcelable {
         return name;
     }
 
+    @NonNull
     @Override
     public String getId() {
         return id;
@@ -143,5 +149,9 @@ public class Community implements Entity, Parcelable {
 
     public List<String> getParticipantsQueue() {
         return participantsQueue;
+    }
+
+    public List<String> getGraduated() {
+        return graduated;
     }
 }

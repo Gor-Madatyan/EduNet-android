@@ -3,7 +3,7 @@ package com.example.edunet.data.service.util.firebase.paginator;
 import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 
-import com.example.edunet.data.service.util.common.AbstractPaginator;
+import com.example.edunet.data.service.util.paginator.AbstractPaginator;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.io.EOFException;

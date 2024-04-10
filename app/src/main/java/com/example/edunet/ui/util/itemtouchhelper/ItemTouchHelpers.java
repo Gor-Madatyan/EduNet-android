@@ -1,4 +1,4 @@
-package com.example.edunet.ui.itemtouchhelper;
+package com.example.edunet.ui.util.itemtouchhelper;
 
 import android.graphics.Canvas;
 import android.graphics.drawable.ColorDrawable;
@@ -7,6 +7,7 @@ import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.core.util.Supplier;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,17 +16,21 @@ import java.util.function.IntConsumer;
 public final class ItemTouchHelpers {
 
 
-    public static ItemTouchHelper getRightSwipableItemTouchHelper(@NonNull IntConsumer onSwipe, @ColorInt int backgroundColor, @NonNull Drawable icon) {
+    public static ItemTouchHelper getRightSwipableItemTouchHelper(@NonNull IntConsumer onSwipe, @NonNull Supplier<Boolean> swipeEnabled, @ColorInt int backgroundColor, @NonNull Drawable icon) {
         return new ItemTouchHelper(
                 new ItemTouchHelper.SimpleCallback(
                         0,
                         ItemTouchHelper.RIGHT
                 ) {
                     @Override
+                    public boolean isItemViewSwipeEnabled() {
+                        return swipeEnabled.get();
+                    }
+
+                    @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                         onSwipe.accept(viewHolder.getAdapterPosition());
                     }
-
 
                     @Override
                     public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {

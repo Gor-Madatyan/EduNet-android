@@ -39,9 +39,10 @@ public class ProfileViewModel extends ViewModel {
                         Community[] ownedCommunities = currentUiState == null ? new Community[0] : currentUiState.ownedCommunities();
                         Community[] adminedCommunities = currentUiState == null ? new Community[0] : currentUiState.adminedCommunities();
                         Community[] participatedCommunities = currentUiState == null ? new Community[0] : currentUiState.participatedCommunities();
+                        Community[] graduatedCommunities = currentUiState == null ? new Community[0] : currentUiState.graduatedCommunities();
 
 
-                        _uiState.setValue(new UiState(user, ownedCommunities, adminedCommunities, participatedCommunities));
+                        _uiState.setValue(new UiState(user, ownedCommunities, adminedCommunities, participatedCommunities, graduatedCommunities));
                     }
                 });
     }
@@ -58,9 +59,10 @@ public class ProfileViewModel extends ViewModel {
                     User user = currentUiState == null ? null : currentUiState.user();
                     Community[] adminedCommunities = currentUiState == null ? new Community[0] : currentUiState.adminedCommunities();
                     Community[] participatedCommunities = currentUiState == null ? new Community[0] : currentUiState.participatedCommunities();
+                    Community[] graduatedCommunities = currentUiState == null ? new Community[0] : currentUiState.graduatedCommunities();
 
                     assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
-                    _uiState.setValue(new UiState(user, communities, adminedCommunities, participatedCommunities));
+                    _uiState.setValue(new UiState(user, communities, adminedCommunities, participatedCommunities, graduatedCommunities));
                 }
         );
     }
@@ -77,9 +79,10 @@ public class ProfileViewModel extends ViewModel {
                     User user = accountService.getCurrentUser();
                     Community[] ownedCommunities = currentUiState == null ? new Community[0] : currentUiState.ownedCommunities();
                     Community[] participatedCommunities = currentUiState == null ? new Community[0] : currentUiState.participatedCommunities();
+                    Community[] graduatedCommunities = currentUiState == null ? new Community[0] : currentUiState.graduatedCommunities();
 
                     assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
-                    _uiState.setValue(new UiState(user, ownedCommunities, communities, participatedCommunities));
+                    _uiState.setValue(new UiState(user, ownedCommunities, communities, participatedCommunities, graduatedCommunities));
                 }
         );
     }
@@ -96,9 +99,30 @@ public class ProfileViewModel extends ViewModel {
                     User user = accountService.getCurrentUser();
                     Community[] ownedCommunities = currentUiState == null ? new Community[0] : currentUiState.ownedCommunities();
                     Community[] adminedCommunities = currentUiState == null ? new Community[0] : currentUiState.adminedCommunities();
+                    Community[] graduatedCommunities = currentUiState == null ? new Community[0] : currentUiState.graduatedCommunities();
 
                     assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
-                    _uiState.setValue(new UiState(user, ownedCommunities, adminedCommunities, communities));
+                    _uiState.setValue(new UiState(user, ownedCommunities, adminedCommunities, communities, graduatedCommunities));
+                }
+        );
+    }
+
+    private void observeGraduatedCommunities(@NonNull LifecycleOwner owner) {
+        communityService.observeGraduatedCommunities(owner,
+                Objects.requireNonNull(accountService.getUid()),
+                (e, communities) -> {
+                    if (e != null) {
+                        Log.w(TAG, e.toString());
+                        return;
+                    }
+                    UiState currentUiState = _uiState.getValue();
+                    User user = accountService.getCurrentUser();
+                    Community[] ownedCommunities = currentUiState == null ? new Community[0] : currentUiState.ownedCommunities();
+                    Community[] adminedCommunities = currentUiState == null ? new Community[0] : currentUiState.adminedCommunities();
+                    Community[] participatedCommunities = currentUiState == null ? new Community[0] : currentUiState.participatedCommunities();
+
+                    assert user != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
+                    _uiState.setValue(new UiState(user, ownedCommunities, adminedCommunities, participatedCommunities, communities));
                 }
         );
     }
@@ -107,6 +131,7 @@ public class ProfileViewModel extends ViewModel {
         observeOwnedCommunities(owner);
         observeAdminedCommunities(owner);
         observeParticipatedCommunities(owner);
+        observeGraduatedCommunities(owner);
     }
 
 
@@ -119,6 +144,7 @@ public class ProfileViewModel extends ViewModel {
 record UiState(@NonNull User user,
                @NonNull Community[] ownedCommunities,
                @NonNull Community[] adminedCommunities,
-               @NonNull Community[] participatedCommunities) {
+               @NonNull Community[] participatedCommunities,
+               @NonNull Community[] graduatedCommunities) {
 
 }

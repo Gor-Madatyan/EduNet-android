@@ -1,4 +1,4 @@
-package com.example.edunet.ui.common.viewmodel;
+package com.example.edunet.ui.util.viewmodel;
 
 import android.util.Log;
 
@@ -70,7 +70,7 @@ public class CommunityViewModel extends ViewModel {
                     String uid = accountService.getUid();
                     assert uid != null : AccountService.InternalErrorMessages.CURRENT_USER_IS_NULL;
 
-                    if(community.getAncestor() != null && !isSuperCommunityObserved){
+                    if (community.getAncestor() != null && !isSuperCommunityObserved) {
                         isSuperCommunityObserved = true;
                         observeSuperCommunity(lifecycleOwner, community.getAncestor());
                     }
@@ -83,7 +83,8 @@ public class CommunityViewModel extends ViewModel {
                             uid.equals(community.getOwnerId()) ? Role.OWNER :
                                     community.getAdmins().contains(uid) ? Role.ADMIN :
                                             community.getParticipants().contains(uid) ? Role.PARTICIPANT :
-                                                    Role.GUEST,
+                                                    community.getGraduated().contains(uid) ? Role.GRADUATED :
+                                                            Role.GUEST,
                             community.getAdminsQueue().contains(uid),
                             community.getParticipantsQueue().contains(uid)));
                 }
@@ -122,7 +123,7 @@ public class CommunityViewModel extends ViewModel {
 
     private void observeSuperCommunity(@NonNull LifecycleOwner owner, @NonNull String id) {
         communityService.observeCommunity(owner, id,
-                (superCommunity,e) -> {
+                (superCommunity, e) -> {
                     if (e != null) {
                         onError(e);
                         return;
