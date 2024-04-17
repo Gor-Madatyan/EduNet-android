@@ -93,5 +93,6 @@ public class RequestsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        currentSavedStateHandle.remove(IS_REQUEST_MANAGED_KEY);
     }
 }
