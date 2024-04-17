@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import androidx.annotation.Nullable;
 
-import com.example.edunet.common.util.UriUtils;
+import com.example.edunet.util.UriUtils;
 import com.example.edunet.data.service.impl.AccountServiceImpl;
 import com.example.edunet.data.service.impl.CommunityServiceImpl;
 import com.example.edunet.data.service.impl.MessagingServiceImpl;

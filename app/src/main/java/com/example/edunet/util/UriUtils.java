@@ -1,4 +1,4 @@
-package com.example.edunet.common.util;
+package com.example.edunet.util;
 
 import android.net.Uri;
 

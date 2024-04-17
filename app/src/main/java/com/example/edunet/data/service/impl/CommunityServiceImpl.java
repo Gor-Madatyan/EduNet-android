@@ -13,7 +13,7 @@ import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.example.edunet.R;
-import com.example.edunet.common.util.UriUtils;
+import com.example.edunet.util.UriUtils;
 import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.exception.ServiceException;
