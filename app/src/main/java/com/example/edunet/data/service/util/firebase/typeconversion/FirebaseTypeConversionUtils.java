@@ -53,6 +53,7 @@ public final class FirebaseTypeConversionUtils {
                 firestoreCommunity.getParticipants(),
                 firestoreCommunity.getParticipantsQueue(),
                 firestoreCommunity.getGraduated(),
+                firestoreCommunity.getGraduations(),
                 firestoreCommunity.getAncestor(),
                 id,
                 firestoreCommunity.getOwnerId()

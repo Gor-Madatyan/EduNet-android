@@ -62,5 +62,7 @@
     <string name="dialog_add_graduated">Do you want to make these participants graduated</string>
     <string name="error_cant_graduate_participants">Failed to graduate participants</string>
     <string name="graduated">Graduated</string>
+    <string name="graduations">Graduations</string>
+    <string name="view_graduateds">View graduateds</string>
 
 </resources>

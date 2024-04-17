@@ -80,6 +80,10 @@ public class CommunityFragment extends Fragment {
             return true;
         });
 
+        binding.viewGraduates.setOnClickListener(v ->
+                navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToGraduationsFragment(communityId))
+        );
+
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
             if (state.error() != null) {
                 Toast.makeText(requireContext().getApplicationContext(), R.string.error_cant_load_community, Toast.LENGTH_LONG).show();
@@ -123,7 +127,7 @@ public class CommunityFragment extends Fragment {
                 EntityUtils.bindNameAvatarElement(ancestor, binding.ancestor.getRoot());
                 binding.ancestor.getRoot().setOnClickListener(
                         v ->
-                            navController.navigate(MainNavDirections.actionGlobalCommunityFragment(community.getAncestor()))
+                                navController.navigate(MainNavDirections.actionGlobalCommunityFragment(community.getAncestor()))
 
                 );
             }

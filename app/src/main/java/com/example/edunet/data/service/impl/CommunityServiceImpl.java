@@ -1,6 +1,7 @@
 package com.example.edunet.data.service.impl;
 
 import static com.example.edunet.data.service.util.firebase.typeconversion.FirebaseTypeConversionUtils.communityFromFirestoreCommunity;
+import static com.example.edunet.data.service.util.firebase.typeconversion.FirebaseTypeConversionUtils.userFromFireStoreUser;
 
 import android.net.Uri;
 import android.util.Log;
@@ -8,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
+import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.example.edunet.R;
@@ -22,6 +24,7 @@ import com.example.edunet.data.service.model.Role;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.util.firebase.FirestoreUtils;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
+import com.example.edunet.data.service.util.firebase.paginator.PortionedPaginator;
 import com.example.edunet.data.service.util.firebase.paginator.QueryPaginator;
 import com.example.edunet.data.service.util.paginator.Paginator;
 import com.google.firebase.firestore.CollectionReference;
@@ -35,6 +38,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -108,11 +113,16 @@ public class CommunityServiceImpl implements CommunityService {
         private List<String> participants;
         private List<String> participantsQueue;
         private List<String> graduated;
+        private Map<String, List<String>> graduations;
 
         public FirestoreCommunity() {
         }
 
-        public FirestoreCommunity(@NonNull String name, @NonNull String description, @Nullable String avatar, @Nullable String ancestor, @NonNull String ownerId) {
+        public FirestoreCommunity(@NonNull String name,
+                                  @NonNull String description,
+                                  @Nullable String avatar,
+                                  @Nullable String ancestor,
+                                  @NonNull String ownerId) {
             this.name = name;
             searchName = name.toLowerCase(Locale.ROOT);
             this.avatar = avatar;
@@ -124,6 +134,7 @@ public class CommunityServiceImpl implements CommunityService {
             adminsQueue = new ArrayList<>();
             participantsQueue = new ArrayList<>();
             graduated = new ArrayList<>();
+            graduations = new HashMap<>();
         }
 
         public String getName() {
@@ -168,6 +179,10 @@ public class CommunityServiceImpl implements CommunityService {
 
         public List<String> getGraduated() {
             return graduated;
+        }
+
+        public Map<String, List<String>> getGraduations() {
+            return graduations;
         }
     }
 
@@ -266,6 +281,7 @@ public class CommunityServiceImpl implements CommunityService {
         );
     }
 
+    @NonNull
     @Override
     public Paginator<Community> getCommunityPaginator(String namePrefix, int limit) {
         namePrefix = namePrefix.toLowerCase(Locale.ROOT);
@@ -289,6 +305,49 @@ public class CommunityServiceImpl implements CommunityService {
                             Log.e(TAG, e.toString());
                         }
                 );
+            }
+
+            @Override
+            public boolean isLoading() {
+                return in.isLoading();
+            }
+
+            @Override
+            public boolean hasFailure() {
+                return in.hasFailure();
+            }
+
+            @Override
+            public boolean isEofReached() {
+                return in.isEofReached();
+            }
+        };
+    }
+
+    @NonNull
+    public Paginator<Object> getGraduationsEntryPaginator(@NonNull Pair<String, String[]>[] entries) {
+        DocumentReference[][] referencePortions = Arrays.stream(entries).map(
+                p -> Arrays.stream(p.second).map(accountService::getUserDocumentById).toArray(DocumentReference[]::new)
+        ).toArray(DocumentReference[][]::new);
+
+        Paginator<Pair<String, AccountServiceImpl.FirestoreUser>> in = new PortionedPaginator<>(AccountServiceImpl.FirestoreUser.class, referencePortions);
+
+        return new Paginator<>() {
+            private int portion = 0;
+
+            @Override
+            public void next(Consumer<List<Object>> onSuccess, Consumer<Exception> onFailure) {
+                final int currentPortion = portion;
+                in.next(
+                        list -> {
+                            List<Object> parsedList = list.stream().map(p -> (Object) userFromFireStoreUser(p.first, p.second)).collect(Collectors.toList());
+                            parsedList.add(0, entries[currentPortion].first);
+                            onSuccess.accept(parsedList);
+                        },
+                        e ->
+                                onFailure.accept(new ServiceException(R.string.error_cant_load_user, e))
+                );
+                portion++;
             }
 
             @Override
@@ -352,12 +411,12 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public void graduateParticipants(@NonNull String cid, @NonNull String[] uids, @NonNull Consumer<ServiceException> onResult) {
         DocumentReference community = communityCollection.document(cid);
-        Map<String, Object> updates = new HashMap<>();
+        String date = OffsetDateTime.now(ZoneOffset.UTC).toLocalDate().toString();
 
-        updates.put("participants", FieldValue.arrayRemove((Object[]) uids));
-        updates.put("graduated", FieldValue.arrayUnion((Object[]) uids));
-
-        community.update(updates)
+        community.update("participants", FieldValue.arrayRemove((Object[]) uids),
+                        "graduated", FieldValue.arrayUnion((Object[]) uids),
+                        "graduations." + date, FieldValue.arrayUnion((Object[]) uids)
+                )
                 .addOnSuccessListener(v -> onResult.accept(null))
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_manage_permissions, e)));
     }
@@ -398,7 +457,7 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     private static String getPermissionsByRole(@NonNull Role role) {
-        return switch (role){
+        return switch (role) {
             case OWNER -> "ownerId";
             case ADMIN -> "admins";
             case PARTICIPANT -> "participants";

@@ -2,6 +2,7 @@ package com.example.edunet.data.service;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
+import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.example.edunet.data.service.exception.ServiceException;
@@ -22,7 +23,11 @@ public interface CommunityService {
      */
     void createCommunity(@NonNull CommunityCreateRequest request, @NonNull Consumer<ServiceException> onResult);
 
+    @NonNull
     Paginator<Community> getCommunityPaginator(String namePrefix, int limit);
+
+    @NonNull
+    Paginator<Object> getGraduationsEntryPaginator(@NonNull Pair<String, String[]>[] entries);
 
     void deleteCommunity(@NonNull String id, Consumer<ServiceException> onResult);
 

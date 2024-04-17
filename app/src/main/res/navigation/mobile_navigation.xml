@@ -71,6 +71,9 @@
         <action
             android:id="@+id/action_communityFragment_to_participantPermissionRequestDialog"
             app:destination="@id/participantPermissionRequestDialog" />
+        <action
+            android:id="@+id/action_communityFragment_to_graduationsFragment"
+            app:destination="@id/graduationsFragment" />
     </fragment>
     <action
         android:id="@+id/action_global_communityFragment"
@@ -213,4 +216,12 @@
             android:name="communityId"
             app:argType="string" />
     </dialog>
+    <fragment
+        android:id="@+id/graduationsFragment"
+        android:name="com.example.edunet.ui.screen.graduations.GraduationsFragment"
+        android:label="@string/graduations" >
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+    </fragment>
 </navigation>

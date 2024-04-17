@@ -22,12 +22,10 @@ public class QueryPaginator<T> extends AbstractPaginator<T> {
 
     @Override
     public void next(Consumer<List<Pair<String, T>>> onSuccess, Consumer<Exception> onFailure) {
-        assert !isLoading();
-
         if (isEofReached()) {
             onFailure.accept(new EOFException());
             return;
-        } else if (hasFailure()) {
+        } else if (hasFailure() || isLoading()) {
             onFailure.accept(new IllegalStateException());
             return;
         }

@@ -10,7 +10,9 @@ import androidx.annotation.Nullable;
 
 import com.example.edunet.R;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public class Community extends Entity implements Parcelable {
@@ -22,6 +24,7 @@ public class Community extends Entity implements Parcelable {
     private final List<String> participants;
     private final List<String> participantsQueue;
     private final List<String> graduated;
+    private final Map<String, List<String>> graduations;
     private final String id;
     private final String ancestor;
     private final String ownerId;
@@ -34,6 +37,7 @@ public class Community extends Entity implements Parcelable {
                      @NonNull List<String> participants,
                      @NonNull List<String> participantsQueue,
                      @NonNull List<String> graduated,
+                     @NonNull Map<String, List<String>> graduations,
                      @Nullable String ancestor,
                      @NonNull String id,
                      @NonNull String ownerId) {
@@ -45,13 +49,14 @@ public class Community extends Entity implements Parcelable {
         this.participants = participants;
         this.participantsQueue = participantsQueue;
         this.graduated = graduated;
+        this.graduations = graduations;
         this.ancestor = ancestor;
         this.ownerId = ownerId;
         this.id = id;
 
     }
 
-
+    @SuppressWarnings("unchecked")
     protected Community(Parcel in) {
         name = in.readString();
         avatar = in.readParcelable(Uri.class.getClassLoader());
@@ -61,6 +66,7 @@ public class Community extends Entity implements Parcelable {
         participants = in.createStringArrayList();
         participantsQueue = in.createStringArrayList();
         graduated = in.createStringArrayList();
+        graduations = (Map<String,List<String>>) in.readSerializable();
         id = in.readString();
         ancestor = in.readString();
         ownerId = in.readString();
@@ -76,6 +82,7 @@ public class Community extends Entity implements Parcelable {
         dest.writeStringList(participants);
         dest.writeStringList(participantsQueue);
         dest.writeStringList(graduated);
+        dest.writeSerializable((Serializable) graduations);
         dest.writeString(id);
         dest.writeString(ancestor);
         dest.writeString(ownerId);
@@ -153,5 +160,9 @@ public class Community extends Entity implements Parcelable {
 
     public List<String> getGraduated() {
         return graduated;
+    }
+
+    public Map<String, List<String>> getGraduations() {
+        return graduations;
     }
 }

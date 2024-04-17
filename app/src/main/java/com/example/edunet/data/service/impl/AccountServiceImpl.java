@@ -147,6 +147,10 @@ public final class AccountServiceImpl implements AccountService {
         return auth.getUid();
     }
 
+    public DocumentReference getUserDocumentById(@NonNull String uid){
+        return firestoreUsers.document(uid);
+    }
+
     @Override
     public void getUserById(@NonNull String uid, @NonNull Consumer<User> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
         firestoreUsers.document(uid).get()
