@@ -17,13 +17,17 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -38,6 +42,7 @@ public class MessagingServiceImpl implements MessagingService {
     public static class FirestoreMessage {
         private String message;
         private String senderId;
+        @ServerTimestamp
         private Timestamp timestamp;
 
         public FirestoreMessage() {
@@ -75,7 +80,11 @@ public class MessagingServiceImpl implements MessagingService {
         String uid = accountService.getUid();
         assert uid != null;
 
-        messagesReference.add(new FirestoreMessage(message, uid, Timestamp.now()))
+        Map<String,Object> object = new HashMap<>();
+        object.put("message",message);
+        object.put("senderId",uid);
+        object.put("timestamp", FieldValue.serverTimestamp());
+        messagesReference.add(object)
                 .addOnCompleteListener(result -> {
                     Exception e = result.getException();
                     onResult.accept(e == null ? null : new ServiceException(R.string.error_cant_send_message, e));
@@ -86,7 +95,9 @@ public class MessagingServiceImpl implements MessagingService {
     public Paginator<Message> getDescendingMessagePaginator(String sourceId, int limit) {
         CollectionReference messagesReference = getMessagesCollection(sourceId);
         Paginator<Pair<String, FirestoreMessage>> in = new QueryPaginator<>(
-                messagesReference.orderBy("timestamp", Query.Direction.DESCENDING)
+                messagesReference
+                        .orderBy("timestamp", Query.Direction.DESCENDING)
+                        .startAt(new Date())
                 , limit
                 , FirestoreMessage.class);
 
@@ -117,10 +128,10 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     @Override
-    public void listenNewMessages(@NonNull LifecycleOwner lifecycleOwner, @NonNull String sourceId, @NonNull Date after, @NonNull Consumer<List<Message>> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
+    public void listenNewMessages(@NonNull LifecycleOwner lifecycleOwner, @NonNull String sourceId, @NonNull Consumer<List<Message>> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
         CollectionReference messages = getMessagesCollection(sourceId);
 
-        FirestoreUtils.attachObserver(messages.orderBy("timestamp", Query.Direction.DESCENDING).endBefore(after)
+        FirestoreUtils.attachObserver(messages.orderBy("timestamp", Query.Direction.DESCENDING).endBefore(new Date())
                 .addSnapshotListener(
                         (snapshots, e) -> {
                             if (e != null) {
@@ -134,7 +145,9 @@ public class MessagingServiceImpl implements MessagingService {
                             for (DocumentChange documentChange : snapshots.getDocumentChanges()) {
                                 if (documentChange.getType() == DocumentChange.Type.ADDED) {
                                     QueryDocumentSnapshot snapshot = documentChange.getDocument();
-                                    newMessages.add(messageFromFirestoreMessage(snapshot.toObject(FirestoreMessage.class)));
+                                    FirestoreMessage firestoreMessage = snapshot.toObject(FirestoreMessage.class);
+                                    if(firestoreMessage.timestamp == null) firestoreMessage.timestamp = Timestamp.now();
+                                    newMessages.add(messageFromFirestoreMessage(firestoreMessage));
                                 }
                             }
 

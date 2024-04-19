@@ -17,7 +17,6 @@ import com.example.edunet.ui.util.adapter.impl.LazyAdapter;
 import com.example.edunet.ui.util.adapter.impl.MessageAdapter;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -51,7 +50,7 @@ public class ChatViewModel extends ViewModel {
     }
 
     void listenNewMessages(LifecycleOwner lifecycleOwner, Consumer<List<Message>> onSuccess, Consumer<UserFriendlyException> onFailure) {
-        messagingService.listenNewMessages(lifecycleOwner, communityId, new Date(),
+        messagingService.listenNewMessages(lifecycleOwner, communityId,
                 onSuccess::accept,
                 e -> {
                     Log.w(TAG, e);

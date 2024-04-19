@@ -7,7 +7,6 @@ import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.Message;
 import com.example.edunet.data.service.util.paginator.Paginator;
 
-import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -20,7 +19,6 @@ public interface MessagingService {
 
     void listenNewMessages(@NonNull LifecycleOwner lifecycleOwner,
                            @NonNull String sourceId,
-                           @NonNull Date after,
                            @NonNull Consumer<List<Message>> onSuccess,
                            @NonNull Consumer<ServiceException> onFailure);
 
