@@ -29,6 +29,14 @@ public class Community extends Entity implements Parcelable {
     private final String ancestor;
     private final String ownerId;
 
+    public Role getUserRole(String uid) {
+        return uid.equals(getOwnerId()) ? Role.OWNER :
+                getAdmins().contains(uid) ? Role.ADMIN :
+                        getParticipants().contains(uid) ? Role.PARTICIPANT :
+                                getGraduated().contains(uid) ? Role.GRADUATED :
+                                        Role.GUEST;
+    }
+
     public Community(@NonNull String name,
                      @NonNull String description,
                      @Nullable Uri avatar,
@@ -66,7 +74,7 @@ public class Community extends Entity implements Parcelable {
         participants = in.createStringArrayList();
         participantsQueue = in.createStringArrayList();
         graduated = in.createStringArrayList();
-        graduations = (Map<String,List<String>>) in.readSerializable();
+        graduations = (Map<String, List<String>>) in.readSerializable();
         id = in.readString();
         ancestor = in.readString();
         ownerId = in.readString();

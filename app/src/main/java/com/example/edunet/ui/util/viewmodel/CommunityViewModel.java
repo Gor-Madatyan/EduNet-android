@@ -80,11 +80,7 @@ public class CommunityViewModel extends ViewModel {
                             community,
                             uiState.getValue() == null ? null : uiState.getValue().superCommunity(),
                             uiState.getValue() == null ? new Community[0] : uiState.getValue().subCommunities(),
-                            uid.equals(community.getOwnerId()) ? Role.OWNER :
-                                    community.getAdmins().contains(uid) ? Role.ADMIN :
-                                            community.getParticipants().contains(uid) ? Role.PARTICIPANT :
-                                                    community.getGraduated().contains(uid) ? Role.GRADUATED :
-                                                            Role.GUEST,
+                            community.getUserRole(uid),
                             community.getAdminsQueue().contains(uid),
                             community.getParticipantsQueue().contains(uid)));
                 }

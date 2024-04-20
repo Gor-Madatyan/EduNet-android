@@ -16,7 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.edunet.R;
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.model.Role;
-import com.example.edunet.ui.screen.adminpanel.members.MembersFragment;
+import com.example.edunet.ui.screen.members.MembersFragment;
 
 import java.util.Objects;
 

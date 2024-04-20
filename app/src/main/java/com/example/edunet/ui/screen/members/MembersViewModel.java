@@ -1,9 +1,8 @@
-package com.example.edunet.ui.screen.adminpanel.members;
+package com.example.edunet.ui.screen.members;
 
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -40,23 +39,36 @@ public class MembersViewModel extends ViewModel {
     private final CommunityService communityService;
     private final AccountService accountService;
     private Role role;
+    private final MutableLiveData<Role> _viewerRoleLiveData = new MutableLiveData<>();
+    final LiveData<Role> viewerRoleLiveData = _viewerRoleLiveData;
     private final MutableLiveData<Boolean> _selectionModeLiveData = new MutableLiveData<>();
     final LiveData<Boolean> selectionModeLiveData = _selectionModeLiveData;
-    LiveData<ListAdapter<?, User>> entityAdapterLiveData;
-    LiveData<Boolean> isNodeLiveData;
-    private final MediatorLiveData<Pair<Boolean, Integer>> _selectionLiveData = new MediatorLiveData<>();
-    final LiveData<Pair<Boolean, Integer>> selectionLiveData = _selectionLiveData;
+    private final MutableLiveData<ListAdapter<?, User>> _entityAdapter = new MutableLiveData<>();
+    final LiveData<ListAdapter<?, User>> entityAdapterLiveData = _entityAdapter;
+    private final MutableLiveData<Boolean> _isNode = new MutableLiveData<>();
+    final LiveData<Boolean> isNodeLiveData = _isNode;
+    private final MediatorLiveData<SelectionState> _selectionStateLiveData = new MediatorLiveData<>();
+    final LiveData<SelectionState> selectionStateLiveData = _selectionStateLiveData;
     private int lastManagedItemPosition;
     final Selector<Integer> selector = new SetSelector<>();
 
+    record SelectionState(boolean selectionMode, Role viewerRole, boolean isNode, int size) {
+    }
+
     {
-        _selectionLiveData.addSource(selectionModeLiveData, mode ->
-                _selectionLiveData.setValue(new Pair<>(mode, selector.size()))
-        );
-        _selectionLiveData.addSource(selector.getLiveData(), size -> {
+        _selectionStateLiveData.addSource(viewerRoleLiveData, viewerRole ->
+                _selectionStateLiveData.setValue(new SelectionState(getSelectionMode(), viewerRole, isNode(), selector.size())
+                ));
+        _selectionStateLiveData.addSource(selectionModeLiveData, mode ->
+                _selectionStateLiveData.setValue(new SelectionState(mode, getViewerRole(), isNode(), selector.size())
+                ));
+        _selectionStateLiveData.addSource(selector.getLiveData(), size -> {
             if (Objects.requireNonNull(selectionModeLiveData.getValue()))
-                _selectionLiveData.setValue(new Pair<>(selectionModeLiveData.getValue(), size));
+                _selectionStateLiveData.setValue(new SelectionState(getSelectionMode(), getViewerRole(), isNode(), size));
         });
+        _selectionStateLiveData.addSource(isNodeLiveData, isNode ->
+                _selectionStateLiveData.setValue(new SelectionState(getSelectionMode(), getViewerRole(), isNode, selector.size()))
+        );
     }
 
     @Inject
@@ -67,13 +79,10 @@ public class MembersViewModel extends ViewModel {
 
     void setCommunity(@NonNull String communityId, @NonNull Role role, LifecycleOwner owner) {
         assert role == Role.ADMIN || role == Role.PARTICIPANT;
-        MutableLiveData<Boolean> _isNode = new MutableLiveData<>();
-        isNodeLiveData = _isNode;
-
         communityService.observeSubCommunities(owner, communityId,
                 (e, communities) -> {
-                    if(e != null){
-                        Log.w(TAG,e);
+                    if (e != null) {
+                        Log.w(TAG, e);
                         return;
                     }
                     _isNode.setValue(communities.length == 0);
@@ -83,32 +92,35 @@ public class MembersViewModel extends ViewModel {
         if (this.role == role)
             return;
         this.role = role;
-        MutableLiveData<ListAdapter<?, User>> _entityAdapter = new MutableLiveData<>();
-        entityAdapterLiveData = _entityAdapter;
 
         communityService.getCommunity(communityId,
-                community ->
-                        _entityAdapter.setValue(
-                                new LazyAdapter<>(
-                                        new SelectableAdapter<>(
-                                                new EntityAdapter<>(
-                                                        new ArrayList<>(),
-                                                        R.layout.selectable_name_avatar_element,
-                                                        (item, data) ->
-                                                                item.setOnClickListener(
-                                                                        v -> {
-                                                                            if (getSelectionMode()) {
-                                                                                SelectableAdapterUtils.toggle(data.getPosition(), selector, entityAdapterLiveData.getValue());
-                                                                            }
+                community -> {
+            String uid = accountService.getUid();
+            assert uid != null;
+
+                    _viewerRoleLiveData.setValue(community.getUserRole(uid));
+                    _entityAdapter.setValue(
+                            new LazyAdapter<>(
+                                    new SelectableAdapter<>(
+                                            new EntityAdapter<>(
+                                                    new ArrayList<>(),
+                                                    R.layout.selectable_name_avatar_element,
+                                                    (item, data) ->
+                                                            item.setOnClickListener(
+                                                                    v -> {
+                                                                        if (getSelectionMode()) {
+                                                                            SelectableAdapterUtils.toggle(data.getPosition(), selector, entityAdapterLiveData.getValue());
                                                                         }
-                                                                )
-                                                ),
-                                                selector
-                                        )
-                                        , accountService.getUserArrayPaginator(
-                                        (role == Role.ADMIN ? community.getAdmins() : community.getParticipants()).toArray(new String[0]),
-                                        PAGINATOR_LIMIT)
-                                )),
+                                                                    }
+                                                            )
+                                            ),
+                                            selector
+                                    )
+                                    , accountService.getUserArrayPaginator(
+                                    (role == Role.ADMIN ? community.getAdmins() : community.getParticipants()).toArray(new String[0]),
+                                    PAGINATOR_LIMIT)
+                            ));
+                },
                 e ->
                         Log.e(TAG, e.toString())
         );
@@ -146,6 +158,10 @@ public class MembersViewModel extends ViewModel {
 
     public boolean getSelectionMode() {
         return Objects.requireNonNullElse(selectionModeLiveData.getValue(), false);
+    }
+
+    public Role getViewerRole() {
+        return Objects.requireNonNullElse(viewerRoleLiveData.getValue(), Role.GUEST);
     }
 
     public boolean isNode() {

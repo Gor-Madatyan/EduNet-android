@@ -64,5 +64,6 @@
     <string name="graduated">Graduated</string>
     <string name="graduations">Graduations</string>
     <string name="view_graduateds">View graduateds</string>
+    <string name="view_participants">View Participants</string>
 
 </resources>

@@ -97,6 +97,14 @@
                 android:layout_margin="10dp"
                 android:text="@string/view_graduateds" />
 
+            <Button
+                android:height="55dp"
+                android:id="@+id/viewParticipants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/view_participants" />
+
             <LinearLayout
                 android:id="@+id/subcommunities_container"
                 android:layout_width="match_parent"

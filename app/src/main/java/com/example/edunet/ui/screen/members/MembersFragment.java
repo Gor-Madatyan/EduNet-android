@@ -1,4 +1,4 @@
-package com.example.edunet.ui.screen.adminpanel.members;
+package com.example.edunet.ui.screen.members;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -112,25 +112,17 @@ public class MembersFragment extends Fragment {
 
                             );
 
-                            viewModel.isNodeLiveData.observe(getViewLifecycleOwner(),
-                                    isNode -> {
-                                        int size = viewModel.selector.size();
-                                        boolean mode = viewModel.getSelectionMode();
+                            viewModel.selectionStateLiveData.observe(getViewLifecycleOwner(),
+                                    state -> {
+                                        int size = state.size();
+                                        boolean mode = state.selectionMode();
+                                        boolean isNode = state.isNode();
+                                        Role role = state.viewerRole();
+                                        boolean isRoleHigh = role == Role.ADMIN || role == Role.OWNER;
 
-                                        selectionMode.setVisible(isNode);
-                                        graduate.setVisible(isNode && mode && size > 0);
-                                        selectAll.setVisible(isNode && mode && size < entityAdapter.getDataset().size());
-                                    }
-                            );
-
-                            viewModel.selectionLiveData.observe(getViewLifecycleOwner(),
-                                    data -> {
-                                        boolean isNode = viewModel.isNode();
-                                        boolean mode = data.first;
-                                        int size = data.second;
-
-                                        graduate.setVisible(isNode && mode && size > 0);
-                                        selectAll.setVisible(isNode && mode && size < entityAdapter.getDataset().size());
+                                        selectionMode.setVisible(isRoleHigh && isNode);
+                                        graduate.setVisible(isRoleHigh && isNode && mode && size > 0);
+                                        selectAll.setVisible(isRoleHigh && isNode && mode && size < entityAdapter.getDataset().size());
                                     }
                             );
                         }
@@ -182,7 +174,10 @@ public class MembersFragment extends Fragment {
                             entityAdapter.getDataset().get(position).getId()
                     ));
                 },
-                () -> !viewModel.getSelectionMode(),
+                () -> {
+                    Role viewerRole = viewModel.getViewerRole();
+                    return !viewModel.getSelectionMode() && (viewerRole == Role.ADMIN || viewerRole == Role.OWNER);
+                },
                 context.getColor(R.color.error),
                 Objects.requireNonNull(AppCompatResources.getDrawable(context, R.drawable.ic_delete_40dp))).attachToRecyclerView(binding.result);
 

@@ -83,6 +83,9 @@ public class CommunityFragment extends Fragment {
         binding.viewGraduates.setOnClickListener(v ->
                 navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToGraduationsFragment(communityId))
         );
+        binding.viewParticipants.setOnClickListener(v ->
+                navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToMembersFragment(communityId, Role.PARTICIPANT))
+        );
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
             if (state.error() != null) {
