@@ -10,10 +10,10 @@ import androidx.work.Data;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
-import com.example.edunet.util.UriUtils;
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.CommunityCreateRequest;
+import com.example.edunet.util.UriUtils;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import dagger.assisted.Assisted;

@@ -4,13 +4,13 @@ import android.net.Uri;
 
 import androidx.annotation.Nullable;
 
-import com.example.edunet.util.UriUtils;
 import com.example.edunet.data.service.impl.AccountServiceImpl;
 import com.example.edunet.data.service.impl.CommunityServiceImpl;
 import com.example.edunet.data.service.impl.MessagingServiceImpl;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.Message;
 import com.example.edunet.data.service.model.User;
+import com.example.edunet.util.UriUtils;
 import com.google.firebase.auth.FirebaseUser;
 
 public final class FirebaseTypeConversionUtils {

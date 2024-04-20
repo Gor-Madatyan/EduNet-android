@@ -13,7 +13,6 @@ import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.example.edunet.R;
-import com.example.edunet.util.UriUtils;
 import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.exception.ServiceException;
@@ -27,6 +26,7 @@ import com.example.edunet.data.service.util.firebase.StorageUtils;
 import com.example.edunet.data.service.util.firebase.paginator.PortionedPaginator;
 import com.example.edunet.data.service.util.firebase.paginator.QueryPaginator;
 import com.example.edunet.data.service.util.paginator.Paginator;
+import com.example.edunet.util.UriUtils;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
