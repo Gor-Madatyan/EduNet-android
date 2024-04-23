@@ -41,16 +41,15 @@ android {
 }
 
 dependencies {
-    implementation("androidx.legacy:legacy-support-v4:1.0.0")
     val navVersion = "2.7.7"
     val workVersion = "2.9.0"
 
     //firebase
-    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+    implementation("com.firebaseui:firebase-ui-auth:8.0.2")
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-firestore")
-    implementation("com.firebaseui:firebase-ui-auth:8.0.2")
 
     //firebase auth ui cant work for higher versions
     //noinspection GradleDependency
