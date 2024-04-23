@@ -2,6 +2,7 @@ package com.example.edunet.ui.screen.graduations;
 
 import android.util.Log;
 
+import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -13,6 +14,7 @@ import com.example.edunet.data.service.CommunityService;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.ui.util.adapter.ListAdapter;
 import com.example.edunet.ui.util.adapter.impl.EntityAdapter;
+import com.example.edunet.ui.util.adapter.impl.EntityAdapterCallbackData;
 import com.example.edunet.ui.util.adapter.impl.GraduationAdapter;
 import com.example.edunet.ui.util.adapter.impl.LazyAdapter;
 
@@ -44,7 +46,7 @@ public class GraduationsViewModel extends ViewModel {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    void setCommunity(String cid) {
+    void setCommunity(String cid, Consumer<EntityAdapterCallbackData<User>> callback) {
         if (graduationsAdapterLiveData.isInitialized())
             return;
 
@@ -56,7 +58,7 @@ public class GraduationsViewModel extends ViewModel {
                         if (pack.contains(uid)) {
                             _viewerClassAdapterLiveData.setValue(
                                     new LazyAdapter<>(
-                                            new EntityAdapter<>(new ArrayList<>(), R.layout.name_avatar_element, (v, c) -> {}),
+                                            new EntityAdapter<>(new ArrayList<>(), R.layout.name_avatar_element, callback),
                                             accountService.getUserArrayPaginator(pack.toArray(new String[0]), PAGINATOR_LIMIT)));
                             break;
                         }
@@ -64,7 +66,7 @@ public class GraduationsViewModel extends ViewModel {
 
                     _graduationsAdapterLiveData.setValue(
                             new LazyAdapter<>(
-                                    new GraduationAdapter(new ArrayList<>(), R.layout.name_avatar_element),
+                                    new GraduationAdapter(new ArrayList<>(), R.layout.name_avatar_element, callback),
                                     communityService.getGraduationsEntryPaginator(
                                             community.getGraduations().entrySet()
                                                     .stream().map(p -> new Pair<>(p.getKey(), p.getValue().toArray(new String[0]))).toArray(Pair[]::new)

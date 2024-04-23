@@ -3,6 +3,7 @@ package com.example.edunet.ui.screen.members;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -18,10 +19,10 @@ import com.example.edunet.data.service.util.selector.Selector;
 import com.example.edunet.data.service.util.selector.SetSelector;
 import com.example.edunet.ui.util.adapter.ListAdapter;
 import com.example.edunet.ui.util.adapter.impl.EntityAdapter;
+import com.example.edunet.ui.util.adapter.impl.EntityAdapterCallbackData;
 import com.example.edunet.ui.util.adapter.impl.LazyAdapter;
 import com.example.edunet.ui.util.adapter.impl.SelectableAdapter;
 import com.example.edunet.ui.util.adapter.util.ListAdapterUtils;
-import com.example.edunet.ui.util.adapter.util.SelectableAdapterUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,7 +78,7 @@ public class MembersViewModel extends ViewModel {
         this.accountService = accountService;
     }
 
-    void setCommunity(@NonNull String communityId, @NonNull Role role, LifecycleOwner owner) {
+    void setCommunity(@NonNull String communityId, @NonNull Role role, @NonNull Consumer<EntityAdapterCallbackData<User>> callback, LifecycleOwner owner) {
         assert role == Role.ADMIN || role == Role.PARTICIPANT;
         communityService.observeSubCommunities(owner, communityId,
                 (e, communities) -> {
@@ -105,14 +106,7 @@ public class MembersViewModel extends ViewModel {
                                             new EntityAdapter<>(
                                                     new ArrayList<>(),
                                                     R.layout.selectable_name_avatar_element,
-                                                    (item, data) ->
-                                                            item.setOnClickListener(
-                                                                    v -> {
-                                                                        if (getSelectionMode()) {
-                                                                            SelectableAdapterUtils.toggle(data.getPosition(), selector, entityAdapterLiveData.getValue());
-                                                                        }
-                                                                    }
-                                                            )
+                                                    callback
                                             ),
                                             selector
                                     )

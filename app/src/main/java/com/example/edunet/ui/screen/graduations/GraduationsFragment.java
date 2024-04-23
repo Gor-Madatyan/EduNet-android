@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.example.edunet.R;
 import com.example.edunet.databinding.FragmentSearchBinding;
@@ -23,6 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class GraduationsFragment extends Fragment {
     private FragmentSearchBinding binding;
     private GraduationsViewModel viewModel;
+    private NavController navController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,8 +41,12 @@ public class GraduationsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(view);
         String communityId = GraduationsFragmentArgs.fromBundle(getArguments()).getCommunityId();
-        viewModel.setCommunity(communityId);
+        viewModel.setCommunity(communityId, data ->
+                data.getView().setOnClickListener(
+                        v -> navController.navigate(GraduationsFragmentDirections.actionGlobalNavigationProfile(data.getEntity().getId()))
+                ));
 
         viewModel.viewerClassAdapterLiveData.observe(getViewLifecycleOwner(), ignore ->
                 requireActivity().addMenuProvider(new MenuProvider() {

@@ -5,7 +5,7 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-    <include layout="@layout/name_avatar_element" />
+    <include android:id="@+id/request" layout="@layout/name_avatar_element" />
 
     <LinearLayout
         android:layout_width="match_parent"

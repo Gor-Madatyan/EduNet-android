@@ -82,7 +82,18 @@ public class MembersFragment extends Fragment {
         var args = MembersFragmentArgs.fromBundle(getArguments());
         String communityId = args.getCommunityId();
         Role role = args.getRole();
-        viewModel.setCommunity(communityId, role, getViewLifecycleOwner());
+        viewModel.setCommunity(communityId, role,
+                data ->
+                        data.getView().setOnClickListener(
+                                v -> {
+                                    if (viewModel.getSelectionMode()) {
+                                        SelectableAdapterUtils.toggle(data.getPosition(), viewModel.selector, viewModel.entityAdapterLiveData.getValue());
+                                        return;
+                                    }
+                                    navController.navigate(MembersFragmentDirections.actionGlobalNavigationProfile(data.getEntity().getId()));
+                                }
+                        ),
+                getViewLifecycleOwner());
         listenItemDeletions();
         if (role == Role.PARTICIPANT) listenParticipantGraduations();
 

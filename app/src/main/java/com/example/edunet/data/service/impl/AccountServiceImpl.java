@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -18,6 +19,7 @@ import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.exception.ServiceException;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
+import com.example.edunet.data.service.util.firebase.FirestoreUtils;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
 import com.example.edunet.data.service.util.firebase.paginator.ArrayPaginator;
 import com.example.edunet.data.service.util.paginator.Paginator;
@@ -167,6 +169,25 @@ public final class AccountServiceImpl implements AccountService {
     @NonNull
     public LiveData<User> observeCurrentUser() {
         return currentUserLiveData;
+    }
+
+    @NonNull
+    @Override
+    public LiveData<User> observeUser(@NonNull LifecycleOwner owner, @NonNull String uid) {
+        MutableLiveData<User> liveData = new MutableLiveData<>();
+        FirestoreUtils.attachObserver(
+                firestoreUsers.document(uid).addSnapshotListener((snapshot,err)->{
+                    if(err != null){
+                        Log.w(TAG,err);
+                        return;
+                    }
+                    assert snapshot != null;
+                    liveData.setValue(userFromFireStoreUser(snapshot.getId(), snapshot.toObject(FirestoreUser.class)));
+                }),
+                owner
+        );
+
+        return liveData;
     }
 
     @Override

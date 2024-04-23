@@ -46,8 +46,8 @@ public class ChatsFragment extends Fragment {
         navController = Navigation.findNavController(view);
         viewModel.setListener(getViewLifecycleOwner());
         viewModel.dataset.observe(getViewLifecycleOwner(), communities ->
-                binding.result.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, (v, data) ->
-                        v.setOnClickListener(v1 -> {
+                binding.result.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, data ->
+                        data.getView().setOnClickListener(v1 -> {
                             Entity community = data.getEntity();
                             navController.navigate(ChatsFragmentDirections.actionNavigationChatsToChatFragment(community.getName(), community.getAvatar(), community.getId()));
                         }))));

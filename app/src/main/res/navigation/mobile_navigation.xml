@@ -35,7 +35,18 @@
         <action
             android:id="@+id/action_navigation_profile_to_profileUpdateFragment"
             app:destination="@id/profileUpdateFragment" />
+        <argument
+            android:name="userId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
+    <action android:id="@+id/action_global_navigation_profile" app:destination="@id/navigation_profile">
+        <argument
+            android:name="userId"
+            app:argType="string"
+            app:nullable="true" />
+    </action>
     <fragment
         android:id="@+id/profileUpdateFragment"
         android:name="com.example.edunet.ui.screen.profile.update.ProfileUpdateFragment"

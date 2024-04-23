@@ -35,6 +35,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:visibility="invisible"
                 app:layout_collapseMode="pin"
                 app:menu="@menu/profile_toolbar_menu"
                 app:popupTheme="@style/Theme.EduNet.PopupOverlay" />

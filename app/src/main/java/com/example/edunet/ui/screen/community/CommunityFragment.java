@@ -96,8 +96,8 @@ public class CommunityFragment extends Fragment {
 
             if (state.subCommunities().length > 0) {
                 binding.subcommunitiesContainer.setVisibility(View.VISIBLE);
-                binding.subcommunities.setAdapter(new EntityAdapter<>(Arrays.asList(state.subCommunities()), R.layout.name_avatar_element, (item, data) ->
-                        item.setOnClickListener(v -> {
+                binding.subcommunities.setAdapter(new EntityAdapter<>(Arrays.asList(state.subCommunities()), R.layout.name_avatar_element,  data ->
+                        data.getView().setOnClickListener(v -> {
                             MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getEntity().getId());
                             navController.navigate(action);
                         })));

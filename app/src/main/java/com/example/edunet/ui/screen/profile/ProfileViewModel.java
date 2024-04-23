@@ -3,6 +3,7 @@ package com.example.edunet.ui.screen.profile;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -26,13 +27,20 @@ public class ProfileViewModel extends ViewModel {
     private final CommunityService communityService;
     private final MediatorLiveData<UiState> _uiState = new MediatorLiveData<>();
     final LiveData<UiState> uiState = _uiState;
+    private String uid;
 
     @Inject
     ProfileViewModel(AccountService accountService, CommunityService communityService) {
         this.accountService = accountService;
         this.communityService = communityService;
+    }
 
-        _uiState.addSource(accountService.observeCurrentUser(),
+    void setUser(@Nullable String uid, @NonNull LifecycleOwner owner) {
+        this.uid = uid == null ? Objects.requireNonNull(accountService.getUid()) : uid;
+        LiveData<User> liveData = isUserCurrent() ? accountService.observeCurrentUser() : accountService.observeUser(owner, this.uid);
+
+        _uiState.removeSource(liveData);
+        _uiState.addSource(liveData,
                 user -> {
                     if (user != null) {
                         UiState currentUiState = _uiState.getValue();
@@ -47,9 +55,13 @@ public class ProfileViewModel extends ViewModel {
                 });
     }
 
+    boolean isUserCurrent() {
+        return Objects.equals(uid, accountService.getUid());
+    }
+
     private void observeOwnedCommunities(@NonNull LifecycleOwner owner) {
         communityService.observeOwnedCommunities(owner,
-                Objects.requireNonNull(accountService.getUid()),
+                Objects.requireNonNull(uid),
                 (e, communities) -> {
                     if (e != null) {
                         Log.w(TAG, e.toString());
@@ -69,14 +81,14 @@ public class ProfileViewModel extends ViewModel {
 
     private void observeAdminedCommunities(@NonNull LifecycleOwner owner) {
         communityService.observeAdminedCommunities(owner,
-                Objects.requireNonNull(accountService.getUid()),
+                Objects.requireNonNull(uid),
                 (e, communities) -> {
                     if (e != null) {
                         Log.w(TAG, e.toString());
                         return;
                     }
                     UiState currentUiState = _uiState.getValue();
-                    User user = accountService.getCurrentUser();
+                    User user = currentUiState == null ? null : currentUiState.user();
                     Community[] ownedCommunities = currentUiState == null ? new Community[0] : currentUiState.ownedCommunities();
                     Community[] participatedCommunities = currentUiState == null ? new Community[0] : currentUiState.participatedCommunities();
                     Community[] graduatedCommunities = currentUiState == null ? new Community[0] : currentUiState.graduatedCommunities();
@@ -89,14 +101,14 @@ public class ProfileViewModel extends ViewModel {
 
     private void observeParticipatedCommunities(@NonNull LifecycleOwner owner) {
         communityService.observeParticipatedCommunities(owner,
-                Objects.requireNonNull(accountService.getUid()),
+                Objects.requireNonNull(uid),
                 (e, communities) -> {
                     if (e != null) {
                         Log.w(TAG, e.toString());
                         return;
                     }
                     UiState currentUiState = _uiState.getValue();
-                    User user = accountService.getCurrentUser();
+                    User user = currentUiState == null ? null : currentUiState.user();
                     Community[] ownedCommunities = currentUiState == null ? new Community[0] : currentUiState.ownedCommunities();
                     Community[] adminedCommunities = currentUiState == null ? new Community[0] : currentUiState.adminedCommunities();
                     Community[] graduatedCommunities = currentUiState == null ? new Community[0] : currentUiState.graduatedCommunities();
@@ -109,14 +121,14 @@ public class ProfileViewModel extends ViewModel {
 
     private void observeGraduatedCommunities(@NonNull LifecycleOwner owner) {
         communityService.observeGraduatedCommunities(owner,
-                Objects.requireNonNull(accountService.getUid()),
+                Objects.requireNonNull(uid),
                 (e, communities) -> {
                     if (e != null) {
                         Log.w(TAG, e.toString());
                         return;
                     }
                     UiState currentUiState = _uiState.getValue();
-                    User user = accountService.getCurrentUser();
+                    User user = currentUiState == null ? null : currentUiState.user();
                     Community[] ownedCommunities = currentUiState == null ? new Community[0] : currentUiState.ownedCommunities();
                     Community[] adminedCommunities = currentUiState == null ? new Community[0] : currentUiState.adminedCommunities();
                     Community[] participatedCommunities = currentUiState == null ? new Community[0] : currentUiState.participatedCommunities();

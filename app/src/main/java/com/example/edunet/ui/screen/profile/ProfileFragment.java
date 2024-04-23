@@ -51,9 +51,14 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        String uid = ProfileFragmentArgs.fromBundle(getArguments()).getUserId();
+        viewModel.setUser(uid, getViewLifecycleOwner());
         viewModel.observeAttachedCommunities(getViewLifecycleOwner());
-
         navController = Navigation.findNavController(view);
+
+        if(viewModel.isUserCurrent())
+            binding.toolbar.setVisibility(View.VISIBLE);
+
         binding.toolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
 
@@ -88,8 +93,8 @@ public class ProfileFragment extends Fragment {
     private void processAttachedCommunities(ViewGroup container, RecyclerView recyclerView, Community[] communities) {
         if (communities.length > 0) {
             container.setVisibility(View.VISIBLE);
-            recyclerView.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, (item, data) ->
-                    item.setOnClickListener(
+            recyclerView.setAdapter(new EntityAdapter<>(Arrays.asList(communities), R.layout.name_avatar_element, data ->
+                    data.getView().setOnClickListener(
                             v -> {
                                 MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getEntity().getId());
                                 navController.navigate(action);

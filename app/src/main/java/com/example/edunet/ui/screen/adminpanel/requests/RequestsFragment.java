@@ -76,7 +76,11 @@ public class RequestsFragment extends Fragment {
 
         viewModel.paginator.observe(getViewLifecycleOwner(), paginator -> {
             entityAdapter = new LazyAdapter<>(
-                    new EntityAdapter<>(new ArrayList<>(), R.layout.manageable_name_avatar_element, (item, data) -> {
+                    new EntityAdapter<>(new ArrayList<>(), R.layout.manageable_name_avatar_element, data -> {
+                        View item = data.getView();
+                        item.findViewById(R.id.request).setOnClickListener(
+                                v -> navController.navigate(RequestsFragmentDirections.actionGlobalNavigationProfile(data.getEntity().getId()))
+                        );
                         item.findViewById(R.id.add).setOnClickListener(
                                 v -> managePermissions(data.getPosition(), communityId, data.getEntity(), true, role)
                         );

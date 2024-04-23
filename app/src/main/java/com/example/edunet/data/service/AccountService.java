@@ -3,6 +3,7 @@ package com.example.edunet.data.service;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
 import com.example.edunet.data.service.exception.ServiceException;
@@ -28,6 +29,9 @@ public interface AccountService {
 
     @NonNull
     LiveData<User> observeCurrentUser();
+
+    @NonNull
+    LiveData<User> observeUser(@NonNull LifecycleOwner owner, @NonNull String uid);
 
     @Nullable
     User getCurrentUser();

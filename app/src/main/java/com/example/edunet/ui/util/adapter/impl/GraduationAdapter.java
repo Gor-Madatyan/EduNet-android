@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.edunet.R;
@@ -20,29 +21,39 @@ public class GraduationAdapter extends ListAdapter<GraduationAdapter.ViewHolder,
     @LayoutRes
     private final int itemLayout;
     protected final List<Object> dataset;
+    private final Consumer<EntityAdapterCallbackData<User>> callback;
 
     @Override
     public List<Object> getDataset() {
         return dataset;
     }
 
-    public GraduationAdapter(List<Object> dataSet, @LayoutRes int itemLayout) {
+    public GraduationAdapter(@NonNull List<Object> dataSet, @LayoutRes int itemLayout,@NonNull Consumer<EntityAdapterCallbackData<User>> callback) {
         this.dataset = dataSet;
         this.itemLayout = itemLayout;
+        this.callback = callback;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(@NonNull View itemView) {
+        private EntityAdapterCallbackData<User> callbackData;
+        public ViewHolder(@NonNull View itemView, int type) {
             super(itemView);
+            if(type == itemLayout) {
+                callbackData = new EntityAdapterCallbackData<>(this);
+                callback.accept(callbackData);
+            }
         }
 
         public void set(int position) {
-            Object object = dataset.get(position);
+            Object item = dataset.get(position);
 
             if (getItemViewType() == R.layout.header)
-                TextUtils.bindHeader((String) object, itemView);
-            else
-                EntityUtils.bindNameAvatarElement((User) object, itemView);
+                TextUtils.bindHeader((String) item, itemView);
+            else {
+                User user = (User) item;
+                callbackData.entity = user;
+                EntityUtils.bindNameAvatarElement(user, itemView);
+            }
         }
     }
 
@@ -52,7 +63,7 @@ public class GraduationAdapter extends ListAdapter<GraduationAdapter.ViewHolder,
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(viewType, parent, false);
 
-        return new ViewHolder(view);
+        return new ViewHolder(view, viewType);
     }
 
     @Override
