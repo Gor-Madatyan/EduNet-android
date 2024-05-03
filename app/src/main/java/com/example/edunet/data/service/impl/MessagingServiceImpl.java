@@ -17,7 +17,6 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -25,9 +24,7 @@ import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -48,10 +45,9 @@ public class MessagingServiceImpl implements MessagingService {
         public FirestoreMessage() {
         }
 
-        public FirestoreMessage(String message, String senderId, Timestamp timestamp) {
+        public FirestoreMessage(String message, String senderId) {
             this.message = message;
             this.senderId = senderId;
-            this.timestamp = timestamp;
         }
 
         public String getMessage() {
@@ -80,11 +76,8 @@ public class MessagingServiceImpl implements MessagingService {
         String uid = accountService.getUid();
         assert uid != null;
 
-        Map<String,Object> object = new HashMap<>();
-        object.put("message",message);
-        object.put("senderId",uid);
-        object.put("timestamp", FieldValue.serverTimestamp());
-        messagesReference.add(object)
+        FirestoreMessage newMessage = new FirestoreMessage(message,uid);
+        messagesReference.add(newMessage)
                 .addOnCompleteListener(result -> {
                     Exception e = result.getException();
                     onResult.accept(e == null ? null : new ServiceException(R.string.error_cant_send_message, e));
