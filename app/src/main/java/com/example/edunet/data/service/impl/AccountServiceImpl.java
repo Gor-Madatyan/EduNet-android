@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
+import androidx.core.util.PatternsCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -17,14 +18,18 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.edunet.R;
 import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.exception.ServiceException;
+import com.example.edunet.data.service.model.EmailCredential;
 import com.example.edunet.data.service.model.User;
 import com.example.edunet.data.service.model.UserUpdateRequest;
 import com.example.edunet.data.service.util.firebase.FirestoreUtils;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
 import com.example.edunet.data.service.util.firebase.paginator.ArrayPaginator;
 import com.example.edunet.data.service.util.paginator.Paginator;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -137,10 +142,80 @@ public final class AccountServiceImpl implements AccountService {
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_initialize_user, e)));
     }
 
-    @Override
-    public void onSignIn() {
+    private void onSignIn() {
         firestoreUserReference = firestoreUsers.document(Objects.requireNonNull(getUid()));
         firestoreUserListener = setFirestoreUserListener();
+    }
+
+    private void handleSignIn(@NonNull Task<?> task, @NonNull Consumer<ServiceException> onResult) {
+        task.addOnFailureListener(e -> {
+                    Log.e(TAG, "sign in failed", e);
+                    onResult.accept(new ServiceException(R.string.error_sign_in, e));
+                })
+                .addOnSuccessListener(v -> {
+                    onSignIn();
+                    onResult.accept(null);
+                });
+    }
+
+    @Override
+    public boolean validateEmail(@NonNull String email) {
+        return PatternsCompat.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private static boolean validateName(@NonNull String name) {
+        return !name.trim().isEmpty();
+    }
+
+    @Override
+    public boolean validatePassword(@NonNull String password) {
+        password = password.trim();
+        return password.length() >= 6 && password.matches(".*\\d+.*");
+    }
+
+    @Override
+    public boolean validateEmailCredentials(@NonNull EmailCredential credentials) {
+        return validateEmail(credentials.email()) && validateName(credentials.name()) && validatePassword(credentials.password());
+    }
+
+
+    @Override
+    public void signInWithGoogleIdToken(@NonNull String idToken, @NonNull Consumer<ServiceException> onResult) {
+        handleSignIn(auth.signInWithCredential(GoogleAuthProvider.getCredential(idToken, null)), onResult);
+    }
+
+    @Override
+    public void signInWithEmailAddress(@NonNull String email, @NonNull String password, @NonNull Consumer<ServiceException> onResult) {
+        if (!validateEmail(email) || !validatePassword(password)) {
+            onResult.accept(new ServiceException(R.string.error_invalid_email_credentials));
+            return;
+        }
+
+        handleSignIn(auth.signInWithEmailAndPassword(email, password), onResult);
+    }
+
+    @Override
+    public void signUpWithEmailAddress(@NonNull EmailCredential emailCredential, @NonNull Consumer<ServiceException> onResult) {
+        if (!validateEmailCredentials(emailCredential)) {
+            onResult.accept(new ServiceException(R.string.error_invalid_email_credentials));
+            return;
+        }
+        auth.createUserWithEmailAndPassword(emailCredential.email(), emailCredential.password())
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "cant sign up with email", e);
+                    onResult.accept(new ServiceException(R.string.error_sign_up, e));
+                })
+                .addOnSuccessListener(v ->
+                        Objects.requireNonNull(auth.getCurrentUser()).updateProfile(
+                                new UserProfileChangeRequest.Builder().setDisplayName(emailCredential.name()).build()
+                        ).addOnCompleteListener(
+                                r -> {
+                                    if(r.getException() != null)
+                                        Log.e(TAG, "error setting user name", r.getException());
+                                    onSignIn();
+                                    onResult.accept(null);
+                                }
+                        ));
     }
 
     @Nullable
@@ -149,7 +224,7 @@ public final class AccountServiceImpl implements AccountService {
         return auth.getUid();
     }
 
-    public DocumentReference getUserDocumentById(@NonNull String uid){
+    public DocumentReference getUserDocumentById(@NonNull String uid) {
         return firestoreUsers.document(uid);
     }
 
@@ -176,9 +251,9 @@ public final class AccountServiceImpl implements AccountService {
     public LiveData<User> observeUser(@NonNull LifecycleOwner owner, @NonNull String uid) {
         MutableLiveData<User> liveData = new MutableLiveData<>();
         FirestoreUtils.attachObserver(
-                firestoreUsers.document(uid).addSnapshotListener((snapshot,err)->{
-                    if(err != null){
-                        Log.w(TAG,err);
+                firestoreUsers.document(uid).addSnapshotListener((snapshot, err) -> {
+                    if (err != null) {
+                        Log.w(TAG, err);
                         return;
                     }
                     assert snapshot != null;

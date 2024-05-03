@@ -1,13 +1,17 @@
 package com.example.edunet.ui.screen.profile;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.credentials.ClearCredentialStateRequest;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -16,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.edunet.MainNavDirections;
 import com.example.edunet.R;
-import com.example.edunet.StartUpActivity;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.databinding.FragmentProfileBinding;
 import com.example.edunet.ui.util.ImageLoadingUtils;
@@ -25,13 +28,18 @@ import com.example.edunet.ui.util.adapter.impl.EntityAdapter;
 import java.util.Arrays;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class ProfileFragment extends Fragment {
+    private static final String TAG = ProfileFragment.class.getSimpleName();
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
     private NavController navController;
+    @Inject
+    CredentialManager credentialManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,12 +59,12 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        String uid = ProfileFragmentArgs.fromBundle(getArguments()).getUserId();
+        String uid = ProfileFragmentArgs.fromBundle(requireArguments()).getUserId();
         viewModel.setUser(uid, getViewLifecycleOwner());
         viewModel.observeAttachedCommunities(getViewLifecycleOwner());
         navController = Navigation.findNavController(view);
 
-        if(viewModel.isUserCurrent())
+        if (viewModel.isUserCurrent())
             binding.toolbar.setVisibility(View.VISIBLE);
 
         binding.toolbar.setOnMenuItemClickListener(item -> {
@@ -64,8 +72,20 @@ public class ProfileFragment extends Fragment {
 
             if (id == R.id.action_sign_out) {
                 viewModel.signOut();
-                startActivity(new Intent(requireActivity(), StartUpActivity.class));
-                requireActivity().finish();
+                credentialManager.clearCredentialStateAsync(new ClearCredentialStateRequest(), null, Runnable::run,
+                        new CredentialManagerCallback<>() {
+                            @Override
+                            public void onResult(Void unused) {
+                                Log.w(TAG, "credential manager state cleared");
+                            }
+
+                            @Override
+                            public void onError(@NonNull ClearCredentialException e) {
+                                Log.w(TAG, "cant clear credential manager state", e);
+                            }
+                        }
+                );
+                navController.navigate(ProfileFragmentDirections.actionGlobalSignInFragment());
                 return true;
             } else if (id == R.id.action_edit_profile) {
                 navController.navigate(R.id.action_navigation_profile_to_profileUpdateFragment);

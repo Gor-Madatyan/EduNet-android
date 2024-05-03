@@ -45,19 +45,19 @@ dependencies {
     val workVersion = "2.9.0"
 
     //firebase
-    implementation("com.firebaseui:firebase-ui-auth:8.0.2")
-    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-firestore")
 
-    //firebase auth ui cant work for higher versions
-    //noinspection GradleDependency
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    //Credential Manger
+    implementation("androidx.credentials:credentials:1.3.0-alpha03")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0-alpha03")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
 
     //dependency injection
-    implementation("com.google.dagger:hilt-android:2.51")
-    kapt("com.google.dagger:hilt-android-compiler:2.51")
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     implementation("androidx.hilt:hilt-work:1.2.0")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
 
@@ -71,6 +71,7 @@ dependencies {
     implementation("androidx.work:work-runtime:$workVersion")
 
     //ListenableFeature
+    implementation("com.google.guava:guava:32.0.1-android")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
 
     //image loading
@@ -78,7 +79,7 @@ dependencies {
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")

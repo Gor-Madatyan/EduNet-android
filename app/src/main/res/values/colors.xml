@@ -15,4 +15,6 @@
     <color name="error">#DF1111</color>
     <color name="text">#37375C</color>
     <color name="accept">#2BDA17</color>
+    <color name="link">#005EC3</color>
+    <color name="primaryLoader">#9012FF</color>
 </resources>

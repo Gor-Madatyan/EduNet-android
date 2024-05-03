@@ -13,17 +13,17 @@ import dagger.hilt.components.SingletonComponent;
 @Module
 public class FirebaseModule {
     @Provides
-    FirebaseAuth provideAuth() {
+    public static FirebaseAuth provideAuth() {
         return FirebaseAuth.getInstance();
     }
 
     @Provides
-    FirebaseStorage provideStorage() {
+    public static FirebaseStorage provideStorage() {
         return FirebaseStorage.getInstance();
     }
 
     @Provides
-    FirebaseFirestore provideFireStore() {
+    public static FirebaseFirestore provideFireStore() {
         return FirebaseFirestore.getInstance();
     }
 }

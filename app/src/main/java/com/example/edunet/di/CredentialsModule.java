@@ -2,7 +2,7 @@ package com.example.edunet.di;
 
 import android.content.Context;
 
-import androidx.work.WorkManager;
+import androidx.credentials.CredentialManager;
 
 import dagger.Module;
 import dagger.Provides;
@@ -12,9 +12,9 @@ import dagger.hilt.components.SingletonComponent;
 
 @InstallIn(SingletonComponent.class)
 @Module
-public class WorkModule {
+public class CredentialsModule {
     @Provides
-    public static WorkManager provideWorkManager(@ApplicationContext Context context){
-        return WorkManager.getInstance(context);
+    public static CredentialManager provideCredentialManager(@ApplicationContext Context context) {
+        return CredentialManager.create(context);
     }
 }
