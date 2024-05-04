@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.credentials.ClearCredentialStateRequest;
 import androidx.credentials.CredentialManager;
 import androidx.credentials.CredentialManagerCallback;
@@ -98,6 +99,7 @@ public class ProfileFragment extends Fragment {
         binding.addCommunity.setOnClickListener(v -> navController.navigate(ProfileFragmentDirections.actionNavigationProfileToAddCommunityFragment()));
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
+            Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar()).setTitle(state.user().getEmail());
             binding.toolbarLayout.setTitle(state.user().getName());
             binding.bio.setText(Objects.requireNonNullElse(state.user().getBio(), getString(R.string.default_bio)));
             ImageLoadingUtils.loadUserAvatar(this, state.user().getAvatar(), binding.avatar);

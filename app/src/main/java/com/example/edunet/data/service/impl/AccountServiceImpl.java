@@ -25,6 +25,7 @@ import com.example.edunet.data.service.util.firebase.FirestoreUtils;
 import com.example.edunet.data.service.util.firebase.StorageUtils;
 import com.example.edunet.data.service.util.firebase.paginator.ArrayPaginator;
 import com.example.edunet.data.service.util.paginator.Paginator;
+import com.example.edunet.util.UriUtils;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -91,12 +92,14 @@ public final class AccountServiceImpl implements AccountService {
 
     public static class FirestoreUser {
         private String name;
+        private String email;
         private String avatar;
         private String bio;
 
-        public FirestoreUser(String name, String avatar, String bio) {
+        public FirestoreUser(String name, String email, String avatar, String bio) {
             this.bio = bio;
             this.name = name;
+            this.email = email;
             this.avatar = avatar;
         }
 
@@ -106,6 +109,10 @@ public final class AccountServiceImpl implements AccountService {
 
         public String getName() {
             return name;
+        }
+
+        public String getEmail() {
+            return email;
         }
 
         public String getAvatar() {
@@ -136,7 +143,8 @@ public final class AccountServiceImpl implements AccountService {
 
         userPath.set(new FirestoreUser(
                         user.getDisplayName(),
-                        user.getPhotoUrl() == null ? null : user.getPhotoUrl().toString(),
+                        user.getEmail(),
+                        UriUtils.safeToString(user.getPhotoUrl()),
                         null))
                 .addOnSuccessListener(r -> onResult.accept(null))
                 .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_initialize_user, e)));

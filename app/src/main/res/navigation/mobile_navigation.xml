@@ -57,7 +57,6 @@
     <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.edunet.ui.screen.profile.ProfileFragment"
-        android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile">
         <action
             android:id="@+id/action_navigation_profile_to_addCommunityFragment"

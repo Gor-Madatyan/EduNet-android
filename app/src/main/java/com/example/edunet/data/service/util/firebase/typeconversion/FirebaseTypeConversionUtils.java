@@ -1,7 +1,5 @@
 package com.example.edunet.data.service.util.firebase.typeconversion;
 
-import android.net.Uri;
-
 import androidx.annotation.Nullable;
 
 import com.example.edunet.data.service.impl.AccountServiceImpl;
@@ -24,6 +22,7 @@ public final class FirebaseTypeConversionUtils {
 
         return new User(user.getUid(),
                 user.getDisplayName(),
+                user.getEmail(),
                 user.getPhotoUrl(),
                 null);
     }
@@ -34,7 +33,8 @@ public final class FirebaseTypeConversionUtils {
 
         return new User(uid,
                 user.getName(),
-                user.getAvatar() == null ? null : Uri.parse(user.getAvatar()),
+                user.getEmail(),
+                UriUtils.safeParse(user.getAvatar()),
                 user.getBio()
         );
     }
