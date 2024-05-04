@@ -35,7 +35,7 @@ public class VerifyEmailDialog extends DialogFragment {
         return new AlertDialog.Builder(requireActivity())
                 .setTitle(R.string.verify_email_title)
                 .setMessage(R.string.verify_email)
-                .setPositiveButton(R.string.send_verify_message, (dialog, which) ->
+                .setPositiveButton(R.string.send_email, (dialog, which) ->
                         accountService.sendEmailVerification(e -> {
                             if (e != null)
                                 Toast.makeText(requireContext(), e.getId(), Toast.LENGTH_SHORT).show();

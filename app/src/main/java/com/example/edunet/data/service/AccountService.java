@@ -28,6 +28,8 @@ public interface AccountService {
 
     void sendEmailVerification(@NonNull Consumer<ServiceException> onResult);
 
+    void sendPasswordResetEmail(@NonNull String email, @NonNull Consumer<ServiceException> onResult);
+
     @Nullable
     String getUid();
 

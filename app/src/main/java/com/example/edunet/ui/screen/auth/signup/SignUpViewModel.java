@@ -20,7 +20,7 @@ public class SignUpViewModel extends ViewModel {
         this.accountService = accountService;
     }
 
-    public void signUpWithEmailAddress(EmailCredential credentials, Consumer<UserFriendlyException> onResult) {
+    void signUpWithEmailAddress(EmailCredential credentials, Consumer<UserFriendlyException> onResult) {
         accountService.signUpWithEmailAddress(credentials, onResult::accept);
     }
 

@@ -239,6 +239,19 @@ public final class AccountServiceImpl implements AccountService {
                 });
     }
 
+    @Override
+    public void sendPasswordResetEmail(@NonNull String email, @NonNull Consumer<ServiceException> onResult) {
+        auth.sendPasswordResetEmail(email)
+                .addOnSuccessListener(v->{
+                    Log.i(TAG, "password reset email sent");
+                    onResult.accept(null);
+                })
+                .addOnFailureListener(e->{
+                    Log.e(TAG, "cant send password reset email", e);
+                    onResult.accept(new ServiceException(R.string.error_send_password_reset_email, e));
+                });
+    }
+
     @Nullable
     @Override
     public String getUid() {

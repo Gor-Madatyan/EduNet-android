@@ -1,5 +1,6 @@
 package com.example.edunet.ui.screen.auth.signin;
 
+import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.ViewModel;
 
@@ -14,16 +15,21 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class SignInViewModel extends ViewModel {
     private final AccountService accountService;
 
-     @Inject
-     SignInViewModel(AccountService accountService){
-         this.accountService = accountService;
-     }
+    @Inject
+    SignInViewModel(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
-     public void signInWithEmailAndPassword(String email, String password, Consumer<UserFriendlyException> onResult){
-         accountService.signInWithEmailAddress(email, password, onResult::accept);
-     }
+    void signInWithEmailAndPassword(String email, String password, Consumer<UserFriendlyException> onResult) {
+        accountService.signInWithEmailAddress(email, password, onResult::accept);
+    }
 
-     public void signInWithGoogleId(String idToken, Consumer<UserFriendlyException> onResult){
-         accountService.signInWithGoogleIdToken(idToken, onResult::accept);
-     }
+    void signInWithGoogleId(String idToken, Consumer<UserFriendlyException> onResult) {
+        accountService.signInWithGoogleIdToken(idToken, onResult::accept);
+    }
+
+    boolean validateEmail(@NonNull String email) {
+        return accountService.validateEmail(email);
+    }
+
 }

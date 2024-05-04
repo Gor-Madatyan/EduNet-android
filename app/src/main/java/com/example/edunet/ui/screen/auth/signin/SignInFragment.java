@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.edunet.R;
 import com.example.edunet.data.service.exception.UserFriendlyException;
 import com.example.edunet.databinding.FragmentAuthBinding;
 import com.example.edunet.ui.util.CredentialUtils;
@@ -79,6 +80,7 @@ public class SignInFragment extends Fragment {
         navController = Navigation.findNavController(view);
         binding.redirectSignUp.setVisibility(View.VISIBLE);
         binding.googleButtonContainer.setVisibility(View.VISIBLE);
+        binding.sendPasswordResetEmail.setVisibility(View.VISIBLE);
         CredentialManagerCallback<GetCredentialResponse, GetCredentialException> callback = new CredentialManagerCallback<>() {
             @Override
             public void onResult(GetCredentialResponse getCredentialResponse) {
@@ -114,6 +116,15 @@ public class SignInFragment extends Fragment {
 
         binding.redirectSignUp.setOnClickListener(v ->
                 navController.navigate(SignInFragmentDirections.actionSignInFragmentToSignUpFragment()));
+
+        binding.sendPasswordResetEmail.setOnClickListener(v-> {
+            String email = binding.editEmail.getText().toString().trim();
+            if(!viewModel.validateEmail(email)){
+                binding.editEmail.setError(getString(R.string.invalid_email));
+                return;
+            }
+            navController.navigate(SignInFragmentDirections.actionSignInFragmentToPasswordResetDialog(email));
+        });
 
         binding.googleButton.setOnClickListener(v ->
                 credentialManager.getCredentialAsync(

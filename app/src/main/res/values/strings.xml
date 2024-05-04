@@ -70,9 +70,14 @@
     <string name="error_sign_up">Can\'t sign up</string>
     <string name="default_web_client_id">983501126097-q88nhk04peubv12tut9ouoqrmfu6klit.apps.googleusercontent.com</string>
     <string name="verify_email">Please accept this dialog, verify your email from message that we sent to your email address and sign in again, to access more abilities</string>
-    <string name="send_verify_message">Send message</string>
+    <string name="send_email">Send email</string>
     <string name="cancel">Not now</string>
     <string name="error_send_email_verification">Can\'t send email verification, try another time</string>
     <string name="verify_email_title">Email verification</string>
     <string name="email_not_verified">Please first verify your email</string>
+    <string name="error_send_password_reset_email">Can\'t send password reset email, try another time</string>
+    <string name="send_password_reset_email">Send password reset email</string>
+    <string name="reset_password_dialog">Do you want to receive password reset email on your specified email address?</string>
+    <string name="reset_password_title">Reset password</string>
+    <string name="invalid_email">Invalid email</string>
 </resources>

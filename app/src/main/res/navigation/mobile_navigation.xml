@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_signInFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_passwordResetDialog"
+            app:destination="@id/passwordResetDialog" />
     </fragment>
     <action
         android:id="@+id/action_global_signInFragment"
@@ -283,4 +286,12 @@
         android:id="@+id/verifyEmailDialog"
         android:name="com.example.edunet.ui.dialog.VerifyEmailDialog"
         android:label="VerifyEmailDialog" />
+    <dialog
+        android:id="@+id/passwordResetDialog"
+        android:name="com.example.edunet.ui.dialog.PasswordResetDialog"
+        android:label="PasswordResetDialog" >
+        <argument
+            android:name="email"
+            app:argType="string" />
+    </dialog>
 </navigation>
