@@ -26,12 +26,16 @@ public interface AccountService {
 
     void signUpWithEmailAddress(@NonNull EmailCredential emailCredential, @NonNull Consumer<ServiceException> onResult);
 
+    void sendEmailVerification(@NonNull Consumer<ServiceException> onResult);
+
     @Nullable
     String getUid();
 
     void getUserById(@NonNull String uid, @NonNull Consumer<User> onSuccess, @NonNull Consumer<ServiceException> onFailure);
 
     boolean isUserAvailable();
+
+    boolean isCurrentUserEmailVerified();
 
     @NonNull
     LiveData<User> observeCurrentUser();

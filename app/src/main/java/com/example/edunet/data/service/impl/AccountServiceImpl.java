@@ -226,6 +226,19 @@ public final class AccountServiceImpl implements AccountService {
                         ));
     }
 
+    @Override
+    public void sendEmailVerification(@NonNull Consumer<ServiceException> onResult) {
+        Objects.requireNonNull(auth.getCurrentUser()).sendEmailVerification()
+                .addOnSuccessListener(v -> {
+                    Log.i(TAG, "email verification sent");
+                    onResult.accept(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "cant send email verification", e);
+                    onResult.accept(new ServiceException(R.string.error_send_email_verification, e));
+                });
+    }
+
     @Nullable
     @Override
     public String getUid() {
@@ -246,6 +259,11 @@ public final class AccountServiceImpl implements AccountService {
     @Override
     public boolean isUserAvailable() {
         return auth.getCurrentUser() != null;
+    }
+
+    @Override
+    public boolean isCurrentUserEmailVerified() {
+        return Objects.requireNonNull(auth.getCurrentUser()).isEmailVerified();
     }
 
     @Override

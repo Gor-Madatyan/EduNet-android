@@ -1,7 +1,6 @@
 package com.example.edunet.ui.screen.profile;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,10 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.credentials.ClearCredentialStateRequest;
 import androidx.credentials.CredentialManager;
-import androidx.credentials.CredentialManagerCallback;
-import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -23,6 +19,7 @@ import com.example.edunet.MainNavDirections;
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.databinding.FragmentProfileBinding;
+import com.example.edunet.ui.util.CredentialUtils;
 import com.example.edunet.ui.util.ImageLoadingUtils;
 import com.example.edunet.ui.util.adapter.impl.EntityAdapter;
 
@@ -35,7 +32,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class ProfileFragment extends Fragment {
-    private static final String TAG = ProfileFragment.class.getSimpleName();
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
     private NavController navController;
@@ -73,19 +69,7 @@ public class ProfileFragment extends Fragment {
 
             if (id == R.id.action_sign_out) {
                 viewModel.signOut();
-                credentialManager.clearCredentialStateAsync(new ClearCredentialStateRequest(), null, Runnable::run,
-                        new CredentialManagerCallback<>() {
-                            @Override
-                            public void onResult(Void unused) {
-                                Log.w(TAG, "credential manager state cleared");
-                            }
-
-                            @Override
-                            public void onError(@NonNull ClearCredentialException e) {
-                                Log.w(TAG, "cant clear credential manager state", e);
-                            }
-                        }
-                );
+                CredentialUtils.clearCredentials(credentialManager);
                 navController.navigate(ProfileFragmentDirections.actionGlobalSignInFragment());
                 return true;
             } else if (id == R.id.action_edit_profile) {
@@ -103,6 +87,9 @@ public class ProfileFragment extends Fragment {
             binding.toolbarLayout.setTitle(state.user().getName());
             binding.bio.setText(Objects.requireNonNullElse(state.user().getBio(), getString(R.string.default_bio)));
             ImageLoadingUtils.loadUserAvatar(this, state.user().getAvatar(), binding.avatar);
+            
+            if(Objects.requireNonNull(navController.getCurrentDestination()).getId() == R.id.navigation_profile && viewModel.isUserCurrent() && !viewModel.isCurrentUserEmailVerified())
+                navController.navigate(ProfileFragmentDirections.actionNavigationProfileToVerifyEmailDialog());
 
             processAttachedCommunities(binding.ownedCommunitiesContainer, binding.ownedCommunities, state.ownedCommunities());
             processAttachedCommunities(binding.adminedCommunitiesContainer, binding.adminedCommunities, state.adminedCommunities());

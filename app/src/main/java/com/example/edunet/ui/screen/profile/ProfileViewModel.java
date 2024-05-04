@@ -59,6 +59,10 @@ public class ProfileViewModel extends ViewModel {
         return Objects.equals(uid, accountService.getUid());
     }
 
+    boolean isCurrentUserEmailVerified() {
+        return accountService.isCurrentUserEmailVerified();
+    }
+
     private void observeOwnedCommunities(@NonNull LifecycleOwner owner) {
         communityService.observeOwnedCommunities(owner,
                 Objects.requireNonNull(uid),

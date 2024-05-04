@@ -69,4 +69,9 @@
     <string name="sign_up">Sign up</string>
     <string name="error_sign_up">Can\'t sign up</string>
     <string name="default_web_client_id">983501126097-q88nhk04peubv12tut9ouoqrmfu6klit.apps.googleusercontent.com</string>
+    <string name="verify_email">Please accept this dialog, verify your email from message that we sent to your email address and sign in again, to access more abilities</string>
+    <string name="send_verify_message">Send message</string>
+    <string name="cancel">Not now</string>
+    <string name="error_send_email_verification">Can\'t send email verification, try another time</string>
+    <string name="verify_email_title">Email verification</string>
 </resources>
