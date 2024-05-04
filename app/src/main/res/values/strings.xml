@@ -74,4 +74,5 @@
     <string name="cancel">Not now</string>
     <string name="error_send_email_verification">Can\'t send email verification, try another time</string>
     <string name="verify_email_title">Email verification</string>
+    <string name="email_not_verified">Please first verify your email</string>
 </resources>

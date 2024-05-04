@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -61,8 +62,11 @@ public class ProfileFragment extends Fragment {
         viewModel.observeAttachedCommunities(getViewLifecycleOwner());
         navController = Navigation.findNavController(view);
 
-        if (viewModel.isUserCurrent())
+        if (viewModel.isUserCurrent()) {
             binding.toolbar.setVisibility(View.VISIBLE);
+            binding.addCommunity.setVisibility(View.VISIBLE);
+        }
+
 
         binding.toolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
@@ -80,7 +84,13 @@ public class ProfileFragment extends Fragment {
             return false;
         });
 
-        binding.addCommunity.setOnClickListener(v -> navController.navigate(ProfileFragmentDirections.actionNavigationProfileToAddCommunityFragment()));
+        binding.addCommunity.setOnClickListener(v -> {
+            if(!viewModel.isCurrentUserEmailVerified()){
+                Toast.makeText(requireContext(), R.string.email_not_verified, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            navController.navigate(ProfileFragmentDirections.actionNavigationProfileToAddCommunityFragment());
+        });
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {
             Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar()).setTitle(state.user().getEmail());

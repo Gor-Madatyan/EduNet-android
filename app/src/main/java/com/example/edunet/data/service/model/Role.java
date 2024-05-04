@@ -5,5 +5,6 @@ public enum Role {
     ADMIN,
     PARTICIPANT,
     GRADUATED,
-    GUEST
+    GUEST,
+    UNVERIFIED_GUEST
 }

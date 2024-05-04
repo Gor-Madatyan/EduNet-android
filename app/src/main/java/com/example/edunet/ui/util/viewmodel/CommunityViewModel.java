@@ -3,6 +3,7 @@ package com.example.edunet.ui.util.viewmodel;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -25,6 +26,7 @@ public class CommunityViewModel extends ViewModel {
     private final CommunityService communityService;
     private final AccountService accountService;
     private final MutableLiveData<UiState> _uiState = new MutableLiveData<>();
+    private Role role;
     private boolean isSuperCommunityObserved = false;
     public final LiveData<UiState> uiState = _uiState;
 
@@ -75,12 +77,13 @@ public class CommunityViewModel extends ViewModel {
                         observeSuperCommunity(lifecycleOwner, community.getAncestor());
                     }
 
+                    role = !accountService.isCurrentUserEmailVerified() ? Role.UNVERIFIED_GUEST : community.getUserRole(uid);
                     _uiState.setValue(new UiState(
                             null,
                             community,
                             uiState.getValue() == null ? null : uiState.getValue().superCommunity(),
                             uiState.getValue() == null ? new Community[0] : uiState.getValue().subCommunities(),
-                            community.getUserRole(uid),
+                            role,
                             community.getAdminsQueue().contains(uid),
                             community.getParticipantsQueue().contains(uid)));
                 }
@@ -142,6 +145,11 @@ public class CommunityViewModel extends ViewModel {
                                     isCurrentUserRequestedParticipantPermissions)
                     );
                 });
+    }
+
+    @Nullable
+    public Role getRole() {
+        return role;
     }
 }
 

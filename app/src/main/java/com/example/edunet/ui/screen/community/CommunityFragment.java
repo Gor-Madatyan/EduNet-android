@@ -66,11 +66,19 @@ public class CommunityFragment extends Fragment {
             return true;
         });
         requestAdminPermissions.setOnMenuItemClickListener(i -> {
+                    if (viewModel.getRole() == Role.UNVERIFIED_GUEST) {
+                        Toast.makeText(requireContext().getApplicationContext(), R.string.email_not_verified, Toast.LENGTH_LONG).show();
+                        return true;
+                    }
                     navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToAdminPermissionRequestDialog(communityId));
                     return true;
                 }
         );
         requestParticipantPermissions.setOnMenuItemClickListener(i -> {
+                    if (viewModel.getRole() == Role.UNVERIFIED_GUEST) {
+                        Toast.makeText(requireContext().getApplicationContext(), R.string.email_not_verified, Toast.LENGTH_LONG).show();
+                        return true;
+                    }
                     navController.navigate(CommunityFragmentDirections.actionCommunityFragmentToParticipantPermissionRequestDialog(communityId));
                     return true;
                 }
@@ -96,7 +104,7 @@ public class CommunityFragment extends Fragment {
 
             if (state.subCommunities().length > 0) {
                 binding.subcommunitiesContainer.setVisibility(View.VISIBLE);
-                binding.subcommunities.setAdapter(new EntityAdapter<>(Arrays.asList(state.subCommunities()), R.layout.name_avatar_element,  data ->
+                binding.subcommunities.setAdapter(new EntityAdapter<>(Arrays.asList(state.subCommunities()), R.layout.name_avatar_element, data ->
                         data.getView().setOnClickListener(v -> {
                             MainNavDirections.ActionGlobalCommunityFragment action = MainNavDirections.actionGlobalCommunityFragment(data.getEntity().getId());
                             navController.navigate(action);
@@ -105,7 +113,7 @@ public class CommunityFragment extends Fragment {
             } else binding.subcommunitiesContainer.setVisibility(View.GONE);
 
             adminPanel.setVisible(state.role() == Role.ADMIN || state.role() == Role.OWNER);
-            if (state.role() == Role.GUEST &&
+            if ((state.role() == Role.GUEST || state.role() == Role.UNVERIFIED_GUEST) &&
                     !state.isCurrentUserRequestedParticipantPermissions() && !state.isCurrentUserRequestedAdminPermissions()) {
                 requestAdminPermissions.setVisible(true);
                 requestParticipantPermissions.setVisible(true);
