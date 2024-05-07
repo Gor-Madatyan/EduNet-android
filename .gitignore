@@ -8,13 +8,13 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
 /build
 /captures
+/scripts
+/firebase-emulators-backup
+.DS_Store
 .externalNativeBuild
 .cxx
 local.properties
-firestore-debug.log
-firebase-debug.*.log
-ui-debug.log
+*.log
 .firebaserc
