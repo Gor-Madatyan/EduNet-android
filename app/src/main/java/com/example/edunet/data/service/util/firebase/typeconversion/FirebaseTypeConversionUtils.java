@@ -5,9 +5,11 @@ import androidx.annotation.Nullable;
 import com.example.edunet.data.service.impl.AccountServiceImpl;
 import com.example.edunet.data.service.impl.CommunityServiceImpl;
 import com.example.edunet.data.service.impl.MessagingServiceImpl;
+import com.example.edunet.data.service.impl.NotificationsServiceImpl;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.Message;
 import com.example.edunet.data.service.model.User;
+import com.example.edunet.data.service.model.UserNotification;
 import com.example.edunet.util.UriUtils;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -62,5 +64,15 @@ public final class FirebaseTypeConversionUtils {
 
     public static Message messageFromFirestoreMessage(MessagingServiceImpl.FirestoreMessage message) {
         return new Message(message.getMessage(), message.getSenderId(), message.getTimestamp().toDate());
+    }
+
+    public static UserNotification userNotificationFromFirestoreUserNotification(NotificationsServiceImpl.FirestoreUserNotification userNotification) {
+        return new UserNotification(
+                userNotification.getMembersType(),
+                userNotification.getOperationType(),
+                userNotification.getArePending(),
+                userNotification.getTimestamp(),
+                userNotification.getUsers().toArray(new String[0])
+        );
     }
 }

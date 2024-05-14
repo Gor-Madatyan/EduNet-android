@@ -41,6 +41,12 @@
         app:iconSpaceReserved="false">
 
         <Preference
+            android:key="notifications"
+            android:persistent="false"
+            android:title="@string/title_notifications"
+            app:iconSpaceReserved="false" />
+
+        <Preference
             android:key="edit_community"
             android:persistent="false"
             android:title="@string/title_edit_community"

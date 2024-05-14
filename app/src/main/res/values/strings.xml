@@ -79,4 +79,10 @@
     <string name="reset_password_dialog">Do you want to receive password reset email on your specified email address?</string>
     <string name="reset_password_title">Reset password</string>
     <string name="invalid_email">Invalid email</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="error_cant_load_notification">Can\'t load notification</string>
+    <string name="users_added">Users Added</string>
+    <string name="users_removed">Users Removed</string>
+    <string name="users_added_message">Added %d users as %s %s</string>
+    <string name="users_removed_message">Removed %d users that where %s %s</string>
 </resources>

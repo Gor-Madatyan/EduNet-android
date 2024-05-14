@@ -43,6 +43,7 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
         Preference deleteCommunity = findPreference("delete_community");
         Preference admins = findPreference("admins");
         Preference participants = findPreference("participants");
+        Preference notifications = findPreference("notifications");
 
         assert deleteCommunity != null;
         assert adminRequests != null;
@@ -50,6 +51,7 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
         assert editCommunity != null;
         assert admins != null;
         assert participants != null;
+        assert notifications != null;
 
 
         SavedStateHandle savedStateHandle = navController.getBackStackEntry(R.id.adminPanelFragment).getSavedStateHandle();
@@ -61,6 +63,11 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
                     if (isDeleted) navController.navigateUp();
                 }
         );
+
+        notifications.setOnPreferenceClickListener(p->{
+            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToNotificationsFragment(communityId));
+            return true;
+        });
 
         admins.setOnPreferenceClickListener(p->{
             navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToMembersFragment(communityId,Role.ADMIN));

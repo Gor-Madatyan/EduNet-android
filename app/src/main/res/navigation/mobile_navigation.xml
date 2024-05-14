@@ -81,6 +81,7 @@
         <action
             android:id="@+id/action_navigation_profile_to_verifyEmailDialog"
             app:destination="@id/verifyEmailDialog" />
+
     </fragment>
     <action
         android:id="@+id/action_global_navigation_profile"
@@ -178,6 +179,9 @@
         <action
             android:id="@+id/action_adminPanelFragment_to_membersFragment"
             app:destination="@id/membersFragment" />
+        <action
+            android:id="@+id/action_adminPanelFragment_to_notificationsFragment"
+            app:destination="@id/notificationsFragment" />
     </fragment>
     <fragment
         android:id="@+id/requestsFragment"
@@ -294,4 +298,13 @@
             android:name="email"
             app:argType="string" />
     </dialog>
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.example.edunet.ui.screen.notifications.NotificationsFragment"
+        android:label="@string/title_notifications"
+        tools:layout="@layout/fragment_search" >
+        <argument
+            android:name="communityId"
+            app:argType="string" />
+    </fragment>
 </navigation>
