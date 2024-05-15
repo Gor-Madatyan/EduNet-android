@@ -3,6 +3,7 @@ package com.example.edunet.data.service.impl;
 import static com.example.edunet.data.service.util.firebase.typeconversion.FirebaseTypeConversionUtils.messageFromFirestoreMessage;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.ServerTimestamp;
 
+import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,7 +78,7 @@ public class MessagingServiceImpl implements MessagingService {
         String uid = accountService.getUid();
         assert uid != null;
 
-        FirestoreMessage newMessage = new FirestoreMessage(message,uid);
+        FirestoreMessage newMessage = new FirestoreMessage(message, uid);
         messagesReference.add(newMessage)
                 .addOnCompleteListener(result -> {
                     Exception e = result.getException();
@@ -85,12 +87,34 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     @Override
+    public void getLastMessage(String sourceId, Consumer<Message> onSuccess, Consumer<Exception> onFailure) {
+        CollectionReference messagesReference = getMessagesCollection(sourceId);
+        messagesReference.orderBy("timestamp", Query.Direction.DESCENDING).limit(1).get()
+                .addOnSuccessListener(snapshots -> {
+                    if (snapshots.isEmpty()) {
+                        onFailure.accept(new EOFException());
+                        return;
+                    }
+                    onSuccess.accept(
+                            messageFromFirestoreMessage(
+                                    Objects.requireNonNull(snapshots.getDocuments()
+                                            .get(0)
+                                            .toObject(FirestoreMessage.class)
+                                    )
+                            )
+                    );
+
+                })
+                .addOnFailureListener(e ->
+                        onFailure.accept(new ServiceException(R.string.error_cant_load_message, e)));
+    }
+
+    @Override
     public Paginator<Message> getDescendingMessagePaginator(String sourceId, int limit) {
         CollectionReference messagesReference = getMessagesCollection(sourceId);
         Paginator<Pair<String, FirestoreMessage>> in = new QueryPaginator<>(
                 messagesReference
                         .orderBy("timestamp", Query.Direction.DESCENDING)
-                        .startAt(new Date())
                 , limit
                 , FirestoreMessage.class);
 
@@ -121,32 +145,34 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     @Override
-    public void listenNewMessages(@NonNull LifecycleOwner lifecycleOwner, @NonNull String sourceId, @NonNull Consumer<List<Message>> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
+    public void listenNewMessages(@NonNull LifecycleOwner lifecycleOwner, @NonNull String sourceId, @Nullable Date after, @NonNull Consumer<List<Message>> onSuccess, @NonNull Consumer<ServiceException> onFailure) {
         CollectionReference messages = getMessagesCollection(sourceId);
+        Query query = messages.orderBy("timestamp", Query.Direction.DESCENDING);
+        if (after != null) query = query.endBefore(after);
 
-        FirestoreUtils.attachObserver(messages.orderBy("timestamp", Query.Direction.DESCENDING).endBefore(new Date())
-                .addSnapshotListener(
-                        (snapshots, e) -> {
-                            if (e != null) {
-                                onFailure.accept(new ServiceException(R.string.error_cant_load_message, e));
-                                return;
-                            }
-                            assert snapshots != null;
-                            List<Message> newMessages = new ArrayList<>();
+        FirestoreUtils.attachObserver(query.addSnapshotListener(
+                (snapshots, e) -> {
+                    if (e != null) {
+                        onFailure.accept(new ServiceException(R.string.error_cant_load_message, e));
+                        return;
+                    }
+                    assert snapshots != null;
+                    List<Message> newMessages = new ArrayList<>();
 
 
-                            for (DocumentChange documentChange : snapshots.getDocumentChanges()) {
-                                if (documentChange.getType() == DocumentChange.Type.ADDED) {
-                                    QueryDocumentSnapshot snapshot = documentChange.getDocument();
-                                    FirestoreMessage firestoreMessage = snapshot.toObject(FirestoreMessage.class);
-                                    if(firestoreMessage.timestamp == null) firestoreMessage.timestamp = Timestamp.now();
-                                    newMessages.add(messageFromFirestoreMessage(firestoreMessage));
-                                }
-                            }
-
-                            onSuccess.accept(newMessages);
+                    for (DocumentChange documentChange : snapshots.getDocumentChanges()) {
+                        if (documentChange.getType() == DocumentChange.Type.ADDED) {
+                            QueryDocumentSnapshot snapshot = documentChange.getDocument();
+                            FirestoreMessage firestoreMessage = snapshot.toObject(FirestoreMessage.class);
+                            if (firestoreMessage.timestamp == null)
+                                firestoreMessage.timestamp = Timestamp.now();
+                            newMessages.add(messageFromFirestoreMessage(firestoreMessage));
                         }
-                ), lifecycleOwner);
+                    }
+
+                    onSuccess.accept(newMessages);
+                }
+        ), lifecycleOwner);
     }
 
     @Override
