@@ -2,6 +2,7 @@ package com.example.edunet.di;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 
 import dagger.Module;
@@ -25,5 +26,10 @@ public class FirebaseModule {
     @Provides
     public static FirebaseFirestore provideFireStore() {
         return FirebaseFirestore.getInstance();
+    }
+
+    @Provides
+    public static FirebaseMessaging provideMessaging() {
+        return FirebaseMessaging.getInstance();
     }
 }

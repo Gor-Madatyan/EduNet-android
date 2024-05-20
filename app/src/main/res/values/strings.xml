@@ -85,4 +85,6 @@
     <string name="users_removed">Users Removed</string>
     <string name="users_added_message">Added %d users as %s %s</string>
     <string name="users_removed_message">Removed %d users that where %s %s</string>
+    <string name="title_history">History</string>
+    <string name="error_cant_manage_topic_subscription">Can\'t manage topic subscription</string>
 </resources>

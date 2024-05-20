@@ -2,6 +2,7 @@ package com.example.edunet.ui.screen.adminpanel;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,10 +12,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.example.edunet.R;
 import com.example.edunet.data.service.model.Role;
 import com.example.edunet.ui.util.viewmodel.CommunityViewModel;
+
+import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -43,7 +47,8 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
         Preference deleteCommunity = findPreference("delete_community");
         Preference admins = findPreference("admins");
         Preference participants = findPreference("participants");
-        Preference notifications = findPreference("notifications");
+        Preference history = findPreference("history");
+        SwitchPreferenceCompat notifications = findPreference("notifications");
 
         assert deleteCommunity != null;
         assert adminRequests != null;
@@ -51,8 +56,12 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
         assert editCommunity != null;
         assert admins != null;
         assert participants != null;
+        assert history != null;
         assert notifications != null;
 
+        notifications.setKey(notifications.getKey() + communityId);
+        notifications.setChecked(Objects.requireNonNull(getPreferenceManager().getSharedPreferences())
+                .getBoolean(notifications.getKey(), false));
 
         SavedStateHandle savedStateHandle = navController.getBackStackEntry(R.id.adminPanelFragment).getSavedStateHandle();
 
@@ -64,28 +73,39 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
                 }
         );
 
-        notifications.setOnPreferenceClickListener(p->{
+        notifications.setOnPreferenceChangeListener((p, _nv) -> {
+            boolean nv = (Boolean) _nv;
+            viewModel.manageCommunitySubscription(nv,
+                    e -> {
+                        if(e != null)
+                            Toast.makeText(requireContext(), e.getId(), Toast.LENGTH_SHORT).show();
+                    }
+            );
+            return true;
+        });
+
+        history.setOnPreferenceClickListener(p -> {
             navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToNotificationsFragment(communityId));
             return true;
         });
 
-        admins.setOnPreferenceClickListener(p->{
-            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToMembersFragment(communityId,Role.ADMIN));
+        admins.setOnPreferenceClickListener(p -> {
+            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToMembersFragment(communityId, Role.ADMIN));
             return true;
         });
 
-        participants.setOnPreferenceClickListener(p->{
-            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToMembersFragment(communityId,Role.PARTICIPANT));
+        participants.setOnPreferenceClickListener(p -> {
+            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToMembersFragment(communityId, Role.PARTICIPANT));
             return true;
         });
 
         adminRequests.setOnPreferenceClickListener(p -> {
-            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToRequestsFragment(communityId,Role.ADMIN));
+            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToRequestsFragment(communityId, Role.ADMIN));
             return true;
         });
 
         participantRequests.setOnPreferenceClickListener(p -> {
-            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToRequestsFragment(communityId,Role.PARTICIPANT));
+            navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToRequestsFragment(communityId, Role.PARTICIPANT));
             return true;
         });
 
@@ -93,6 +113,7 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
                     navController.navigate(AdminPanelFragmentDirections.actionAdminPanelFragmentToCommunityDeleteDialogFragment(communityId));
                     return true;
                 }
+
         );
 
         viewModel.uiState.observe(getViewLifecycleOwner(), state -> {

@@ -14,10 +14,12 @@ import com.example.edunet.data.service.model.UserNotification;
 import com.example.edunet.data.service.model.UserOperation;
 import com.example.edunet.data.service.util.firebase.paginator.QueryPaginator;
 import com.example.edunet.data.service.util.paginator.Paginator;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.Date;
 import java.util.List;
@@ -28,9 +30,10 @@ import javax.inject.Inject;
 public class NotificationsServiceImpl implements NotificationsService {
 
     private final FirebaseFirestore firestore;
+    private final FirebaseMessaging messaging;
 
     @SuppressWarnings("unused")
-    public static class FirestoreUserNotification{
+    public static class FirestoreUserNotification {
         private Role membersType;
         private UserOperation operationType;
         private boolean arePending;
@@ -59,13 +62,14 @@ public class NotificationsServiceImpl implements NotificationsService {
     }
 
     @Inject
-    NotificationsServiceImpl(FirebaseFirestore firestore) {
+    NotificationsServiceImpl(FirebaseFirestore firestore, FirebaseMessaging messaging) {
         this.firestore = firestore;
+        this.messaging = messaging;
     }
 
     @NonNull
     @Override
-    public Paginator<UserNotification> getDescendingNotificationPaginator(String source, int limit) {
+    public Paginator<UserNotification> getDescendingNotificationPaginator(@NonNull String source, int limit) {
         CollectionReference notificationsReference = getNotificationsCollection(source);
         Paginator<Pair<String, FirestoreUserNotification>> in = new QueryPaginator<>(
                 notificationsReference
@@ -96,7 +100,15 @@ public class NotificationsServiceImpl implements NotificationsService {
             public boolean isEofReached() {
                 return in.isEofReached();
             }
-        };    }
+        };
+    }
+
+    @Override
+    public void manageCommunitySubscription(@NonNull String communityId, boolean subscribe, @NonNull Consumer<ServiceException> onResult) {
+        Task<Void> task = subscribe ? messaging.subscribeToTopic(communityId) : messaging.unsubscribeFromTopic(communityId);
+        task.addOnSuccessListener(v -> onResult.accept(null))
+            .addOnFailureListener(e -> onResult.accept(new ServiceException(R.string.error_cant_manage_topic_subscription, e)));
+    }
 
 
     private CollectionReference getNotificationsCollection(@NonNull String source) {

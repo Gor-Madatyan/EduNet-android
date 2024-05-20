@@ -40,10 +40,15 @@
         android:title="@string/other"
         app:iconSpaceReserved="false">
 
-        <Preference
+        <SwitchPreferenceCompat
             android:key="notifications"
-            android:persistent="false"
             android:title="@string/title_notifications"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:key="history"
+            android:title="@string/title_history"
+            android:persistent="false"
             app:iconSpaceReserved="false" />
 
         <Preference

@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -12,7 +13,9 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.edunet.data.service.AccountService;
 import com.example.edunet.data.service.CommunityService;
+import com.example.edunet.data.service.NotificationsService;
 import com.example.edunet.data.service.exception.ServiceException;
+import com.example.edunet.data.service.exception.UserFriendlyException;
 import com.example.edunet.data.service.model.Community;
 import com.example.edunet.data.service.model.Role;
 
@@ -23,9 +26,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class CommunityViewModel extends ViewModel {
     private static final String TAG = CommunityViewModel.class.getSimpleName();
+    private final NotificationsService notificationsService;
     private final CommunityService communityService;
     private final AccountService accountService;
     private final MutableLiveData<UiState> _uiState = new MutableLiveData<>();
+    private String communityId;
     private Role role;
     private boolean isSuperCommunityObserved = false;
     public final LiveData<UiState> uiState = _uiState;
@@ -44,7 +49,8 @@ public class CommunityViewModel extends ViewModel {
     }
 
     @Inject
-    CommunityViewModel(CommunityService communityService, AccountService accountService) {
+    CommunityViewModel(NotificationsService notificationsService, CommunityService communityService, AccountService accountService) {
+        this.notificationsService = notificationsService;
         this.communityService = communityService;
         this.accountService = accountService;
     }
@@ -62,8 +68,9 @@ public class CommunityViewModel extends ViewModel {
         Log.w(TAG, exception);
     }
 
-    public void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String id) {
-        communityService.observeCommunity(lifecycleOwner, id,
+    public void observeCommunity(@NonNull LifecycleOwner lifecycleOwner, @NonNull String cid) {
+        communityId = cid;
+        communityService.observeCommunity(lifecycleOwner, cid,
                 (community, e) -> {
                     if (e != null) {
                         onError(e);
@@ -88,7 +95,7 @@ public class CommunityViewModel extends ViewModel {
                             community.getParticipantsQueue().contains(uid)));
                 }
         );
-        observeSubCommunities(lifecycleOwner, id);
+        observeSubCommunities(lifecycleOwner, cid);
     }
 
 
@@ -145,6 +152,10 @@ public class CommunityViewModel extends ViewModel {
                                     isCurrentUserRequestedParticipantPermissions)
                     );
                 });
+    }
+
+    public void manageCommunitySubscription(boolean subscribe, Consumer<UserFriendlyException> onResult) {
+        notificationsService.manageCommunitySubscription(communityId, subscribe, onResult::accept);
     }
 
     @Nullable
