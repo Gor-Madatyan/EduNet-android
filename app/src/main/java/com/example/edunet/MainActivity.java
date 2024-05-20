@@ -1,9 +1,16 @@
 package com.example.edunet;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
@@ -24,6 +31,15 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private NavController navController;
     private AppBarConfiguration appBarConfiguration;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Toast.makeText(this, "the app will show notifications", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "the app won't show notifications", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +62,15 @@ public class MainActivity extends AppCompatActivity {
             if (destination.getId() == R.id.chatFragment || destination.getId() == R.id.signInFragment || destination.getId() == R.id.signUpFragment)
                 binding.bottomNavView.setVisibility(View.GONE);
             else binding.bottomNavView.setVisibility(View.VISIBLE);
-
         });
+        askNotificationPermission();
+    }
+
+
+    private void askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
     }
 
 
