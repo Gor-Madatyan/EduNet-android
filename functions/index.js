@@ -5,6 +5,7 @@ const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
 // The Firebase Admin SDK to access Firestore.
 const {initializeApp} = require("firebase-admin/app");
 const {FieldValue} = require("firebase-admin/firestore");
+const {getMessaging} = require("firebase-admin/messaging");
 
 initializeApp();
 
@@ -31,6 +32,24 @@ function getUsersNotification(before, after, membersType, arePending) {
     longQueue.filter((value) => !shortQueue.includes(value));
 
   return notification;
+}
+
+
+/**
+ * @param {*} notification the notification to convert to FCM notification
+ * @param {*} communityId the community id of the targeted community
+ * @param {*} communityName the name of the targeted community
+ * @return {*} well formatted FCM notification message
+ */
+function getFCMNotification(notification, communityId, communityName) {
+  return {
+    notification: {
+      title: communityName,
+      // eslint-disable-next-line max-len
+      body: `${notification.users.length} ${notification.arePending ? "PENDING " : ""}${notification.membersType} ${notification.operationType}`,
+    },
+    topic: communityId,
+  };
 }
 
 /**
@@ -66,47 +85,50 @@ function getGraduationsNotification(before, after) {
   return getUsersNotification(before, after, "GRADUATED", false);
 }
 
-
 exports.addNotification = onDocumentUpdated("/communities/{cid}", (event) => {
   const after = event.data.after.data();
   const before = event.data.before.data();
-  const notificationCollection =
-     event.data.after.ref.collection("notifications");
+  const ref = event.data.after.ref;
+  const notificationCollection = ref.collection("notifications");
   let notification;
 
   if (after.graduated.length !== before.graduated.length) {
     notification =
-        getGraduationsNotification(
-            before.graduated,
-            after.graduated);
+      getGraduationsNotification(
+          before.graduated,
+          after.graduated);
   } else if (after.admins.length !== before.admins.length) {
     notification =
-        getAdminsNotification(
-            before.admins,
-            after.admins,
-            false);
+      getAdminsNotification(
+          before.admins,
+          after.admins,
+          false);
   } else if (after.participants.length !== before.participants.length) {
     notification =
-        getParticipantsNotification(
-            before.participants,
-            after.participants,
-            false);
+      getParticipantsNotification(
+          before.participants,
+          after.participants,
+          false);
   } else if (after.participantsQueue.length !==
-            before.participantsQueue.length) {
+    before.participantsQueue.length) {
     notification =
-        getParticipantsNotification(
-            before.participantsQueue,
-            after.participantsQueue,
-            true);
+      getParticipantsNotification(
+          before.participantsQueue,
+          after.participantsQueue,
+          true);
   } else if (after.adminsQueue.length !== before.adminsQueue.length) {
     notification =
-        getAdminsNotification(
-            before.adminsQueue,
-            after.adminsQueue,
-            true);
+      getAdminsNotification(
+          before.adminsQueue,
+          after.adminsQueue,
+          true);
   } else return null;
-
   logger.log("new notification is creating", event.params.cid);
 
-  return notificationCollection.add(notification);
+  return Promise.all(
+      [
+        getMessaging()
+            .send(getFCMNotification(notification, ref.id, after.name)),
+        notificationCollection.add(notification),
+      ]);
 });
