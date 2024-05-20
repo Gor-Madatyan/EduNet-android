@@ -57,11 +57,15 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
         assert admins != null;
         assert participants != null;
         assert history != null;
-        assert notifications != null;
 
-        notifications.setKey(notifications.getKey() + communityId);
-        notifications.setChecked(Objects.requireNonNull(getPreferenceManager().getSharedPreferences())
-                .getBoolean(notifications.getKey(), false));
+        if (notifications == null) notifications = findPreference("notifications" + communityId);
+        else {
+            notifications.setKey("notifications" + communityId);
+            notifications.setChecked(Objects.requireNonNull(getPreferenceManager().getSharedPreferences())
+                    .getBoolean(notifications.getKey(), false));
+        }
+
+        assert notifications != null;
 
         SavedStateHandle savedStateHandle = navController.getBackStackEntry(R.id.adminPanelFragment).getSavedStateHandle();
 
@@ -77,7 +81,7 @@ public class AdminPanelFragment extends PreferenceFragmentCompat {
             boolean nv = (Boolean) _nv;
             viewModel.manageCommunitySubscription(nv,
                     e -> {
-                        if(e != null)
+                        if (e != null)
                             Toast.makeText(requireContext(), e.getId(), Toast.LENGTH_SHORT).show();
                     }
             );
